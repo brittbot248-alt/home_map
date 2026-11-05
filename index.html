@@ -309,6 +309,9 @@ body.commercial .fireDev,body:not(.commercial) .commDev{display:none!important}
 
 header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
 .guideLink{font-size:11.5px;margin-right:8px;color:#da0029;font-weight:600;text-decoration:none;border-bottom:1px dotted #da0029}
+.rotRow{display:flex;gap:6px;align-items:center}.rotRow input{width:80px;flex:0 0 80px;text-align:center}
+.ssBox{display:grid;gap:4px;margin-top:4px}.ssRow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.ssRow label{display:inline-flex;gap:6px;align-items:center}.ssMain{font-size:11.5px;color:var(--vy-muted)}
+@media (pointer:coarse) and (max-width:1366px),(max-width:900px){.ssRow{min-height:40px}.ssRow input{width:22px;height:22px}}
 </style>
 </head>
 <body>
@@ -392,8 +395,10 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
     <div id="tabExterior" hidden>
       <div class="sub">Street side</div>
       <div class="compass">
-        <label class="f" style="margin:0">Which side faces the street</label>
-        <select id="streetSide">
+        <label class="f" style="margin:0">Which sides face a street</label>
+        <div class="ssBox" id="streetBox" role="group" aria-label="Street sides"></div>
+        <div class="legend" style="margin:4px 0 0">Tick every side with a street (corner lots). The main entrance side sets the front, the driveway and which way the map faces.</div>
+        <select id="streetSide" hidden>
           <option value="front">Front (bottom)</option>
           <option value="back">Back (top)</option>
           <option value="left">Left</option>
@@ -572,10 +577,22 @@ function mkItem(kind,type,x,y){
 }
 function nextZone(){const u=new Set(P.items.filter(i=>i.zone!=null).map(i=>+i.zone));let n=1;while(u.has(n))n++;return n}
 function nextCam(){const u=new Set(P.items.filter(i=>i.kind==='cam').map(i=>+i.num));let n=1;while(u.has(n))n++;return n}
+// ---- room rotation: r.rot (deg, any value) turns the room about its center. A rectangle turned 180° looks the same,
+// so all geometry uses RA(r), the same turn folded into (-90°, 90°] (also keeps the room label readable).
+const RA=r=>{let a=((+r.rot||0)%180+180)%180;if(a>90)a-=180;return a};
+const rotP=(x,y,cx,cy,deg)=>{if(!deg)return [x,y];const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]};
+const toL=(r,x,y)=>rotP(x,y,r.x+r.w/2,r.y+r.h/2,-RA(r)), LW=(r,x,y)=>rotP(x,y,r.x+r.w/2,r.y+r.h/2,RA(r));
+const rotV=(v,deg)=>{const [x,y]=rotP(v.x,v.y,0,0,deg);return {x,y}};
+function rBox(r){if(!RA(r))return [r.x,r.y,r.x+r.w,r.y+r.h];const C=[[r.x,r.y],[r.x+r.w,r.y],[r.x+r.w,r.y+r.h],[r.x,r.y+r.h]].map(([x,y])=>LW(r,x,y));return [Math.min(...C.map(c=>c[0])),Math.min(...C.map(c=>c[1])),Math.max(...C.map(c=>c[0])),Math.max(...C.map(c=>c[1]))]}
+const n360=a=>((a%360)+360)%360, r2=v=>Math.round(v*1000)/1000;
+// door/window frame: own angle (ang), inward normal and along-wall tangent in plan coordinates
+const opAng=o=>+o.ang||0;
+const opN=o=>rotV(o.orient==='h'?{x:0,y:o.inward||1}:{x:o.inward||1,y:0},opAng(o));
+const opT=o=>rotV(o.orient==='h'?{x:1,y:0}:{x:0,y:1},opAng(o));
 function roomAt(x,y){return roomAtF(x,y,FID())}
-function roomAtF(x,y,f){let best=null;for(const r of P.rooms){if(flOf(r)!==f)continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||r.w*r.h<best.w*best.h)best=r}}return best}
+function roomAtF(x,y,f){let best=null;for(const r of P.rooms){if(flOf(r)!==f)continue;if(inRoom(r,x,y)){if(!best||r.w*r.h<best.w*best.h)best=r}}return best}
 const roomName=it=>{const r=roomAtF(it.x,it.y,flOf(it));return r?r.name:''};
-const inRoom=(r,x,y)=>x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;
+function inRoom(r,x,y){if(RA(r))[x,y]=toL(r,x,y);return x>=r.x-1e-6&&x<=r.x+r.w+1e-6&&y>=r.y-1e-6&&y<=r.y+r.h+1e-6}
 const isOutdoorCam=it=>CAMS[it.model]&&CAMS[it.model].env!=='Indoor';
 
 // ---- palette ----
@@ -599,7 +616,17 @@ document.querySelectorAll('#leftTabs button').forEach(b=>b.onclick=()=>{
 
 logoImg.src=window.VY_LOGO||'';
 streetSide.value='front';
-streetSide.onchange=()=>{P.streetSide=streetSide.value;render()};
+streetSide.onchange=()=>{P.mainStreetSide=P.streetSide=streetSide.value;render()};
+// ---- street sides (corner lots): P.streetSides = physical edges with a street, P.mainStreetSide = main entrance side (= P.streetSide) ----
+const SSIDES=['front','right','back','left'],SSL={front:'Front (bottom)',right:'Right',back:'Back (top)',left:'Left'},SSN={front:'Front',right:'Right',back:'Back',left:'Left'};
+function streetSides(){const m=SSIDES.includes(P.mainStreetSide)?P.mainStreetSide:SSIDES.includes(P.streetSide)?P.streetSide:'front';
+  let a=Array.isArray(P.streetSides)?P.streetSides.filter(x=>SSIDES.includes(x)):[];if(!a.includes(m))a.push(m);a=SSIDES.filter(x=>a.includes(x));
+  P.streetSides=a;P.mainStreetSide=m;P.streetSide=m;return a}
+streetBox.innerHTML=SSIDES.map(k=>`<div class="ssRow"><label><input type="checkbox" data-ss="${k}"> ${SSL[k]}</label><label class="ssMain" title="Main / front entrance side"><input type="radio" name="ssMain" data-ssm="${k}"> Main entrance</label></div>`).join('');
+streetBox.querySelectorAll('[data-ss]').forEach(c=>c.onchange=()=>{const k=c.dataset.ss,a=streetSides();if(c.checked){if(!a.includes(k))P.streetSides=SSIDES.filter(x=>x===k||a.includes(x))}else if(k!==P.mainStreetSide)P.streetSides=a.filter(x=>x!==k);render()});
+streetBox.querySelectorAll('[data-ssm]').forEach(c=>c.onchange=()=>{if(!c.checked)return;const k=c.dataset.ssm,a=streetSides();P.mainStreetSide=P.streetSide=k;if(!a.includes(k))P.streetSides=SSIDES.filter(x=>x===k||a.includes(x));render()});
+function renderStreetBox(){const a=streetSides();streetBox.querySelectorAll('[data-ss]').forEach(c=>{c.checked=a.includes(c.dataset.ss);c.disabled=c.dataset.ss===P.mainStreetSide;c.title=c.disabled?'The main entrance side always faces a street':''});
+  streetBox.querySelectorAll('[data-ssm]').forEach(c=>c.checked=c.dataset.ssm===P.mainStreetSide)}
 
 // ---- exterior ----
 function newExt(side,dataUrl,name){
@@ -741,7 +768,7 @@ function computeVB(){
   if(cView.value==='house'){VB={x:FOOT.x-12,y:FOOT.y-12,w:FOOT.w+24,h:FOOT.h+24};return}
   if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam'&&isOutdoorCam(i))){
     const a=it.rot*Math.PI/180,h=it.fov/2*Math.PI/180;for(let k=0;k<=12;k++){const t=a-h+2*h*k/12,px=it.x+it.range*Math.cos(t),py=it.y+it.range*Math.sin(t);x0=Math.min(x0,px);y0=Math.min(y0,py);x1=Math.max(x1,px);y1=Math.max(y1,py)}}
-  for(const r of FR()){x0=Math.min(x0,r.x-6);y0=Math.min(y0,r.y-6);x1=Math.max(x1,r.x+r.w+6);y1=Math.max(y1,r.y+r.h+10)}
+  for(const r of FR()){const b=rBox(r);x0=Math.min(x0,b[0]-6);y0=Math.min(y0,b[1]-6);x1=Math.max(x1,b[2]+6);y1=Math.max(y1,b[3]+10)}
   const U=P.underlay;if(U&&U.src&&(!CUST()||U.showCustomer)){const cx=U.x+U.w/2,cy=U.y+U.h/2,r=(U.rot||0)%180?[U.h/2,U.w/2]:[U.w/2,U.h/2];x0=Math.min(x0,cx-r[0]);x1=Math.max(x1,cx+r[0]);y0=Math.min(y0,cy-r[1]);y1=Math.max(y1,cy+r[1])}
   const pad=2;VB={x:Math.floor(x0-pad*(x0<0)),y:Math.floor(y0-pad*(y0<0)),w:0,h:0};VB.w=Math.ceil(x1+pad*(x1>W))-VB.x;VB.h=Math.ceil(y1+pad*(y1>H))-VB.y;
 }
@@ -750,10 +777,8 @@ function drawYard(){
   const g=el('g',{},svg);
   el('rect',{x:VB.x,y:VB.y,width:VB.w,height:VB.h,fill:'#e8ebe4'},g);
   const strip=6,X0=VB.x,Y0=VB.y,X1=VB.x+VB.w,Y1=VB.y+VB.h;
-  if(street==='front')el('rect',{x:X0,y:Y1-strip,width:VB.w,height:strip,fill:'#c5c2bb'},g);
-  if(street==='back')el('rect',{x:X0,y:Y0,width:VB.w,height:strip,fill:'#c5c2bb'},g);
-  if(street==='left')el('rect',{x:X0,y:Y0,width:strip,height:VB.h,fill:'#c5c2bb'},g);
-  if(street==='right')el('rect',{x:X1-strip,y:Y0,width:strip,height:VB.h,fill:'#c5c2bb'},g);
+  const SSs=streetSides(),sR={front:[X0,Y1-strip,VB.w,strip],back:[X0,Y0,VB.w,strip],left:[X0,Y0,strip,VB.h],right:[X1-strip,Y0,strip,VB.h]};
+  for(const k of SSs){const q=sR[k];el('rect',{x:q[0],y:q[1],width:q[2],height:q[3],fill:'#c5c2bb','data-street':k},g)}
   // driveway (toward street from front of footprint)
   const map=orientMap(street); const d=map.driveway;
   el('rect',{x:FOOT.x+8,y:Math.min(d.y,FOOT.y+FOOT.h),width:14,height:Math.abs(d.y-(FOOT.y+FOOT.h))+2,fill:'#d4d0c8',opacity:.85},g);
@@ -761,13 +786,12 @@ function drawYard(){
   el('rect',{x:FOOT.x,y:FOOT.y,width:FOOT.w,height:FOOT.h,fill:'#f7f7f5',stroke:'#b8b6b0','stroke-width':.15},g);
   const t=el('text',{x:FOOT.x+1,y:FOOT.y-0.8,'font-size':1.1,fill:'#8a8780',style:'pointer-events:none'},g); t.textContent='Building footprint';
   // compass label
-  const lab={front:'STREET',back:'STREET',left:'STREET',right:'STREET'}[street];
-  const lp={front:[VB.x+VB.w/2,VB.y+VB.h-2.5],back:[VB.x+VB.w/2,VB.y+3.5],left:[VB.x+3,VB.y+VB.h/2],right:[VB.x+VB.w-3,VB.y+VB.h/2]}[street];
-  const lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15},g); lt.textContent=lab;
+  const lpS={front:[VB.x+VB.w/2,VB.y+VB.h-2.5],back:[VB.x+VB.w/2,VB.y+3.5],left:[VB.x+3,VB.y+VB.h/2],right:[VB.x+VB.w-3,VB.y+VB.h/2]};
+  for(const k of SSs){const lp=lpS[k],v=k==='left'||k==='right',lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15,...(v?{transform:`rotate(${k==='left'?-90:90} ${lp[0]} ${lp[1]})`}:{})},g);lt.textContent=SSs.length>1&&k===street?'STREET · MAIN ENTRANCE':'STREET'}
 }
 function render(){
   if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];
-  streetSide.value=P.streetSide||'front';
+  streetSides();renderStreetBox();streetSide.value=P.streetSide||'front';
   CHK=checks();
   drawPlan();
   bDel.disabled=bDup.disabled=!sel;
@@ -782,7 +806,7 @@ function drawPlan(opt={}){
   drawYard();
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6'},g)}
   drawUnderlay();
-  for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const g=el('g',{'data-room':r.id},svg);
+  for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const g=el('g',{'data-room':r.id},svg);if(RA(r))g.setAttribute('transform',`rotate(${RA(r)} ${r.x+r.w/2} ${r.y+r.h/2})`);
     el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,'fill-opacity':(P.underlay&&P.underlay.src&&(!CUST()||P.underlay.showCustomer))?.3:1,fill:s?'#fff5f6':'#ffffff',stroke:s?'#da0029':'#8a8780','stroke-width':s?.25:.16,style:'cursor:move'},g);
     const t=el('text',{x:r.x+.5,y:r.y+1.4,'font-size':1.1,fill:'#5e5758','font-weight':600,style:'pointer-events:none'},g);t.textContent=r.name;
     const sz=el('text',{x:r.x+.5,y:r.y+2.6,'font-size':.8,fill:'#9a9690',style:'pointer-events:none'},g);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
@@ -790,7 +814,9 @@ function drawPlan(opt={}){
   for(const it of FI().filter(i=>i.kind==='opening'))drawOpening(it);
   drawIssueLines();
   // resize corner drawn above doors/windows so an opening near the corner never hides it
-  if(sel&&sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const hs=Math.max(1.4,HS());el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize'},svg)}}
+  if(sel&&sel.t==='room'&&!PR){const r=P.rooms.find(r=>r.id===sel.id&&onF(r));if(r){const hs=Math.max(1.4,HS()),A=RA(r),cx=r.x+r.w/2,cy=r.y+r.h/2,tf=A?{transform:`rotate(${A} ${cx} ${cy})`}:{};
+    el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize',...tf},svg);
+}}
   // cones: outdoor unclipped (extend into yard); indoor clipped to their room
   if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam')){
     const c=CAMS[it.model],on=sel&&sel.id===it.id;
@@ -799,7 +825,7 @@ function drawPlan(opt={}){
     let target=g;
     if(!isOutdoorCam(it)){
       const room=roomAt(it.x,it.y);
-      if(room){const cp=el('clipPath',{id:'clip-'+it.id},svg);el('rect',{x:room.x,y:room.y,width:room.w,height:room.h},cp);g.setAttribute('clip-path',`url(#clip-${it.id})`)}
+      if(room){const cp=el('clipPath',{id:'clip-'+it.id},svg);el('rect',{x:room.x,y:room.y,width:room.w,height:room.h,...(RA(room)?{transform:`rotate(${RA(room)} ${room.x+room.w/2} ${room.y+room.h/2})`}:{})},cp);g.setAttribute('clip-path',`url(#clip-${it.id})`)}
     }
     el('path',{d:conePath(it),fill:camColor[c.env],'fill-opacity':on?.22:.06,stroke:camColor[c.env],'stroke-opacity':on?.85:.3,'stroke-width':on?.15:.08,style:'pointer-events:none'},g);
   }
@@ -818,6 +844,7 @@ function drawPlan(opt={}){
     if(warn[it.id]){const cx=it.x-rr*.95,cy=it.y-rr*.95,ws=1;const wg=el('g',{'data-warn':it.id,'data-warnmark':1,style:'cursor:pointer'},svg);el('title',{},wg).textContent=strip(warn[it.id].t)+' (click for the fix)';el('path',{d:`M${cx},${cy-ws*.62} L${cx+ws*.58},${cy+ws*.42} L${cx-ws*.58},${cy+ws*.42} Z`,fill:'#facc15',stroke:'#92400e','stroke-width':.08,'stroke-linejoin':'round'},wg);const wx=el('text',{x:cx,y:cy+.33,'font-size':.62,'text-anchor':'middle',fill:'#78350f','font-weight':700,style:'pointer-events:none'},wg);wx.textContent='!'}
     if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:Math.max(.55,HS()/2),fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
   drawIssueMarks(PR);
+  if(!PR&&!CUST())drawRotHandle();
   if(!PR)drawSugGhosts();
 }
 
@@ -828,15 +855,30 @@ let drag=null;
 function stackAt(e){const out=[];for(const n of document.elementsFromPoint(e.clientX,e.clientY)){if(!svg.contains(n))continue;const g=n.closest('[data-item],[data-room]');if(!g)continue;
   const k=g.dataset.item?{t:'item',id:g.dataset.item}:{t:'room',id:g.dataset.room};if(!out.some(o=>o.t===k.t&&o.id===k.id))out.push(k)}return out}
 // doors/windows sitting on a room's own walls (facing into that room)
-function wallOps(r){const out=[],E=.05;for(const it of FI()){if(it.kind!=='opening')continue;const inw=it.inward||1;
-  if(it.orient==='h'&&it.x>=r.x-E&&it.x<=r.x+r.w+E){if(Math.abs(it.y-r.y)<E&&inw>0)out.push({it,side:'top'});else if(Math.abs(it.y-(r.y+r.h))<E&&inw<0)out.push({it,side:'bottom'})}
-  if(it.orient==='v'&&it.y>=r.y-E&&it.y<=r.y+r.h+E){if(Math.abs(it.x-r.x)<E&&inw>0)out.push({it,side:'left'});else if(Math.abs(it.x-(r.x+r.w))<E&&inw<0)out.push({it,side:'right'})}}return out}
+function wallOps(r){const out=[],E=.05,A=RA(r);for(const it of FI()){if(it.kind!=='opening')continue;
+  let x=it.x,y=it.y,orient=it.orient,inw=it.inward||1;
+  if(A||opAng(it)){const d=n360(opAng(it)-A),k=Math.round(d/90);if(Math.abs(d-k*90)>.5)continue;[x,y]=toL(r,it.x,it.y);const n=rotV(opN(it),-A);
+    if(Math.abs(n.x)>Math.abs(n.y)){orient='v';inw=n.x>0?1:-1}else{orient='h';inw=n.y>0?1:-1}}
+  if(orient==='h'&&x>=r.x-E&&x<=r.x+r.w+E){if(Math.abs(y-r.y)<E&&inw>0)out.push({it,side:'top'});else if(Math.abs(y-(r.y+r.h))<E&&inw<0)out.push({it,side:'bottom'})}
+  if(orient==='v'&&y>=r.y-E&&y<=r.y+r.h+E){if(Math.abs(x-r.x)<E&&inw>0)out.push({it,side:'left'});else if(Math.abs(x-(r.x+r.w))<E&&inw<0)out.push({it,side:'right'})}}return out}
 // what travels with a room when it is dragged: its doors/windows + devices inside it (hold Alt to move the room alone)
 function roomKids(r){const set=new Set(wallOps(r).map(w=>w.it));for(const it of FI())if(it.kind!=='opening'&&roomAt(it.x,it.y)===r)set.add(it);
-  return {x0:r.x,y0:r.y,list:[...set].map(it=>({it,x:it.x,y:it.y}))}}
-function itemBox(it){if(it.kind==='opening'){const h2=(+it.width||3)/2;return it.orient==='h'?[it.x-h2,it.y-.9,it.x+h2,it.y+.9]:[it.x-.9,it.y-h2,it.x+.9,it.y+h2]}
+  return {x0:r.x,y0:r.y,list:[...set].map(it=>({it,x:it.x,y:it.y,ang:it.ang,rot:it.rot}))}}
+function itemBox(it){if(it.kind==='opening'&&opAng(it)){const h2=(+it.width||3)/2,T=opT(it),N=opN(it),ex=Math.abs(T.x)*h2+Math.abs(N.x)*.9,ey=Math.abs(T.y)*h2+Math.abs(N.y)*.9;return [it.x-ex,it.y-ey,it.x+ex,it.y+ey]}
+  if(it.kind==='opening'){const h2=(+it.width||3)/2;return it.orient==='h'?[it.x-h2,it.y-.9,it.x+h2,it.y+.9]:[it.x-.9,it.y-h2,it.x+.9,it.y+h2]}
   const rr=it.kind==='outlet'?.75:it.kind==='alarm'?.95:1.05;return [it.x-rr,it.y-rr,it.x+rr,it.y+rr]}
 function overlapping(it){const a=itemBox(it);return FI().filter(o=>o!==it&&(()=>{const b=itemBox(o);return a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3]})())}
+function drawRotHandle(){if(!(sel&&sel.t==='room'))return;{const r=P.rooms.find(r=>r.id===sel.id&&onF(r));if(r){const A=RA(r),cx=r.x+r.w/2,cy=r.y+r.h/2,tf=A?{transform:`rotate(${A} ${cx} ${cy})`}:{};
+    const rh=Math.max(.6,HS()/2),hy=r.y-2.2,rg=el('g',{'data-rotgrp':1,...tf},svg);el('line',{x1:cx,y1:r.y,x2:cx,y2:hy,stroke:'#da0029','stroke-width':.1,'stroke-dasharray':'.3 .2',style:'pointer-events:none'},rg);
+    const hc=el('circle',{cx,cy:hy,r:rh,fill:'#fff',stroke:'#da0029','stroke-width':.16,'data-rotate':r.id,style:'cursor:grab'},rg);el('title',{},hc).textContent='Drag to rotate (snaps to 15°; hold Shift for free rotation, Alt to turn the room alone)';
+    const ar=el('path',{d:`M${cx-rh*.45},${hy+rh*.15} A${rh*.45},${rh*.45} 0 1 1 ${cx+rh*.1},${hy+rh*.44}`,fill:'none',stroke:'#da0029','stroke-width':.11,style:'pointer-events:none'},rg);
+    if(drag&&drag.m==='rot'&&drag.o===r){const t=el('text',{x:cx,y:hy-rh-.4,'font-size':.9,'text-anchor':'middle',fill:'#da0029','font-weight':700,style:'pointer-events:none'},rg);t.textContent=`${r2(n360(+r.rot||0))}°`}}}}
+// turn room r to absolute angle deg; kids = roomKids snapshot taken at rot0 (null = room alone)
+function setRoomRot(r,deg,kids,rot0){const d=deg-rot0;r.rot=r2(n360(deg));if(!r.rot)delete r.rot;if(!kids)return;const cx=r.x+r.w/2,cy=r.y+r.h/2;
+  for(const k of kids.list){const it=k.it,[x,y]=rotP(k.x,k.y,cx,cy,d);it.x=r2(x);it.y=r2(y);
+    if(it.kind==='opening'){const a=r2(n360((+k.ang||0)+d));if(a)it.ang=a;else delete it.ang}
+    else if(it.kind==='cam')it.rot=Math.round(n360((+k.rot||0)+d))%360}}
+function rotateRoomBy(r,d,alone){const k=alone?null:roomKids(r),r0=+r.rot||0;setRoomRot(r,r0+d,k,r0);render()}
 function itemLabel(it){if(it.kind==='opening')return (it.type==='door'?'Door':'Window')+(it.name?' · '+it.name:'');if(it.kind==='alarm')return ALARM[it.type].label+(it.zone!=null?' Z'+it.zone:'');if(it.kind==='outlet')return 'Outlet';if(it.kind==='cam')return 'C'+it.num+' '+camModelLabel(it);return 'N85'}
 svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   if(CUST()){drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0};svg.setPointerCapture(e.pointerId);return}
@@ -847,9 +889,10 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   const ie=t.getAttribute('data-iend'),isg=t.closest('[data-issue]');
   if(ie||isg){if(ie){const [id,k]=ie.split(':');drag={m:'iend',o:P.issues.find(i=>i.id===id),k}}else{const o=P.issues.find(i=>i.id===isg.dataset.issue);sel={t:'issue',id:o.id};drag={m:'imove',o,dx:p.x-o.x,dy:p.y-o.y,x0:o.x,y0:o.y,x2:o.x2,y2:o.y2,sx:e.clientX,sy:e.clientY,moved:0}}
     svg.setPointerCapture(e.pointerId);drag.vb0={...VB0};render();return}
+  const rot_=t.getAttribute('data-rotate');if(rot_){const o=P.rooms.find(r=>r.id===rot_),cx=o.x+o.w/2,cy=o.y+o.h/2;drag={m:'rot',o,cx,cy,a0:Math.atan2(p.y-cy,p.x-cx)*180/Math.PI,r0:+o.rot||0,kids:e.altKey?null:roomKids(o),vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}
   const aim=t.getAttribute('data-aim'),rs=t.getAttribute('data-resize'),ig=t.closest('[data-item]'),rg=t.closest('[data-room]');
   if(aim){drag={m:'aim',o:P.items.find(i=>i.id===aim)}}
-  else if(rs){const o=P.rooms.find(r=>r.id===rs);drag={m:'resize',o,ops:wallOps(o).map(w=>({...w,ox:w.it.x,oy:w.it.y}))}}
+  else if(rs){const o=P.rooms.find(r=>r.id===rs),A=RA(o),an=LW(o,o.x,o.y);drag={m:'resize',o,A,an,ops:wallOps(o).map(w=>{const l=rotP(w.it.x-an[0],w.it.y-an[1],0,0,-A);return {...w,ox:w.it.x,oy:w.it.y,lx:l[0],ly:l[1]}})}}
   else if(ig||rg){const st=stackAt(e);if(!st.length)st.push(ig?{t:'item',id:ig.dataset.item}:{t:'room',id:rg.dataset.room});
     const cur=sel&&st.find(k=>k.t===sel.t&&k.id===sel.id);
     // an already-selected door/window/device under the pointer stays the one you grab, even when something sits on top of it
@@ -871,6 +914,12 @@ svg.addEventListener('pointermove',e=>{if(!drag)return;
   if(drag.m==='move'&&o.kind==='opening'){const rx=p.x-drag.dx,ry=p.y-drag.dy;if(!snapOpening(o,rx,ry,2.5)){o.x=snap(rx);o.y=snap(ry)}}
   else if(drag.m==='move'){o.x=cl(snap(p.x-drag.dx),VB0.x,VB0.x+VB0.w-(o.w||0));o.y=cl(snap(p.y-drag.dy),VB0.y,VB0.y+VB0.h-(o.h||0));
     if(drag.kids){const ddx=o.x-drag.kids.x0,ddy=o.y-drag.kids.y0;for(const k of drag.kids.list){k.it.x=k.x+ddx;k.it.y=k.y+ddy}}}
+  else if(drag.m==='rot'){let a=drag.r0+Math.atan2(p.y-drag.cy,p.x-drag.cx)*180/Math.PI-drag.a0;a=e.shiftKey?Math.round(a):Math.round(a/15)*15;setRoomRot(o,a,drag.kids,drag.r0)}
+  else if(drag.m==='resize'&&drag.A){const A=drag.A,an=drag.an,u=rotP(p.x-an[0],p.y-an[1],0,0,-A);o.w=Math.max(3,snap(u[0]));o.h=Math.max(3,snap(u[1]));
+    const c=rotP(an[0]+o.w/2,an[1]+o.h/2,an[0],an[1],A);o.x=r2(c[0]-o.w/2);o.y=r2(c[1]-o.h/2);
+    for(const w of drag.ops||[]){const it=w.it,hw=(+it.width||3)/2;let lx=w.lx,ly=w.ly;if(w.side==='right')lx=o.w;if(w.side==='bottom')ly=o.h;
+      if(w.side==='top'||w.side==='bottom')lx=Math.max(hw,Math.min(o.w-hw,lx));else ly=Math.max(hw,Math.min(o.h-hw,ly));
+      const q=rotP(an[0]+lx,an[1]+ly,an[0],an[1],A);it.x=r2(q[0]);it.y=r2(q[1])}}
   else if(drag.m==='resize'){o.w=Math.max(3,snap(p.x-o.x));o.h=Math.max(3,snap(p.y-o.y));
     for(const w of drag.ops||[]){const it=w.it,hw=(+it.width||3)/2;
       if(w.side==='right')it.x=o.x+o.w;if(w.side==='bottom')it.y=o.y+o.h;
@@ -923,9 +972,12 @@ function renderProps(){
   b.className='';let h='';
   if(sel.t==='issue'){renderIssueProps(b);return}
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
-    h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`;
-    const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag the red corner to resize.</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
-    h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);return}
+    h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`+
+      `<label class="f">Rotation (°)</label><div class="rotRow"><button class="btn ghost sm" type="button" data-rot="-90" title="Rotate 90° left (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees left">⟲ 90°</button><input type="number" data-rotdeg step="1" value="${r2(n360(+r.rot||0))}" aria-label="Room angle in degrees"><button class="btn ghost sm" type="button" data-rot="90" title="Rotate 90° right (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees right">⟳ 90°</button></div>`;
+    const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag the red corner to resize. Drag the round handle above it to rotate (15° steps; Shift for free; Alt turns the room alone).</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
+    h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);
+    b.querySelectorAll('[data-rot]').forEach(x=>x.onclick=e=>rotateRoomBy(r,+x.dataset.rot,e.altKey));
+    const rd=b.querySelector('[data-rotdeg]');rd.onchange=()=>{const v=parseFloat(rd.value);if(isNaN(v))return;rotateRoomBy(r,v-n360(+r.rot||0),false)};return}
   const it=P.items.find(i=>i.id===sel.id);if(!it){sel=null;return renderProps()}
   const room=roomName(it);
   if(it.kind==='alarm'){const a=ALARM[it.type];h=`<div class="propHead">${ibadge(it.type,a.c,'lg')}<b>${a.label}</b></div>`;
@@ -960,8 +1012,6 @@ function checks(){
   const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),lab=it=>`C${it.num} ${camModelLabel(it)}`,multi=(P.floors||[]).length>1;
   for(const it of cams){const c=CAMS[it.model],f=flOf(it),fo=outlets.filter(o=>flOf(o)===f);
     if(c.outlet){const d=fo.length?Math.min(...fo.map(o=>dist(o,it))):Infinity;if(d>OUTLET_FT)out.push({w:1,id:it.id,fix:'outlet',t:`<b>${lab(it)}</b> needs an outlet within ${OUTLET_FT} ft — ${fo.length?`nearest is ${d.toFixed(1)} ft away`:(multi?'no outlet on this floor':'no outlet on the plan')}.`})}
-    if(c.poe&&!nvrs.length)out.push({w:1,id:it.id,fix:'n85',t:`<b>${lab(it)}</b> is PoE and needs an N85 NVR on the plan.`});
-    if((it.model==='D1'||it.model==='R5')&&!nvrs.length)out.push({w:1,id:it.id,fix:'n85',t:`<b>${lab(it)}</b> records to the N85, but there's no N85 on the plan.`});
     if(it.model==='S2'){if(it.rec==='N85')out.push({w:1,id:it.id,fix:'s2local',t:`<b>${lab(it)}</b> is set to record to the N85, but the S2 doesn't work with the N85. Set it to Local.`});else out.push({w:0,id:it.id,t:`<b>${lab(it)}</b> records locally (S2 doesn't work with the N85).`})}
     if(it.model==='F1'){const r=roomAtF(it.x,it.y,f);if(r&&/garage/i.test(r.name)){const a=it.rot*Math.PI/180,dd=Math.min(3,it.range);if(!inRoom(r,it.x+dd*Math.cos(a),it.y+dd*Math.sin(a)))out.push({w:1,id:it.id,fix:'aimgarage',t:`<b>${lab(it)}</b> is in ${esc(r.name)} but its cone points outside the room. Aim it into the garage.`})}}
   }
@@ -1074,19 +1124,23 @@ palBtn(palOpen,ibadge('door','#8a8780','lg'),'#8a8780','Door','Snaps to a room w
 palBtn(palOpen,ibadge('window','#0089f7','lg'),'#0089f7','Window','Snaps to a room wall',()=>placeNew('opening','window'));
 function roomEdges(){const E=[];for(const r of FR()){E.push({r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y,inward:1},{r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y+r.h,inward:-1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x,inward:1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x+r.w,inward:-1})}return E}
 function snapOpening(o,x,y,maxD){let best=null;const half=(+o.width||3)/2;
-  for(const e of roomEdges()){let px,py,d;
-    if(e.o==='h'){if(e.x1-e.x0<o.width)continue;px=Math.max(e.x0+half,Math.min(e.x1-half,x));py=e.y;d=Math.hypot(px-x,py-y)}
-    else{if(e.y1-e.y0<o.width)continue;py=Math.max(e.y0+half,Math.min(e.y1-half,y));px=e.x;d=Math.hypot(px-x,py-y)}
-    if(d<=maxD&&(!best||d<best.d))best={d,px,py,e}}
-  if(!best)return false;o.x=Math.round(best.px*2)/2;o.y=Math.round(best.py*2)/2;o.orient=best.e.o;o.inward=best.e.inward;return true}
+  for(const e of roomEdges()){let px,py,d;const A=RA(e.r),[lx,ly]=A?toL(e.r,x,y):[x,y];
+    if(e.o==='h'){if(e.x1-e.x0<o.width)continue;px=Math.max(e.x0+half,Math.min(e.x1-half,lx));py=e.y;d=Math.hypot(px-lx,py-ly)}
+    else{if(e.y1-e.y0<o.width)continue;py=Math.max(e.y0+half,Math.min(e.y1-half,ly));px=e.x;d=Math.hypot(px-lx,py-ly)}
+    if(d<=maxD&&(!best||d<best.d))best={d,px,py,e,A}}
+  if(!best)return false;const sx=Math.round(best.px*2)/2,sy=Math.round(best.py*2)/2;
+  if(best.A){const h=best.e.o==='h',q=LW(best.e.r,h?Math.max(best.e.x0+half,Math.min(best.e.x1-half,sx)):best.px,h?best.py:Math.max(best.e.y0+half,Math.min(best.e.y1-half,sy)));o.x=r2(q[0]);o.y=r2(q[1]);o.ang=r2(best.A)}
+  else{o.x=sx;o.y=sy;delete o.ang}
+  o.orient=best.e.o;o.inward=best.e.inward;return true}
 // slide a new door/window along its wall so it doesn't land on top of another one
-function opClash(o){const h=(+o.width||3)/2;return FI().some(q=>q!==o&&q.kind==='opening'&&q.orient===o.orient&&(o.orient==='h'?Math.abs(q.y-o.y)<.05&&Math.abs(q.x-o.x)<h+(+q.width||3)/2:Math.abs(q.x-o.x)<.05&&Math.abs(q.y-o.y)<h+(+q.width||3)/2))}
-function freeSpot(o){if(!opClash(o))return;const x0=o.x,y0=o.y,or=o.orient,step=.5;
-  for(let k=1;k<200;k++){const d=Math.ceil(k/2)*step*(k%2?1:-1);const t={...o};if(!snapOpening(t,or==='h'?x0+d:x0,or==='h'?y0:y0+d,.01))continue;if(t.orient!==or)continue;t.id=o.id;if(!opClash(Object.assign(o,{x:t.x,y:t.y})))return}
+function opClash(o){const h=(+o.width||3)/2;if(opAng(o)||FI().some(q=>q!==o&&q.kind==='opening'&&opAng(q))){const T=opT(o);return FI().some(q=>{if(q===o||q.kind!=='opening')return false;const U=opT(q);if(Math.abs(T.x*U.y-T.y*U.x)>.02)return false;const dx=q.x-o.x,dy=q.y-o.y;return Math.abs(dx*T.y-dy*T.x)<.05&&Math.abs(dx*T.x+dy*T.y)<h+(+q.width||3)/2})}
+  return FI().some(q=>q!==o&&q.kind==='opening'&&q.orient===o.orient&&(o.orient==='h'?Math.abs(q.y-o.y)<.05&&Math.abs(q.x-o.x)<h+(+q.width||3)/2:Math.abs(q.x-o.x)<.05&&Math.abs(q.y-o.y)<h+(+q.width||3)/2))}
+function freeSpot(o){if(!opClash(o))return;const x0=o.x,y0=o.y,T=opT(o),step=.5;
+  for(let k=1;k<200;k++){const d=Math.ceil(k/2)*step*(k%2?1:-1);const t={...o};if(!snapOpening(t,x0+T.x*d,y0+T.y*d,.01))continue;const U=opT(t);if(Math.abs(T.x*U.y-T.y*U.x)>.02)continue;t.id=o.id;if(!opClash(Object.assign(o,{x:t.x,y:t.y})))return}
   o.x=x0;o.y=y0}
-function openingRoom(o){const dx=o.orient==='h'?0:.3*(o.inward||1),dy=o.orient==='h'?.3*(o.inward||1):0;const r=roomAt(o.x+dx,o.y+dy);return r?r.name:''}
+function openingRoom(o){const N=opN(o),dx=N.x*.3,dy=N.y*.3;const r=roomAt(o.x+dx,o.y+dy);return r?r.name:''}
 function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width||3,h2=w/2,inw=(it.inward||1)*(it.swing==='out'?-1:1);
-  const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
+  const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);if(opAng(it))g.setAttribute('transform',`rotate(${opAng(it)} ${it.x} ${it.y})`);
   const H=it.orient==='h';
   const a=H?[it.x-h2,it.y]:[it.x,it.y-h2],b=H?[it.x+h2,it.y]:[it.x,it.y+h2];
   if(it.type==='door'){const lf=H?[a[0],a[1]+inw*w]:[a[0]+inw*w,a[1]],sw=H?(inw>0?0:1):(inw>0?1:0);el('path',{d:`M${a[0]},${a[1]} L${lf[0]},${lf[1]} A${w},${w} 0 0 ${sw} ${b[0]},${b[1]} Z`,fill:s?'rgba(218,0,41,.07)':'transparent','data-hit':1},g)}
@@ -1157,7 +1211,7 @@ function renderLegend(){const L=[],has=f=>P.items.some(f);
   if(has(i=>i.kind==='opening'&&i.type==='window'))L.push(`<li>${ibadge('window','#0089f7')}Window</li>`);
   if(has(i=>i.kind==='cam'))L.push(`<li><span class="sw cone">◢</span>Camera view at night range</li>`);
   if(has(i=>i.kind==='alarm'&&i.wiring==='Wireless'))L.push(`<li>${WB}Wireless device (no badge = wired)</li>`);
-  L.push(`<li><span class="sw" style="background:#c5c2bb;color:#2e2f2a">ST</span>Street side</li>`);
+  {const a=streetSides();L.push(`<li><span class="sw" style="background:#c5c2bb;color:#2e2f2a">ST</span>${a.length>1?`Street sides: ${a.map(k=>SSN[k]+(k===P.mainStreetSide?' (main entrance)':'')).join(', ')}`:'Street side'}</li>`)}
   legendList.innerHTML=L.join('')}
 
 // ---- PNG export ----
@@ -1265,15 +1319,15 @@ const RX={
 };
 const isIn=r=>!RX.outside.test(r.name);
 const rArea=r=>r.w*r.h, rCx=r=>r.x+r.w/2, rCy=r=>r.y+r.h/2;
-function inRoomAt(x,y){let best=null;for(const r of FR()){if(!isIn(r))continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||rArea(r)<rArea(best))best=r}}return best}
-function clampIn(r,x,y,m=.9){return [Math.max(r.x+m,Math.min(r.x+r.w-m,x)),Math.max(r.y+m,Math.min(r.y+r.h-m,y))]}
+function inRoomAt(x,y){let best=null;for(const r of FR()){if(!isIn(r))continue;if(inRoom(r,x,y)){if(!best||rArea(r)<rArea(best))best=r}}return best}
+function clampIn(r,x,y,m=.9){const L=RA(r)?toL(r,x,y):[x,y],q=[Math.max(r.x+m,Math.min(r.x+r.w-m,L[0])),Math.max(r.y+m,Math.min(r.y+r.h-m,L[1]))];return RA(r)?LW(r,...q):q}
 function adjoin(a,b,min=3){ // share a wall segment at least min ft long
   const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);
   const e=.6;return (Math.abs(a.x+a.w-b.x)<e||Math.abs(b.x+b.w-a.x)<e)&&oy>=min||(Math.abs(a.y+a.h-b.y)<e||Math.abs(b.y+b.h-a.y)<e)&&ox>=min}
 function opInfo(o){ // inward normal, both side rooms
-  const n=o.orient==='h'?{x:0,y:o.inward||1}:{x:o.inward||1,y:0};
+  const n=opN(o);
   const ins=inRoomAt(o.x+n.x*.5,o.y+n.y*.5),outs=inRoomAt(o.x-n.x*.5,o.y-n.y*.5);
-  const phys=o.orient==='h'?((o.inward||1)>0?'back':'front'):((o.inward||1)>0?'left':'right');
+  const phys=Math.abs(n.y)>=Math.abs(n.x)?(n.y>0?'back':'front'):(n.x>0?'left':'right');
   const edges=['front','right','back','left'],rotN={front:0,right:1,back:2,left:3}[P.streetSide||'front']||0;
   const side=edges[(edges.indexOf(phys)-rotN+4)%4];
   let room=ins,other=outs;if(!room&&outs){room=outs;other=null;n.x=-n.x;n.y=-n.y}
@@ -1323,12 +1377,12 @@ function buildSuggestions(){
   if(COMM())rooms.forEach(r=>{if(mOK(r)&&RX.open.test(r.name)&&!mRooms.has(r))mRooms.set(r,'Large open area: interior motion coverage.')});
   const PETN=(P.issues||[]).some(q=>q.type==='pet'&&onF(q))?' Pet in home: choose a pet-immune motion sensor and mount and aim it per the manufacturer\u2019s instructions.':'';
   for(const [r,why] of mRooms){if(roomHas(r,i=>i.kind==='alarm'&&i.type==='motion'))continue;
-    const rd=doors.filter(d=>d.room===r||d.other===r),C=[[r.x+.9,r.y+.9],[r.x+r.w-.9,r.y+.9],[r.x+.9,r.y+r.h-.9],[r.x+r.w-.9,r.y+r.h-.9]];
+    const rd=doors.filter(d=>d.room===r||d.other===r),C=[[r.x+.9,r.y+.9],[r.x+r.w-.9,r.y+.9],[r.x+.9,r.y+r.h-.9],[r.x+r.w-.9,r.y+r.h-.9]].map(c=>LW(r,...c));
     const tgt=rd.length?rd:[{o:{x:rCx(r),y:rCy(r)}}];
     const score=c=>Math.min(...tgt.map(d=>Math.hypot(c[0]-d.o.x,c[1]-d.o.y)));
     const cs=C.slice().sort((a,b)=>score(b)-score(a));
     const two=Math.hypot(r.w,r.h)>45, isHall=RX.hall.test(r.name);
-    const ends=r.w>r.h?[[r.x+.9,rCy(r)],[r.x+r.w-.9,rCy(r)]]:[[rCx(r),r.y+3.4],[rCx(r),r.y+r.h-.9]];
+    const ends=(r.w>r.h?[[r.x+.9,rCy(r)],[r.x+r.w-.9,rCy(r)]]:[[rCx(r),r.y+3.4],[rCx(r),r.y+r.h-.9]]).map(c=>LW(r,...c));
     const pick=isHall?[ends.sort((a,b)=>score(b)-score(a))[0]]:two?[cs[0],C[3-C.indexOf(cs[0])]]:[cs[0]];
     const aimAt=rd.length?nm(rd.sort((a,b)=>Math.hypot(b.o.x-pick[0][0],b.o.y-pick[0][1])-Math.hypot(a.o.x-pick[0][0],a.o.y-pick[0][1]))[0]):'room center';
     pick.forEach((c,i)=>add({cat:'Interior',kind:'alarm',type:'motion',x:c[0],y:c[1],name:r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' motion'+(pick.length>1?' '+(i+1):''),
@@ -1337,7 +1391,7 @@ function buildSuggestions(){
   // 4) fire / life safety (Residential only: commercial fire systems are designed separately to code)
   if(!COMM()){
   const fireIn=(r,t)=>roomHas(r,i=>i.kind==='alarm'&&(i.type===t));
-  const grid=(r,n)=>{const cols=Math.max(1,Math.round(Math.sqrt(n*r.w/r.h))),rows=Math.ceil(n/cols),P2=[];for(let j=0;j<rows;j++)for(let i=0;i<cols&&P2.length<n;i++)P2.push([r.x+r.w*(i+.5)/cols,r.y+r.h*(j+.5)/rows]);return P2};
+  const grid=(r,n)=>{const cols=Math.max(1,Math.round(Math.sqrt(n*r.w/r.h))),rows=Math.ceil(n/cols),P2=[];for(let j=0;j<rows;j++)for(let i=0;i<cols&&P2.length<n;i++)P2.push(LW(r,r.x+r.w*(i+.5)/cols,r.y+r.h*(j+.5)/rows));return P2};
   for(const r of rooms){
     const nmR=r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim();
     if(RX.kitchen.test(r.name)||RX.garage.test(r.name)){if(!fireIn(r,'heat'))add({cat:'Fire / CO',kind:'alarm',type:'heat',x:rCx(r),y:rCy(r),name:nmR+' heat',reason:`${RX.garage.test(r.name)?'Garage':'Kitchen'}: heat detector instead of smoke (avoids nuisance alarms).`});continue}
@@ -1350,14 +1404,14 @@ function buildSuggestions(){
   }
   // CO: near sleeping areas + rooms adjoining garage
   if(beds.length&&!has(i=>i.kind==='alarm'&&i.type==='co')){const h=halls.find(h=>beds.some(b=>adjoin(b,h,2)));const r=h||beds[0];
-    add({cat:'Fire / CO',kind:'alarm',type:'co',x:rCx(r),y:rCy(r)+(r.h>4?1.6:0),name:r.name+' CO',reason:h?'CO detector in the hallway outside the bedrooms.':'CO detector near the sleeping area.'})}
+    add({cat:'Fire / CO',kind:'alarm',type:'co',...(([x,y])=>({x,y}))(LW(r,rCx(r),rCy(r)+(r.h>4?1.6:0))),name:r.name+' CO',reason:h?'CO detector in the hallway outside the bedrooms.':'CO detector near the sleeping area.'})}
   for(const g of garages)for(const r of rooms){if(r===g||RX.garage.test(r.name)||!adjoin(g,r,3))continue;if(roomHas(r,i=>i.kind==='alarm'&&i.type==='co')||S.some(s=>s.type==='co'&&inRoomAt(s.x,s.y)===r))continue;
-    const wx=Math.abs(g.x+g.w-r.x)<.6?r.x+1.5:Math.abs(r.x+r.w-g.x)<.6?r.x+r.w-1.5:rCx(r),wy=Math.abs(g.y+g.h-r.y)<.6?r.y+1.5:Math.abs(r.y+r.h-g.y)<.6?r.y+r.h-1.5:rCy(r);
+    let wx=Math.abs(g.x+g.w-r.x)<.6?r.x+1.5:Math.abs(r.x+r.w-g.x)<.6?r.x+r.w-1.5:rCx(r),wy=Math.abs(g.y+g.h-r.y)<.6?r.y+1.5:Math.abs(r.y+r.h-g.y)<.6?r.y+r.h-1.5:rCy(r);[wx,wy]=LW(r,wx,wy);
     add({cat:'Fire / CO',kind:'alarm',type:'co',x:wx,y:wy,name:r.name+' CO',reason:`Shares a wall with the ${g.name.toLowerCase()} (car exhaust).`})}
   }
   // water
   for(const r of rooms){const why=RX.kitchen.test(r.name)?'Kitchen: under the sink / by the dishwasher.':RX.laundry.test(r.name)?'Laundry: behind the washer.':RX.bath.test(r.name)?'Bathroom: by the toilet / under the sink.':RX.wheater.test(r.name)?'Water heater spot.':'';
-    if(!why||roomHas(r,i=>i.kind==='alarm'&&i.type==='water'))continue;const [x,y]=clampIn(r,rCx(r)+r.w*.3,rCy(r)-r.h*.3,1);
+    if(!why||roomHas(r,i=>i.kind==='alarm'&&i.type==='water'))continue;const [x,y]=clampIn(r,...LW(r,rCx(r)+r.w*.3,rCy(r)-r.h*.3),1);
     add({cat:'Fire / CO',kind:'alarm',type:'water',x,y,name:r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' water/flood',reason:why+' (confirm exact spot)'})}
   // panel + siren
   if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panel')){const emp=pDoors.find(d=>/employee|staff|rear|back|service/i.test(d.o.name||''))||pDoors.find(d=>d.room&&/break|storage|warehouse|loading/i.test(d.room.name))||main;
@@ -1369,7 +1423,7 @@ function buildSuggestions(){
     const cx=all.reduce((s,r)=>s+rCx(r)*rArea(r),0)/A,cy=all.reduce((s,r)=>s+rCy(r)*rArea(r),0)/A;
     const c0=inRoomAt(cx,cy),okS=r=>!RX.garage.test(r.name)&&!RX.bath.test(r.name)&&!RX.bed.test(r.name);const cand=(c0&&okS(c0))?c0:all.filter(okS).slice().sort((a,b)=>Math.hypot(rCx(a)-cx,rCy(a)-cy)-Math.hypot(rCx(b)-cx,rCy(b)-cy))[0]||largest||rooms[0];
     const [x,y]=clampIn(cand,cx,cy,.9);add({cat:'Control',kind:'alarm',type:'siren',x,y,name:cand.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' siren',reason:'Central location so it is heard throughout.'})}
-  if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panic'))rooms.filter(r=>/reception|lobby|front desk|retail|register|checkout|cashier|sales/i.test(r.name)).slice(0,3).forEach(r=>{const [x,y]=clampIn(r,r.x+r.w*.75,r.y+r.h*.7,1);add({cat:'Control',kind:'alarm',type:'panic',x,y,name:r.name.replace(/\s*\?\s*/g,' ').trim()+' panic button',reason:'Generic panic / hold-up button where staff work (reception desk or register). Confirm the exact spot with the business.'})});
+  if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panic'))rooms.filter(r=>/reception|lobby|front desk|retail|register|checkout|cashier|sales/i.test(r.name)).slice(0,3).forEach(r=>{const [x,y]=clampIn(r,...LW(r,r.x+r.w*.75,r.y+r.h*.7),1);add({cat:'Control',kind:'alarm',type:'panic',x,y,name:r.name.replace(/\s*\?\s*/g,' ').trim()+' panic button',reason:'Generic panic / hold-up button where staff work (reception desk or register). Confirm the exact spot with the business.'})});
   // 5) cameras
   const camAt=(model,x,y,rot,name,reason,extra={})=>add({cat:'Cameras',kind:'cam',model,x,y,rot:((rot%360)+360)%360,name,reason,...extra});
   const outCams=ex.filter(i=>i.kind==='cam'&&isOutdoorCam(i));
@@ -1389,32 +1443,43 @@ function buildSuggestions(){
     camAt(model,d.o.x-d.n.x*1+d.t.x*off,d.o.y-d.n.y*1+d.t.y*off,Math.atan2(-d.n.y,-d.n.x)*180/Math.PI-Math.sign(off)*20,nm(d).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' camera',`Covers ${d===main?'the main entry':'an exterior door'}. ${why}`);
     camDoors.push(d);if(d.side==='front')streetCovered=true}
   const parkCovered=!!outCams.length&&outCams.some(c=>{const a=((c.rot%360)+360)%360,phys=['front','right','back','left'][{front:0,right:1,back:2,left:3}[P.streetSide||'front']];return phys==='front'?a>45&&a<135:phys==='back'?a>225&&a<315:phys==='left'?a>135&&a<225:(a<45||a>315)});if(parkCovered)streetCovered=true;
-  if(!streetCovered||(COMM()&&!parkCovered)){const bx0=Math.min(...rooms.map(r=>r.x)),by0=Math.min(...rooms.map(r=>r.y)),bx1=Math.max(...rooms.map(r=>r.x+r.w)),by1=Math.max(...rooms.map(r=>r.y+r.h));
+  if(!streetCovered||(COMM()&&!parkCovered)){const RB=rooms.map(rBox),bx0=Math.min(...RB.map(b=>b[0])),by0=Math.min(...RB.map(b=>b[1])),bx1=Math.max(...RB.map(b=>b[2])),by1=Math.max(...RB.map(b=>b[3]));
     const phys=['front','right','back','left'][({front:0,right:1,back:2,left:3}[P.streetSide||'front'])];
     const exs=(P.exteriors||[]).find(e=>e.side==='Driveway')||bestExt('front',/drive|street|yard|wide|area/i);let s=exs?suggestCam(exs):null;let model=s&&s.model!=='D1'?s.model:'F1',why=s&&s.model!=='D1'?`${s.reason} (from ${exs.side} exterior spot)`:'Street side: F1 for color night view plus blue/red deterrent lights (PoE via N85).';
     const pos={front:[main&&main.side==='front'?(main.o.x>(bx0+bx1)/2?bx0+3:bx1-3):bx1-3,by1+1,90],back:[bx0+3,by0-1,270],left:[bx0-1,by1-3,180],right:[bx1+1,by1-3,0]}[phys];
     camAt(model,pos[0],pos[1],pos[2],COMM()?'Parking lot camera':'Street-side camera',(COMM()?'Watches the parking lot / street side. ':'Watches the street / driveway side. ')+why)}
+  {const mS=P.streetSide||'front',rN={front:0,right:1,back:2,left:3}[mS]||0,aimOK=(a,ph)=>ph==='front'?a>45&&a<135:ph==='back'?a>225&&a<315:ph==='left'?a>135&&a<225:(a<45||a>315);
+   for(const ph of streetSides().filter(x=>x!==mS)){const lg=SSIDES[(SSIDES.indexOf(ph)-rN+4)%4];
+     if(camDoors.some(d=>d.side===lg))continue;
+     if(outCams.some(c=>aimOK(n360(+c.rot||0),ph)))continue;
+     if(S.some(q=>q.kind==='cam'&&isOutdoorCam(q)&&aimOK(n360(+q.rot||0),ph)&&(/street|parking/i.test(q.name||'')||q.side===lg)))continue;
+     const RB=rooms.map(rBox),bx0=Math.min(...RB.map(b=>b[0])),by0=Math.min(...RB.map(b=>b[1])),bx1=Math.max(...RB.map(b=>b[2])),by1=Math.max(...RB.map(b=>b[3]));
+     const pos={front:[bx0+3,by1+1,90],back:[bx1-3,by0-1,270],left:[bx0-1,by0+3,180],right:[bx1+1,by0+3,0]}[ph];
+     const exs=bestExt(lg,/street|drive|yard|wide|area|side/i),s2=exs?suggestCam(exs):null,model=s2&&s2.model&&s2.model!=='D1'?s2.model:'F1';
+     const why=s2&&s2.model&&s2.model!=='D1'?`${s2.reason} (from ${exs.side} exterior spot)`:'Second street side: F1 for color night view plus blue/red deterrent lights (PoE via N85).';
+     camAt(model,pos[0],pos[1],pos[2],`Street-side camera (${SSN[ph]})`,`Corner lot: the ${SSN[ph].toLowerCase()} side also faces a street. ${why}`,{side:lg})}}
   // indoor PT
   const pt=(r,c,aim,why,model='P1')=>{const a=angTo({x:c[0],y:c[1]},aim);camAt(model,c[0],c[1],a,r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' indoor camera',why,{outlet:true})};
-  if(largest&&!roomHas(largest,i=>i.kind==='cam')){const r=largest,C=[[r.x+1,r.y+1],[r.x+r.w-1,r.y+1],[r.x+1,r.y+r.h-1],[r.x+r.w-1,r.y+r.h-1]];
+  if(largest&&!roomHas(largest,i=>i.kind==='cam')){const r=largest,C=[[r.x+1,r.y+1],[r.x+r.w-1,r.y+1],[r.x+1,r.y+r.h-1],[r.x+r.w-1,r.y+r.h-1]].map(c=>LW(r,...c));
     const inMain=main&&(main.room===r);const aim=inMain?{x:main.o.x,y:main.o.y}:(()=>{const dr=doors.filter(d=>d.room===r||d.other===r);return dr.length?{x:dr[0].o.x,y:dr[0].o.y}:{x:rCx(r),y:rCy(r)}})();
     const busy=c=>(S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?100:0)+(c[0]<r.x+2&&c[1]<r.y+2?6:0);
-    if(commercial&&rArea(r)>=600){const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));const bz=c=>S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?1:0;let c1,c2;if(bz(C[0])+bz(C[3])<=bz(C[1])+bz(C[2])){c1=C[3];c2=[r.x+1,r.y+3.5]}else{c1=C[1];c2=C[2]}
+    if(commercial&&rArea(r)>=600){const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));const bz=c=>S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?1:0;let c1,c2;if(bz(C[0])+bz(C[3])<=bz(C[1])+bz(C[2])){c1=C[3];c2=LW(r,r.x+1,r.y+3.5)}else{c1=C[1];c2=C[2]}
       pt(r,c1,{x:rCx(r),y:rCy(r)},`Indoor P1 (widest 111° view) in a corner covering the ${r.name.toLowerCase()}${inMain?' and the entry':''}.`);
       pt(r,c2,{x:rCx(r),y:rCy(r)},`Opposite-corner P1 so the ${Math.round(r.w)}×${Math.round(r.h)} ft room is covered both ways (P1 night range ~${nightFt('P1')} ft).`)}
     else{const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));
       pt(r,cs[0],aim,`Largest common area: indoor P1 pan/tilt in the far corner aimed at ${inMain?'the main entry':'the room entry'}.`)}}
-  if(COMM())rooms.filter(r=>/retail|register|checkout|cashier|sales/i.test(r.name)&&!roomHas(r,i=>i.kind==='cam')&&!S.some(q=>q.kind==='cam'&&inRoomAt(q.x,q.y)===r)).forEach(r=>pt(r,[r.x+1,r.y+1],{x:rCx(r),y:rCy(r)},'Covers the register / point-of-sale area. Aim it at the counter once placed.'));
+  if(COMM())rooms.filter(r=>/retail|register|checkout|cashier|sales/i.test(r.name)&&!roomHas(r,i=>i.kind==='cam')&&!S.some(q=>q.kind==='cam'&&inRoomAt(q.x,q.y)===r)).forEach(r=>pt(r,LW(r,r.x+1,r.y+1),{x:rCx(r),y:rCy(r)},'Covers the register / point-of-sale area. Aim it at the counter once placed.'));
   // outlets for outlet cams
   for(const s of S.filter(s=>s.kind==='cam'&&CAMS[s.model].outlet)){
     if(ex.some(i=>i.kind==='outlet'&&Math.hypot(i.x-s.x,i.y-s.y)<=OUTLET_FT))continue;
     const r=inRoomAt(s.x,s.y);let x=s.x+1.6,y=s.y;if(r)[x,y]=clampIn(r,s.x+(s.x<rCx(r)?1.8:-1.8),s.y,.6);
     const o=add({cat:'Power',kind:'outlet',x,y,name:'Confirm outlet for '+s.name,reason:`${s.model} needs an outlet within ${OUTLET_FT} ft — confirm one exists here.`,parent:s.sid});(s.deps=s.deps||[]).push(o.sid)}
   // N85
-  const needN=S.some(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model)))||ex.some(i=>i.kind==='cam'&&(CAMS[i.model].poe||NVR_CAMS.includes(i.model)));
+  const nN=m=>CAMS[m]&&(CAMS[m].poe||NVR_CAMS.includes(m)),nCams=P.items.filter(i=>i.kind==='cam'&&nN(i.model)),nSug=S.filter(s=>s.kind==='cam'&&nN(s.model)),needN=nCams.length>0||nSug.length>0;
   if(needN&&!P.items.some(i=>i.kind==='nvr')){const g=garages[0]||rooms.find(r=>RX.laundry.test(r.name)||/closet|utility|server|it\b|mechanical/i.test(r.name));let x,y,where;
-    if(g){[x,y]=[g.x+2,g.y+2];where=g.name.toLowerCase()}else if(panel){const r=inRoomAt(panel.x,panel.y)||rooms[0];[x,y]=clampIn(r,panel.x+3,panel.y,1);where='near the panel'}else{[x,y]=[rCx(rooms[0]),rCy(rooms[0])];where=rooms[0].name}
-    const n=add({cat:'Recorder',kind:'nvr',x,y,name:'N85 NVR ('+where+')',reason:'PoE / N85-recording cameras suggested: N85 powers and records them (8 channels).'});
+    if(g){[x,y]=LW(g,g.x+2,g.y+2);where=g.name.toLowerCase()}else if(panel){const r=inRoomAt(panel.x,panel.y)||rooms[0];[x,y]=clampIn(r,panel.x+3,panel.y,1);where='near the panel'}else{[x,y]=[rCx(rooms[0]),rCy(rooms[0])];where=rooms[0].name}
+    const forL=[...nCams.map(i=>'C'+i.num+' '+camModelLabel(i)),...nSug.map(s=>s.name+' ('+s.model+')')],why=nCams.some(i=>CAMS[i.model].poe)||nSug.some(s=>CAMS[s.model].poe)?'PoE cameras get power and recording from it':'these cameras record to it';
+    const n=add({cat:'Recorder',kind:'nvr',x,y,name:'Add N85 NVR ('+where+')',reason:`For ${forL.slice(0,6).join(', ')}${forL.length>6?` and ${forL.length-6} more`:''}: ${why} (F1/T1 are PoE; D1/R5 record to the N85). 8 channels.`});
     S.filter(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model))).forEach(s=>(s.deps=s.deps||[]).push(n.sid))}
   // dedupe + de-clutter: drop same-type within 2.5 ft; nudge others apart
   const out=[];for(const s of S){const key=s.kind+(s.type||s.model||'');if(out.some(o=>o.kind+(o.type||o.model||'')===key&&Math.hypot(o.x-s.x,o.y-s.y)<2.5))continue;out.push(s)}
@@ -1424,7 +1489,7 @@ function buildSuggestions(){
     const ok=(x,y)=>others().every(o=>Math.hypot(o.x-x,o.y-y)>=2.1);
     if(ok(s.x,s.y))continue;let done=false;
     for(let rad=1;rad<=6&&!done;rad+=.7)for(let a=0;a<360&&!done;a+=30){let x=s.x+rad*Math.cos(a*Math.PI/180),y=s.y+rad*Math.sin(a*Math.PI/180);
-      if(r&&!outside){if(!(x>=r.x+.8&&x<=r.x+r.w-.8&&y>=r.y+.8&&y<=r.y+r.h-.8))continue}
+      if(r&&!outside){const [lx,ly]=toL(r,x,y);if(!(lx>=r.x+.8&&lx<=r.x+r.w-.8&&ly>=r.y+.8&&ly<=r.y+r.h-.8))continue}
       if(ok(x,y)){s.x=x;s.y=y;done=true}}}
   out.forEach(s=>{s.x=Math.round(s.x*10)/10;s.y=Math.round(s.y*10)/10});
   return out}
@@ -1594,7 +1659,7 @@ function bindFix(host){host.querySelectorAll('[data-fix]').forEach(b=>b.onclick=
 function applyFix(code,id){const it=P.items.find(i=>i.id===id);if(!it)return;const f=flOf(it),sn=v=>Math.round(v*2)/2;
   if(code==='outlet'){const r=roomAtF(it.x,it.y,f);let spot=null;
     for(const rad of [2,3.5])for(let a=0;a<360&&!spot;a+=45){const x=sn(it.x+rad*Math.cos(a*Math.PI/180)),y=sn(it.y+rad*Math.sin(a*Math.PI/180));
-      if(Math.hypot(x-it.x,y-it.y)>OUTLET_FT)continue;if(r&&!(x>=r.x+.5&&x<=r.x+r.w-.5&&y>=r.y+.5&&y<=r.y+r.h-.5))continue;
+      if(Math.hypot(x-it.x,y-it.y)>OUTLET_FT)continue;if(r){const [lx,ly]=toL(r,x,y);if(!(lx>=r.x+.5&&lx<=r.x+r.w-.5&&ly>=r.y+.5&&ly<=r.y+r.h-.5))continue}
       if(P.items.some(o=>o!==it&&flOf(o)===f&&o.kind!=='opening'&&Math.hypot(o.x-x,o.y-y)<1.6))continue;spot=[x,y]}
     if(!spot)spot=[sn(it.x+1.5),sn(it.y)];const o=mkItem('outlet','outlet',spot[0],spot[1]);o.floor=f;o.notes='Added from the placement check. Confirm the real outlet location.';P.items.push(o);sel={t:'item',id:o.id}}
   else if(code==='n85'){const g=P.rooms.find(r=>flOf(r)===f&&RX.garage.test(r.name));let x,y;if(g){x=g.x+2;y=g.y+2}else{const r=roomAtF(it.x,it.y,f);[x,y]=r?clampIn(r,it.x+3,it.y,1):[it.x+3,it.y]}
@@ -1620,9 +1685,9 @@ function trayBind(b,act){
   b.addEventListener('click',e=>{if(e.detail===0)act(null)})}
 function placeAt(kind,type,p){if(!p){placeNew(kind,type);return}const sn=v=>Math.round(v*2)/2,it=mkItem(kind,type,sn(p.x),sn(p.y));
   if(kind==='opening'){if(snapOpening(it,p.x,p.y,4))freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
-function freeRoomSpot(w,h){const rs=FR(),hit=(x,y)=>rs.some(r=>x<r.x+r.w&&r.x<x+w&&y<r.y+r.h&&r.y<y+h);
+function freeRoomSpot(w,h){const rs=FR().map(rBox),hit=(x,y)=>rs.some(b=>x<b[2]&&b[0]<x+w&&y<b[3]&&b[1]<y+h);
   for(let y=FOOT.y;y<=FOOT.y+Math.max(0,FOOT.h-h);y+=1)for(let x=FOOT.x;x<=FOOT.x+Math.max(0,FOOT.w-w);x+=1)if(!hit(x,y))return [x,y];
-  return [Math.max(FOOT.x,...rs.map(r=>r.x+r.w)),FOOT.y]}
+  return [Math.max(FOOT.x,...rs.map(b=>b[2])),FOOT.y]}
 function addTpl(t,p){const [name,w,h]=t;let x,y;if(p){x=Math.round((p.x-w/2)*2)/2;y=Math.round((p.y-h/2)*2)/2}else[x,y]=freeRoomSpot(w,h);
   let nm=name,k=2;while(FR().some(r=>r.name===nm))nm=name+' '+k++;
   const r={id:nid('r'),name:nm,x,y,w,h,floor:FID(),est:1};P.rooms.push(r);sel={t:'room',id:r.id};render()}
@@ -1724,7 +1789,7 @@ const SRC={
 const GCATS=['Smoke','CO','Heat','Motion','Glass break','Water / flood','Door / window contacts','Keypad & siren','Panic button','Vyanet cameras','Other'];
 const FIRECATS=['Smoke','CO','Heat'];
 const GLINK={smoke900:['Suggest devices: smoke per ~900 sq ft','sug'],coGarage:['Suggest devices: CO next to a garage','sug'],heatKG:['Suggest devices: heat in kitchen / garage','sug'],motion2:['Suggest devices: two motions in big rooms','sug'],glass3:['Suggest devices: glass break for 3+ windows','sug'],contacts:['Suggest devices: perimeter contacts','sug'],keypad:['Suggest devices: keypad placement','sug'],siren:['Suggest devices: siren placement','sug'],
-  pet:['Placement check: pet note','chk'],outlet5:['Placement check: outlet within 5 ft','chk'],poe:['Placement check: PoE needs an N85','chk'],rec:['Placement check: records to the N85','chk'],s2:['Placement check: S2 and the N85','chk'],f1g:['Placement check: F1 in a garage','chk'],n85ch:['Placement check: N85 channels','chk'],wifi:['Placement check: wireless interference','chk']};
+  pet:['Placement check: pet note','chk'],outlet5:['Placement check: outlet within 5 ft','chk'],n85sug:['Suggest devices: Add N85 NVR','sug'],s2:['Placement check: S2 and the N85','chk'],f1g:['Placement check: F1 in a garage','chk'],n85ch:['Placement check: N85 channels','chk'],wifi:['Placement check: wireless interference','chk']};
 const G0=[
  ['g1','Smoke','residential','One smoke per ~900 sq ft (Vyanet rule)','In open / living areas, plan one smoke detector per ~900 sq ft, spread evenly. Suggest devices uses this rule.',['VYR'],'smoke900'],
  ['g2','Smoke','residential','Every bedroom, outside sleeping areas, every level','Install smoke alarms inside each bedroom, outside each sleeping area and on every level of the home, including the basement. On levels without bedrooms, put them in the living room (or den or family room) or near the stairway to the upper level. Larger homes need additional alarms.',['NFPA','USFA_SA']],
@@ -1749,8 +1814,8 @@ const G0=[
  ['g21','Keypad & siren','both','Siren location','A central location so it can be heard throughout.',['VYS'],'siren'],
  ['g22','Panic button','commercial','Panic / hold-up button','Place it where staff work and can reach it, such as the reception desk or register, and confirm the exact spot with the business. Keep panic buttons out of the reach of small children.',['VYS','EPS']],
  ['g23','Vyanet cameras','both','Outlet within 5 ft','The V5P, E1, P1, M1 and R5 need an outlet within 5 ft.',['VYC'],'outlet5'],
- ['g24','Vyanet cameras','both','PoE cameras need an N85','The F1 and T1 are PoE and need an N85 NVR on the plan.',['VYC'],'poe'],
- ['g25','Vyanet cameras','both','D1 and R5 record to the N85','The D1 doorbell and the R5 record to the N85, so the plan needs one. The D1 needs existing hardwired doorbell wiring.',['VYC'],'rec'],
+ ['g24','Vyanet cameras','both','PoE cameras need an N85','The F1 and T1 are PoE and need an N85 NVR. When a plan has them and no N85, Suggest devices offers \u201cAdd N85 NVR\u201d (accept or reject) instead of a warning.',['VYC'],'n85sug'],
+ ['g25','Vyanet cameras','both','D1 and R5 record to the N85','The D1 doorbell and the R5 record to the N85, so the plan needs one; Suggest devices offers \u201cAdd N85 NVR\u201d when it is missing. The D1 needs existing hardwired doorbell wiring.',['VYC'],'n85sug'],
  ['g26','Vyanet cameras','both','S2 records locally','The S2 does not work with the N85; it records locally.',['VYC'],'s2'],
  ['g27','Vyanet cameras','both','F1 in a garage','An F1 inside a garage should aim into the garage.',['VYC'],'f1g'],
  ['g28','Vyanet cameras','both','N85 channels','The N85 has 8 channels. The check warns when more cameras need a channel than the N85s on the plan provide.',['VYC'],'n85ch'],
