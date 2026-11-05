@@ -126,14 +126,24 @@ tbody tr{cursor:pointer}
   #planStage{break-inside:avoid}
   .print-only{display:block!important}
   .card{border:0;padding:0}
-  section.tables{padding:12px}
+  section.tables{padding:12px;display:block}
+  /* the sticky app header was printed mid-page (wherever the window was scrolled), covering schedule rows */
+  header.app{position:static!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #planwrap{overflow:visible!important}
+  section.tables .card{margin-bottom:14px}
+  section.tables h2{break-after:avoid;page-break-after:avoid}
+  thead{display:table-header-group}
+  tr,td,th{break-inside:avoid;page-break-inside:avoid}
+  tr.sel td{background:none}
+  .thead{break-after:avoid;page-break-after:avoid}
 }
 .print-only{display:none}
 .scalebar{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:8;background:#2e2f2a;color:#fff;padding:6px 12px;border-radius:16px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;gap:8px;align-items:center}
 .scalebar input{width:70px;font:inherit;padding:2px 6px;border-radius:10px;border:0}
 .ib{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;flex:0 0 auto;vertical-align:middle;box-shadow:0 0 0 1.5px #fff,0 1px 2px rgba(0,0,0,.25)}
 .ib svg{width:15px;height:15px}
-.ib.lg{width:34px;height:34px}.ib.lg svg{width:20px;height:20px}
+.ib svg.ibs{width:100%;height:100%;display:block}.ib.lg{width:34px;height:34px}.ib.lg svg{width:20px;height:20px}
 .ph{width:34px;height:34px;object-fit:contain;border-radius:4px;background:#fff;border:1px solid var(--vy-line);flex:0 0 auto;vertical-align:middle}
 .ph.lg{width:96px;height:96px;border-radius:6px}
 .ph.sm{width:28px;height:28px}
@@ -143,7 +153,7 @@ tbody tr{cursor:pointer}
 .propAct{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--vy-line)}
 .alsoHere{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 2px;font-size:11px;color:var(--vy-muted)}
 .alsoHere .btn{padding:3px 10px;font-size:10px}
-.legendList .ib{width:22px;height:22px}.legendList .ib svg{width:14px;height:14px}
+.legendList .ib{width:22px;height:22px}.legendList .ib svg{width:14px;height:14px}.legendList .ib svg.ibs{width:100%;height:100%}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 header.app .proto{font-family:Poppins,sans-serif;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--vy-red);vertical-align:middle;margin-left:4px}
 header.app .sp{flex:1}
@@ -373,7 +383,8 @@ const ICON={
  nvr:'<rect x="2.5" y="8" width="19" height="8" rx="1.5"/><circle cx="6" cy="12" r=".9" fill="currentColor"/><path d="M10 12h8"/><path d="M5 16v2M19 16v2"/>'
 };
 const svgIcon=(k,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]||''}</svg>`;
-const ibadge=(k,c,size='')=>`<span class="ib ${size}" style="background:${c}">${svgIcon(k)}</span>`;
+const badgeSvg=(k,c)=>`<svg class="ibs" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="${c}"/><g transform="translate(4.8 4.8) scale(.6)" fill="none" stroke="#fff" color="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]||''}</g></svg>`;
+const ibadge=(k,c,size='')=>`<span class="ib ${size}" style="--ibc:${c}">${badgeSvg(k,c)}</span>`;
 const camIconKey=m=>m==='D1'?'bell':'cam';
 const camPhoto=(it)=>{const I=window.VY_CAMIMG||{};const k=typeof it==='string'?it:(it.model==='R5'?(it.variant==='B'?'R5B':'R5W'):it.model);return I[k==='R5'?'R5W':k]||''};
 const photoTag=(k,cls='ph')=>{const src=camPhoto(k);return src?`<img class="${cls}" src="${src}" alt="">`:ibadge('cam','#5e5758')};
@@ -812,9 +823,9 @@ function renderChecks(){const l=checks();const w=l.filter(x=>x.w).length;
 const checksEl=document.getElementById('checks');
 
 // ---- schedules + CSV ----
-function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>a.zone-b.zone).map(i=>({id:i.id,c:[i.zone,ALARM[i.type].label,i.name,roomName(i),i.wiring,i.notes],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
+function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(+a.zone||1e9)-(+b.zone||1e9)).map(i=>({id:i.id,c:[i.zone,ALARM[i.type].label,i.name,roomName(i),i.wiring,i.notes],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
 const ZCOLS=['Zone #','Device','Name / Location','Room','Wired / Wireless','Notes'];
-function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>a.num-b.num).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
+function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(+a.num||1e9)-(+b.num||1e9)).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
   const auto=[];if(i.model==='S2')auto.push('Records locally; not compatible with N85');if(c.poe)auto.push('PoE from N85');if(i.model==='D1')auto.push('Needs existing hardwired doorbell');
   const mn=c.name.replace(/^R5W \/ R5B/,camModelLabel(i));
   return {id:i.id,h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),c.env,c.power,rec,[i.notes,...auto].filter(Boolean).join('; ')]}})}
@@ -980,6 +991,25 @@ function renderLegend(){const L=[],has=f=>P.items.some(f);
 // ---- PNG export ----
 function dlBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800)}
 function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src})}
+// draws one schedule as a table on the export canvas (every row, text wrapped); returns its height. draw=false only measures
+function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
+  const L=40,TW=PX-2*L,ws=fr.map(f=>f*TW),pad=12,lh=30;let y=y0+20;
+  const wrap=(t,w)=>{const out=[];for(const para of String(t??'').split('\n')){let cur='';for(const wd of para.split(/\s+/).filter(Boolean)){const tt=cur?cur+' '+wd:wd;if(!cur||g.measureText(tt).width<=w)cur=tt;else{out.push(cur);cur=wd}}out.push(cur)}return out.length?out:['']};
+  if(draw){g.fillStyle='#2e2f2a';g.font='600 38px "Cormorant Garamond", Georgia, serif';g.fillText(title+(rows.length?`  (${rows.length})`:''),L,y+36)}
+  y+=58;
+  // header
+  g.font='600 17px Poppins, Arial, sans-serif';const hl=cols.map((c,i)=>wrap(c.toUpperCase(),ws[i]-2*pad)),hh=Math.max(...hl.map(l=>l.length))*24+2*pad;
+  if(draw){g.fillStyle='#fafafa';g.fillRect(L,y,TW,hh);g.fillStyle='#2e2f2a';let x=L;hl.forEach((ls,i)=>{ls.forEach((t,k)=>g.fillText(t,x+pad,y+pad+18+k*24));x+=ws[i]});g.fillStyle='#da0029';g.fillRect(L,y+hh-3,TW,3)}
+  y+=hh;
+  if(!rows.length){if(draw){g.fillStyle='#626262';g.font='italic 22px Poppins, Arial, sans-serif';g.fillText(empty,L+pad,y+34)}return y+50-y0}
+  g.font='22px Poppins, Arial, sans-serif';
+  rows.forEach((r,ri)=>{const cells=r.c.map((v,i)=>wrap(v,ws[i]-2*pad-(i===1?30:0))),rh=Math.max(...cells.map(l=>l.length))*lh+2*pad;
+    if(draw){if(ri%2)g.fillStyle='#fcfbfb',g.fillRect(L,y,TW,rh);let x=L;
+      cells.forEach((ls,i)=>{let xo=0;if(i===1){if(r._ic){g.drawImage(r._ic,x+pad-2,y+pad-1,26,26);xo=30}else{g.fillStyle=colorOf(r);g.beginPath();g.arc(x+pad+10,y+pad+11,10,0,7);g.fill();xo=28}}
+        g.fillStyle=i===0?'#2e2f2a':'#5e5758';g.font=(i===0?'600 ':'')+'22px Poppins, Arial, sans-serif';ls.forEach((t,k)=>g.fillText(t,x+pad+xo,y+pad+22+k*lh));x+=ws[i]});
+      g.fillStyle='#e1dfdf';g.fillRect(L,y+rh-1,TW,1.5)}
+    y+=rh});
+  return y+16-y0}
 async function exportPNG(){
   const s0=sel;sel=null;render();
   const clone=svg.cloneNode(true);sel=s0;render();
@@ -989,7 +1019,14 @@ async function exportPNG(){
   clone.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
   const xml=new XMLSerializer().serializeToString(clone);
   const map=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml));
-  const head=140,c=document.createElement('canvas');c.width=PX;c.height=ph+head;const g=c.getContext('2d');
+  const head=140,c=document.createElement('canvas');c.width=PX;let g=c.getContext('2d');
+  const zr=zoneRows(),cr=camRows();
+  const zcol=r=>{const it=P.items.find(i=>i.id===r.id);return it&&ALARM[it.type]?ALARM[it.type].c:'#8a8780'},ccol=r=>{const it=P.items.find(i=>i.id===r.id);return it?camColor[CAMS[it.model].env]:'#8a8780'};
+  const TB=[['Zone schedule',ZCOLS,[.08,.17,.22,.15,.12,.26],zr,zcol,'No zones yet.'],['Camera schedule',CCOLS,[.08,.15,.2,.11,.12,.1,.24],cr,ccol,'No cameras yet.']];
+  const icImg={};for(const r of [...zr,...cr]){const it=P.items.find(i=>i.id===r.id);if(!it)continue;const k=it.kind==='cam'?camIconKey(it.model):it.type,col=it.kind==='cam'?camColor[CAMS[it.model].env]:ALARM[it.type].c,key=k+col;
+    if(!icImg[key])icImg[key]=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(badgeSvg(k,col).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" ')));r._ic=icImg[key]}
+  const tabH=TB.reduce((h,t)=>h+pngTable(g,0,PX,...t,false),0);
+  c.height=ph+head+tabH+40;g=c.getContext('2d');
   g.fillStyle='#ffffff';g.fillRect(0,0,c.width,c.height);
   try{const lg=await loadImg(window.VY_LOGO);const lh=46,lw=lg.width*lh/lg.height;g.drawImage(lg,40,34,lw,lh);
     g.fillStyle='#2e2f2a';g.font='600 44px "Cormorant Garamond", Georgia, serif';g.fillText('Home Map',40+lw+22,74)}catch(e){}
@@ -997,6 +1034,8 @@ async function exportPNG(){
   g.fillText([j.customer,j.address,j.account&&('Acct '+j.account),j.date,j.tech&&('Tech: '+j.tech)].filter(Boolean).join('   ·   ')||P.name,40,118);
   g.fillStyle='#da0029';g.fillRect(0,head-6,PX,6);
   g.drawImage(map,0,head,PX,ph);
+  let ty=head+ph+20;for(const t of TB)ty+=pngTable(g,ty,PX,...t,true);
+  window.__pngExport={zones:zr.length,cams:cr.length,zoneNums:zr.map(r=>r.c[0]),camNums:cr.map(r=>r.c[0]),height:c.height};
   await new Promise(r=>c.toBlob(b=>{dlBlob(slug()+'-home-map.png',b);r()},'image/png'));
 }
 bPng.onclick=()=>exportPNG().catch(e=>alert('PNG export failed: '+e));
