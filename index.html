@@ -194,6 +194,121 @@ body.customer #plan{cursor:grab}
 .print-ext figure{margin:0;border:1px solid var(--vy-line);padding:6px}
 .print-ext img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;cursor:zoom-in}
 .print-ext figcaption{font-size:11px;margin-top:4px}
+/* ===== UX additions ===== */
+.tabs{display:flex;flex-wrap:wrap;gap:0 2px;justify-content:space-between}
+#trayDockLeft{margin-bottom:4px}
+.tray .trayH{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.tray .trayH small{color:var(--vy-muted);font-size:10px;text-transform:none;letter-spacing:0;font-weight:400}
+.trayGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:4px}
+.trayIt{width:100%;aspect-ratio:1;display:grid;place-items:center;background:#fff;border:1px solid var(--vy-line);border-radius:6px;padding:2px;cursor:grab;touch-action:none}
+.trayIt:hover,.trayIt:focus-visible{border-color:var(--vy-red);background:#fff5f6}
+.trayIt .ph{width:28px;height:28px;border:0}.trayIt .ib.lg{width:26px;height:26px}.trayIt .ib.lg svg{width:16px;height:16px}
+.trayTpls{display:flex;flex-wrap:wrap;gap:4px}
+.trayTpl{font:inherit;font-size:11px;background:#fff;border:1px dashed #8a8780;border-radius:14px;padding:3px 9px;cursor:grab;color:var(--vy-ink);touch-action:none}
+.trayTpl small{color:var(--vy-muted);margin-left:4px;font-size:10px}
+.trayTpl:hover,.trayTpl:focus-visible{border-color:var(--vy-red);color:var(--vy-red)}
+.tray.h{display:flex;gap:10px;align-items:center;overflow-x:auto;padding:6px 10px;border-bottom:1px solid var(--vy-line);background:#fafafa}
+.tray.h .sub{display:none}
+.tray.h .trayGrid,.tray.h .trayTpls{display:flex;flex-wrap:nowrap;gap:6px}
+.tray.h .trayIt{width:52px;height:52px;flex:0 0 52px;touch-action:pan-x}
+.tray.h .trayIt .ph{width:40px;height:40px}.tray.h .trayIt .ib.lg{width:36px;height:36px}
+.tray.h .trayTpl{flex:0 0 auto;white-space:nowrap;padding:12px 14px;touch-action:pan-x;font-size:12.5px}
+.trayGhost{position:fixed!important;z-index:80;pointer-events:none;transform:translate(-50%,-50%);opacity:.9;box-shadow:0 6px 18px rgba(0,0,0,.25);width:44px;height:44px;margin:0}
+.trayTpl.trayGhost{width:auto;height:auto;background:#fff}
+#plan.dropOk{outline:3px dashed var(--vy-red);outline-offset:-3px}
+.floorBar{position:absolute;left:6px;top:6px;z-index:7;display:flex;gap:4px;align-items:center;flex-wrap:wrap;max-width:calc(50% - 12px)}
+.floorBar .fl{font:500 11px Poppins,sans-serif;letter-spacing:.8px;text-transform:uppercase;background:#fff;color:var(--vy-btn-outline);border:1.5px solid var(--vy-btn-outline);border-radius:16px;padding:4px 11px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.floorBar .fl.on{background:var(--vy-red);border-color:var(--vy-red);color:#fff}
+.floorBar select{font:500 11px Poppins,sans-serif;border:1.5px dashed var(--vy-btn-outline);border-radius:16px;padding:3px 6px;background:#fff;color:var(--vy-btn-outline);cursor:pointer}
+.floorBar .flx{border:1px solid var(--vy-line);background:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:12px;line-height:1;padding:0;color:var(--vy-btn-outline)}
+.floorBar .flx:disabled{opacity:.4;cursor:not-allowed}
+.mapKey{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;padding:6px 10px;font-size:11.5px;color:var(--vy-muted);border-top:1px solid var(--vy-line)}
+.mapKey span,.fpKey span{display:inline-flex;align-items:center;gap:5px}
+body.customer .team-only{display:none!important}
+.warnBox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--warnbg);border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:3px;padding:7px 9px;margin:0 0 8px;font-size:12.5px;color:#78350f}
+.warnBox span{flex:1;min-width:150px}
+.warnBox.note{background:var(--notebg);border-color:#bfdbfe;border-left-color:var(--note);color:#1e3a8a}
+.checks .fixBtn{margin-left:6px;padding:3px 10px;font-size:10px}
+.flSub{font:600 12px Poppins,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--vy-red);margin:12px 0 4px;display:flex;gap:10px;align-items:baseline}
+.flSub:first-child{margin-top:0}
+.flSub small{color:var(--vy-muted);font-weight:400;letter-spacing:.3px;text-transform:none}
+.isb{flex:0 0 auto;vertical-align:middle}
+.issuePh{display:block;width:100%;max-height:160px;object-fit:cover;border-radius:4px;border:1px solid var(--vy-line);margin:4px 0;cursor:zoom-in}
+.issueSel{width:100%;font:inherit;font-size:12.5px;padding:5px 7px;border:1px solid var(--vy-line);border-radius:3px}
+.estNote{margin:2px 0 4px}
+.jobbar select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--vy-line);border-radius:3px;color:var(--vy-ink);background:#fff}
+body.commercial .fireDev,body:not(.commercial) .commDev{display:none!important}
+.ovl{position:fixed;inset:0;background:rgba(46,47,42,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:18px}
+.mBox{background:#fff;border-radius:8px;border-top:4px solid var(--vy-red);max-width:540px;width:100%;padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.mBox h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;font-weight:600;margin:0 0 6px;color:var(--vy-near)}
+.mBox p{margin:6px 0 10px;font-size:14px}
+.mAct{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}
+.gStep{display:flex;gap:16px;align-items:flex-start}
+.gNum{flex:0 0 48px;height:48px;border-radius:50%;background:var(--vy-red);color:#fff;display:grid;place-items:center;font:600 22px Poppins,sans-serif}
+.gDots{display:flex;gap:6px;margin-top:10px;justify-content:center}.gDots i{width:8px;height:8px;border-radius:50%;background:var(--vy-soft)}.gDots i.on{background:var(--vy-red)}
+.mChoice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mChoice button{font:inherit;text-align:left;border:2px solid var(--vy-line);border-radius:8px;background:#fff;padding:12px;cursor:pointer}
+.mChoice button:hover,.mChoice button:focus-visible{border-color:var(--vy-red)}
+.mChoice b{display:block;font-size:15px;color:var(--vy-near);margin-bottom:2px}.mChoice small{color:var(--vy-muted);font-size:12px}
+.recentPanel{position:absolute;z-index:40;width:min(470px,94vw);background:#fff;border:1px solid var(--vy-line);border-top:3px solid var(--vy-red);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:12px}
+.recentPanel h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:20px;margin:0}
+.rpList{list-style:none;margin:8px 0 0;padding:0}
+.rpList li{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 2px;border-top:1px solid #f0eeee;font-size:13px}
+.rpList small{display:block;color:var(--vy-muted);font-size:11px}
+.rpBtns{display:flex;gap:4px;flex:0 0 auto}
+.glBanner{background:#fff7ed;border:1px solid #fdba74;border-left:4px solid var(--vy-red);padding:7px 9px;font-size:12px;border-radius:3px;margin-bottom:8px}
+.glCtl{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px;font-size:12px}
+.gl{border:1px solid var(--vy-line);border-radius:4px;padding:8px 9px;margin-bottom:6px;font-size:12.5px}
+.glT{font-weight:600;color:var(--vy-near)}
+.glMode{font-size:9.5px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--vy-red);border:1px solid var(--vy-red);border-radius:8px;padding:0 5px;margin-left:4px}
+.glX{margin:3px 0}
+.glS{font-size:11px;color:var(--vy-muted)}.glS a{color:var(--note)}
+.glLink{display:inline-block;margin-top:4px;font:inherit;font-size:10.5px;background:var(--notebg);color:var(--note);border:1px solid #bfdbfe;border-radius:10px;padding:1px 8px;cursor:pointer}
+.glA{display:flex;gap:4px;margin-top:6px}.glA .btn{padding:3px 10px;font-size:10px}
+.glFire{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid var(--vy-red);padding:8px 10px;border-radius:3px;font-size:12.5px;margin-bottom:8px;color:#7f1d1d}
+.gl input,.gl select,.gl textarea{width:100%;font:inherit;font-size:12.5px;padding:5px 7px;border:1px solid var(--vy-line);border-radius:3px;margin-bottom:2px}
+.gpList{margin:6px 0;padding-left:18px;font-size:12px}.gpList li{margin-bottom:4px;break-inside:avoid}
+.flash{animation:vyflash 1.2s 2}@keyframes vyflash{50%{box-shadow:0 0 0 4px #fcd34d}}
+.pf-only{display:none}
+.printFloors{padding:0 12px}
+.fpHead,.fpFoot{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#5e5758;border-bottom:2px solid #da0029;padding:4px 0;letter-spacing:.3px}
+.fpHead b{color:#da0029;text-transform:uppercase;letter-spacing:1px}
+.fpFoot{border-bottom:0;border-top:1px solid #e1dfdf;margin-top:6px}
+.fpTitle{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;font-weight:700;color:#2e2f2a;margin:4px 0 4px;line-height:1.1}
+.fpTitle small{font:500 13px Poppins,sans-serif;color:#da0029;letter-spacing:1.5px;text-transform:uppercase;margin-left:12px}
+.fpPage svg[role=img]{display:block;width:100%;height:auto;max-height:6.5in;border:1px solid #e1dfdf}
+.fpKey{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:10.5px;color:#5e5758;margin-top:4px}
+@media (pointer:coarse) and (max-width:1366px),(max-width:900px){
+  .btn{padding:10px 18px;min-height:42px;font-size:12.5px}
+  .btn.sm{padding:9px 14px;min-height:40px;font-size:11.5px}
+  .iconbtn{min-width:44px}
+  .pal button{padding:10px 9px;min-height:50px}
+  .tabs button{padding:12px 8px;font-size:12px}
+  .tools{gap:8px}
+  .tools label{font-size:14px;display:inline-flex;align-items:center;gap:6px;min-height:40px}
+  .tools input[type=checkbox],.prop input[type=checkbox]{width:22px;height:22px}
+  .tools .hint{display:none}
+  .guideLink{font-size:14px;padding:10px 4px}
+  .floorBar .fl{padding:9px 16px;font-size:12.5px}.floorBar select{padding:9px 10px;font-size:12.5px}.floorBar .flx{width:40px;height:40px;font-size:15px}
+  .sugBtns button{width:36px;height:36px;font-size:14px}
+  .checks li{padding:12px}
+  .prop input,.prop select,.prop textarea,.jobbar input,.jobbar select{padding:10px;font-size:15px}
+  header.app input[type=text]{padding:10px 12px}
+  .glA .btn{padding:9px 14px;font-size:11px}
+}
+@media print{
+  #planwrap,.ovl,.recentPanel,.floorBar{display:none!important}
+  .pf-only{display:block!important}
+  .pf-only.optional:not(.on){display:none!important}
+  .fpPage{break-inside:avoid;page-break-inside:avoid}
+  .fpBreak{break-before:page;page-break-before:always}
+  #printFloors{break-after:page;page-break-after:always}
+  .flSub{break-after:avoid;page-break-after:avoid}
+  body.customer .team-only{display:none!important}
+}
+
+header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
+.guideLink{font-size:11.5px;margin-right:8px;color:#da0029;font-weight:600;text-decoration:none;border-bottom:1px dotted #da0029}
 </style>
 </head>
 <body>
@@ -206,26 +321,32 @@ body.customer #plan{cursor:grab}
   <button class="edit-only btn sm" id="bSave">Save</button>
   <button class="edit-only btn ghost sm" id="bOpen">Open</button>
   <input type="file" id="fOpen" accept=".json,application/json" hidden>
+  <button class="edit-only btn ghost sm" id="bRecent" type="button" aria-expanded="false" title="Reopen one of your last 5 autosaved plans">Recent</button>
   <span class="sp"></span>
   <button class="btn ghost sm" id="bCust" type="button" aria-pressed="false">Customer view</button>
   <button class="btn ghost sm" id="bPng" type="button">Export PNG</button>
   <button class="btn soft sm" onclick="window.print()">Print</button>
 </header>
+<div id="recentPanel" class="recentPanel no-print" hidden></div>
 <div class="jobbar edit-only no-print" id="jobbar">
-  <label>Customer<input data-j="customer" placeholder="Customer name"></label>
+  <label>Project type<select id="pMode" aria-label="Project type"><option value="residential">Residential</option><option value="commercial">Commercial</option></select></label>
+  <label><span id="jCustL">Customer</span><input data-j="customer" id="jCust" placeholder="Customer name"></label>
   <label>Address<input data-j="address" class="wide" placeholder="Street, city"></label>
   <label>Account #<input data-j="account" placeholder="Account #"></label>
   <label>Date<input data-j="date" type="date"></label>
   <label>Tech<input data-j="tech" placeholder="Technician"></label>
 </div>
 <div class="jobsum" id="jobSummary"></div>
+<section id="printFloors" class="pf-only printFloors" aria-label="Floor maps for print"></section>
 <main>
   <aside class="card no-print edit-only" aria-label="Palette">
     <div class="tabs" id="leftTabs">
       <button type="button" class="on" data-tab="devices">Devices</button>
       <button type="button" data-tab="walk" title="Interior walkthrough video">Video</button>
       <button type="button" data-tab="exterior">Exterior</button>
+      <button type="button" data-tab="guide" title="Common placement recommendations">Guidelines</button>
     </div>
+    <div id="trayDockLeft"><div class="tray" id="tray"></div></div>
     <div id="tabDevices">
       <div class="sub">Floor plan</div>
       <div class="pal"><button id="bRoom" type="button"><span class="ic"><span class="ib lg" style="background:#94a3b8;border-radius:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14"/></svg></span></span><span>Room<small>Drag to move · corner to resize</small></span></button></div>
@@ -250,6 +371,11 @@ body.customer #plan{cursor:grab}
       <div class="sub">Power</div><div class="pal" id="palPower"></div>
       <div class="sub">Vyanet cameras</div><div class="pal" id="palCam"></div>
       <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
+      <div class="sub">Site issues</div>
+      <label class="f" for="issueType">Walkthrough note</label>
+      <select id="issueType" class="issueSel"></select>
+      <button class="btn soft sm" id="bIssueAdd" type="button" style="width:100%;margin-top:6px">Add site issue</button>
+      <div class="legend">Marks a condition found on the walkthrough. Metal and concrete walls are drawn as a line you can fit along the wall.</div>
     </div>
     <div id="tabWalk" hidden>
       <div class="sub">Interior walkthrough video</div>
@@ -289,6 +415,7 @@ body.customer #plan{cursor:grab}
       <div class="extList" id="extList"></div>
       <canvas id="vidCanvas" style="display:none"></canvas>
     </div>
+    <div id="tabGuide" hidden></div>
   </aside>
 
   <div class="card" id="planwrap">
@@ -309,10 +436,12 @@ body.customer #plan{cursor:grab}
       <label><input type="checkbox" id="cCones" checked> Cones</label>
       <label><input type="checkbox" id="cGrid" checked> Grid</label>
       <label>View <select id="cView" style="font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--vy-line);border-radius:3px"><option value="full">Whole property (full cone range)</option><option value="house">House close-up</option></select></label>
-      <span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim · click again to pick what's underneath · Delete key removes</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
+      <a href="#" id="bGuide" class="guideLink edit-only no-print" title="Show the getting-started guide">Show guide</a><span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim · click again to pick what's underneath · Delete key removes</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
     </div>
     <div class="sugBanner edit-only no-print" id="sugBanner" hidden><span>This plan has rooms but no devices yet. Want a suggested device + camera layout to start from?</span><button class="btn sm" id="bSugBanner" type="button">Suggest devices</button><button class="btn ghost sm" id="bSugDismiss" type="button">Dismiss</button></div>
+    <div id="trayDockPlan" class="edit-only no-print"></div>
     <div id="planStage">
+      <div class="floorBar no-print" id="floorBar"></div>
       <div class="scalebar" id="scaleBar" hidden><span id="scaleMsg">Click the first point on the image</span><span id="scaleAsk" hidden><input id="scaleFt" type="number" min="0.5" step="0.5" placeholder="ft"> ft <button class="btn sm" id="bScaleOk" type="button">Apply</button></span><button class="btn ghost sm" id="bScaleX" type="button" style="color:#fff;border-color:#fff">Cancel</button></div>
       <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" aria-label="Floor plan"></svg>
       <div class="extDock front" data-dock="front"></div>
@@ -322,6 +451,7 @@ body.customer #plan{cursor:grab}
       <div class="extDock driveway" data-dock="driveway"></div>
       <div class="extDock yard" data-dock="yard"></div>
     </div>
+    <div class="mapKey" id="mapKey"></div>
   </div>
 
   <aside style="display:grid;gap:12px">
@@ -344,8 +474,11 @@ body.customer #plan{cursor:grab}
   </div>
   <div class="card"><div class="thead"><h2>Zone schedule</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bZoneCsv">Export CSV</button></div><div id="zoneTbl"></div></div>
   <div class="card"><div class="thead"><h2>Camera schedule</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bCamCsv">Export CSV</button></div><div id="camTbl"></div></div>
+  <div class="card team-only" id="issueCard"><div class="thead"><h2>Site issues</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bIssueCsv">Export CSV</button></div><div id="issueTbl"></div></div>
   <div class="card no-print edit-only"><div class="thead"><h2>Exterior suggestions</h2><span class="sp"></span></div><div id="extTbl"></div></div>
+  <div class="card pf-only optional" id="guidePrint"></div>
 </section>
+<div id="ovl" class="ovl" hidden></div>
 
 <div id="lb" class="lightbox" hidden><button class="btn ghost sm x" id="lbClose" type="button">Close</button><img id="lbImg" alt="Enlarged image"></div>
 
@@ -382,6 +515,7 @@ const ICON={
  bell:'<rect x="7" y="2.5" width="10" height="19" rx="3"/><circle cx="12" cy="8" r="2.2"/><circle cx="12" cy="16" r="1.6"/>',
  nvr:'<rect x="2.5" y="8" width="19" height="8" rx="1.5"/><circle cx="6" cy="12" r=".9" fill="currentColor"/><path d="M10 12h8"/><path d="M5 16v2M19 16v2"/>'
 };
+ICON.panic='<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 1.5v1.5M12 21v1.5M1.5 12H3M21 12h1.5"/>';
 const svgIcon=(k,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]||''}</svg>`;
 const badgeSvg=(k,c)=>`<svg class="ibs" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="${c}"/><g transform="translate(4.8 4.8) scale(.6)" fill="none" stroke="#fff" color="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]||''}</g></svg>`;
 const ibadge=(k,c,size='')=>`<span class="ib ${size}" style="--ibc:${c}">${badgeSvg(k,c)}</span>`;
@@ -398,7 +532,8 @@ const ALARM={
   co:{label:'CO detector',ic:'CO',c:'#b45309',zone:true},
   heat:{label:'Heat detector',ic:'HD',c:'#9f1239',zone:true},
   water:{label:'Water/flood sensor',ic:'WF',c:'#0284c7',zone:true},
-  siren:{label:'Siren',ic:'SR',c:'#2b2829',zone:false}
+  siren:{label:'Siren',ic:'SR',c:'#2b2829',zone:false},
+  panic:{label:'Panic / hold-up button',ic:'PB',c:'#7c2d12',zone:true}
 };
 const OUTLET={label:'Outlet',ic:'⏚',c:'#65a30d'};
 const CAMS={
@@ -422,13 +557,13 @@ const camModelLabel=it=>it.model==='R5'?(it.variant==='B'?'R5B':'R5W'):it.model;
 const nightFt=m=>ftR(CAMS[m].nightM);
 
 let P=blank(), sel=null, uid=1, selExt=null;
-function blank(){return {name:'Untitled project',rooms:[],items:[],exteriors:[],walk:[],streetSide:'front',job:{customer:'',address:'',account:'',date:'',tech:''}}}
+function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],walk:[],streetSide:'front',job:{customer:'',address:'',account:'',date:'',tech:''}}}
 const nid=p=>p+(uid++);
-function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.walk||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
-function store(){try{localStorage.setItem('vyPlanner2',JSON.stringify(P))}catch(e){}scheduleHist()}
+function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.walk||[]),...(P.floors||[]),...(P.issues||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
+function store(){if(QUIET)return;clearTimeout(asT);asT=setTimeout(autosave,700);scheduleHist()}
 
 function mkItem(kind,type,x,y){
-  const it={id:nid('i'),kind,type,x,y,notes:''};
+  const it={id:nid('i'),kind,type,x,y,notes:'',floor:FID()};
   if(kind==='alarm'){it.name='';it.wiring='Wireless';if(ALARM[type].zone)it.zone=nextZone()}
   if(kind==='cam'){const c=CAMS[type];it.model=type;it.rot=0;it.fov=c.fov;it.range=ftR(c.nightM);it.rec=c.rec;it.location='';if(c.variant)it.variant='W';it.num=nextCam()}
   if(kind==='nvr'){it.location=''}
@@ -437,26 +572,28 @@ function mkItem(kind,type,x,y){
 }
 function nextZone(){const u=new Set(P.items.filter(i=>i.zone!=null).map(i=>+i.zone));let n=1;while(u.has(n))n++;return n}
 function nextCam(){const u=new Set(P.items.filter(i=>i.kind==='cam').map(i=>+i.num));let n=1;while(u.has(n))n++;return n}
-function roomAt(x,y){let best=null;for(const r of P.rooms){if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||r.w*r.h<best.w*best.h)best=r}}return best}
-const roomName=it=>{const r=roomAt(it.x,it.y);return r?r.name:''};
+function roomAt(x,y){return roomAtF(x,y,FID())}
+function roomAtF(x,y,f){let best=null;for(const r of P.rooms){if(flOf(r)!==f)continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||r.w*r.h<best.w*best.h)best=r}}return best}
+const roomName=it=>{const r=roomAtF(it.x,it.y,flOf(it));return r?r.name:''};
 const inRoom=(r,x,y)=>x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;
 const isOutdoorCam=it=>CAMS[it.model]&&CAMS[it.model].env!=='Indoor';
 
 // ---- palette ----
 function palBtn(host,ic,c,label,sub,fn){const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="ic">${ic}</span><span>${label}${sub?`<small>${sub}</small>`:''}</span>`;b.onclick=fn;host.appendChild(b)}
 function placeNew(kind,type){const it=mkItem(kind,type,W/2+(Math.random()*6-3),H/2+(Math.random()*6-3));if(kind==='opening'){snapOpening(it,it.x,it.y,99);freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
-for(const [k,a] of Object.entries(ALARM))palBtn(palAlarm,ibadge(k,a.c,'lg'),a.c,a.label,a.zone?'':'Not a zone',()=>placeNew('alarm',k));
+for(const [k,a] of Object.entries(ALARM)){palBtn(palAlarm,ibadge(k,a.c,'lg'),a.c,a.label,a.zone?'':'Not a zone',()=>placeNew('alarm',k));if(['smoke','co','heat'].includes(k))palAlarm.lastChild.classList.add('fireDev');if(k==='panic')palAlarm.lastChild.classList.add('commDev')}
 palBtn(palPower,ibadge('outlet',OUTLET.c,'lg'),OUTLET.c,'Outlet','Marker for the 5 ft camera rule',()=>placeNew('outlet','outlet'));
 for(const [k,c] of Object.entries(CAMS))palBtn(palCam,photoTag(k),camColor[c.env],c.name,`${c.env} · ${c.power} · ${c.fov}° · ${ftR(c.nightM)} ft`,()=>placeNew('cam',k));
 palBtn(palRec,photoTag('N85'),'#2e2f2a',N85.name,`${N85_CH} channels · no cone`,()=>placeNew('nvr','N85'));
-bRoom.onclick=()=>{const r={id:nid('r'),name:'Room '+(P.rooms.length+1),x:FOOT.x+4,y:FOOT.y+4,w:14,h:10};P.rooms.push(r);sel={t:'room',id:r.id};render()};
+bRoom.onclick=()=>{const r={id:nid('r'),name:'Room '+(FR().length+1),x:FOOT.x+4,y:FOOT.y+4,w:14,h:10,floor:FID()};P.rooms.push(r);sel={t:'room',id:r.id};render()};
 
 document.querySelectorAll('#leftTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x===b));
   tabDevices.hidden=b.dataset.tab!=='devices';
   tabExterior.hidden=b.dataset.tab!=='exterior';
   tabWalk.hidden=b.dataset.tab!=='walk';
-  document.querySelector('main').classList.toggle('wide-left',b.dataset.tab==='walk');
+  tabGuide.hidden=b.dataset.tab!=='guide';trayDockLeft.hidden=b.dataset.tab!=='devices';
+  document.querySelector('main').classList.toggle('wide-left',b.dataset.tab==='walk'||b.dataset.tab==='guide');if(b.dataset.tab==='guide')renderGuidelines();
   render();
 });
 
@@ -602,9 +739,9 @@ let VB={x:0,y:0,w:W,h:H};
 function computeVB(){
   let x0=0,y0=0,x1=W,y1=H;
   if(cView.value==='house'){VB={x:FOOT.x-12,y:FOOT.y-12,w:FOOT.w+24,h:FOOT.h+24};return}
-  if(cCones.checked)for(const it of P.items.filter(i=>i.kind==='cam'&&isOutdoorCam(i))){
+  if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam'&&isOutdoorCam(i))){
     const a=it.rot*Math.PI/180,h=it.fov/2*Math.PI/180;for(let k=0;k<=12;k++){const t=a-h+2*h*k/12,px=it.x+it.range*Math.cos(t),py=it.y+it.range*Math.sin(t);x0=Math.min(x0,px);y0=Math.min(y0,py);x1=Math.max(x1,px);y1=Math.max(y1,py)}}
-  for(const r of P.rooms){x0=Math.min(x0,r.x-6);y0=Math.min(y0,r.y-6);x1=Math.max(x1,r.x+r.w+6);y1=Math.max(y1,r.y+r.h+10)}
+  for(const r of FR()){x0=Math.min(x0,r.x-6);y0=Math.min(y0,r.y-6);x1=Math.max(x1,r.x+r.w+6);y1=Math.max(y1,r.y+r.h+10)}
   const U=P.underlay;if(U&&U.src&&(!CUST()||U.showCustomer)){const cx=U.x+U.w/2,cy=U.y+U.h/2,r=(U.rot||0)%180?[U.h/2,U.w/2]:[U.w/2,U.h/2];x0=Math.min(x0,cx-r[0]);x1=Math.max(x1,cx+r[0]);y0=Math.min(y0,cy-r[1]);y1=Math.max(y1,cy+r[1])}
   const pad=2;VB={x:Math.floor(x0-pad*(x0<0)),y:Math.floor(y0-pad*(y0<0)),w:0,h:0};VB.w=Math.ceil(x1+pad*(x1>W))-VB.x;VB.h=Math.ceil(y1+pad*(y1>H))-VB.y;
 }
@@ -629,23 +766,33 @@ function drawYard(){
   const lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15},g); lt.textContent=lab;
 }
 function render(){
-  if(!P.exteriors)P.exteriors=[];
+  if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];
   streetSide.value=P.streetSide||'front';
-  if(drag&&drag.vb0){VB0={...drag.vb0}}else{computeVB();VB0={...VB}}applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  CHK=checks();
+  drawPlan();
+  bDel.disabled=bDup.disabled=!sel;
+  bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
+  renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();
+  renderFloors();renderModeUI();renderMapKey();schedulePF();store();
+}
+function drawPlan(opt={}){
+  const PR=!!opt.print;
+  if(drag&&drag.vb0&&!PR){VB0={...drag.vb0}}else{computeVB();VB0={...VB}}applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   svg.innerHTML='';
   drawYard();
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6'},g)}
   drawUnderlay();
-  for(const r of P.rooms){const s=sel&&sel.t==='room'&&sel.id===r.id;const g=el('g',{'data-room':r.id},svg);
+  for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const g=el('g',{'data-room':r.id},svg);
     el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,'fill-opacity':(P.underlay&&P.underlay.src&&(!CUST()||P.underlay.showCustomer))?.3:1,fill:s?'#fff5f6':'#ffffff',stroke:s?'#da0029':'#8a8780','stroke-width':s?.25:.16,style:'cursor:move'},g);
     const t=el('text',{x:r.x+.5,y:r.y+1.4,'font-size':1.1,fill:'#5e5758','font-weight':600,style:'pointer-events:none'},g);t.textContent=r.name;
     const sz=el('text',{x:r.x+.5,y:r.y+2.6,'font-size':.8,fill:'#9a9690',style:'pointer-events:none'},g);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
   }
-  for(const it of P.items.filter(i=>i.kind==='opening'))drawOpening(it);
+  for(const it of FI().filter(i=>i.kind==='opening'))drawOpening(it);
+  drawIssueLines();
   // resize corner drawn above doors/windows so an opening near the corner never hides it
-  if(sel&&sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r)el('rect',{x:r.x+r.w-.7,y:r.y+r.h-.7,width:1.4,height:1.4,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize'},svg)}
+  if(sel&&sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const hs=Math.max(1.4,HS());el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize'},svg)}}
   // cones: outdoor unclipped (extend into yard); indoor clipped to their room
-  if(cCones.checked)for(const it of P.items.filter(i=>i.kind==='cam')){
+  if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam')){
     const c=CAMS[it.model],on=sel&&sel.id===it.id;
     const g=el('g',{},svg);
     // Outdoor cones draw on top of yard — no clip. Indoor: clip to room if present (easy clip via clipPath)
@@ -656,20 +803,22 @@ function render(){
     }
     el('path',{d:conePath(it),fill:camColor[c.env],'fill-opacity':on?.22:.06,stroke:camColor[c.env],'stroke-opacity':on?.85:.3,'stroke-width':on?.15:.08,style:'pointer-events:none'},g);
   }
-  for(const it of P.items){if(it.kind==='opening')continue;const s=sel&&sel.t==='item'&&sel.id===it.id;const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
+  const warn=PR||CUST()?{}:warnIds();
+  for(const it of FI()){if(it.kind==='opening')continue;const s=sel&&sel.t==='item'&&sel.id===it.id;const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
     let c,ik,title;if(it.kind==='alarm'){c=ALARM[it.type].c;ik=it.type;title=ALARM[it.type].label}else if(it.kind==='outlet'){c=OUTLET.c;ik='outlet';title='Outlet'}else if(it.kind==='cam'){c=camColor[CAMS[it.model].env];ik=camIconKey(it.model);title='Vyanet '+CAMS[it.model].name.replace(/^R5W \/ R5B/,camModelLabel(it))}else{c='#2e2f2a';ik='nvr';title='Vyanet N85 5MP PoE NVR'}
     const rr=it.kind==='outlet'?.75:it.kind==='alarm'?.95:1.05;
     el('title',{},g).textContent=title;
+    if(COARSE)el('circle',{cx:it.x,cy:it.y,r:Math.max(rr,HS()/2),fill:'transparent'},g);
     el('circle',{cx:it.x,cy:it.y,r:rr,fill:c,stroke:s?'#f59e0b':'#fff','stroke-width':s?.3:.14},g);
     const isz=rr*1.25,ic=el('svg',{x:it.x-isz/2,y:it.y-isz/2,width:isz,height:isz,viewBox:'0 0 24 24',fill:'none',stroke:'#fff','stroke-width':2.2,'stroke-linecap':'round','stroke-linejoin':'round',style:'pointer-events:none',color:'#fff'},g);ic.innerHTML=ICON[ik];
     if(s&&it.kind==='cam'&&camPhoto(it)){const sz=3.2;el('rect',{x:it.x+1.3,y:it.y-sz-.6,width:sz,height:sz,rx:.3,fill:'#fff',stroke:'#f59e0b','stroke-width':.12},g);const im=el('image',{x:it.x+1.4,y:it.y-sz-.5,width:sz-.2,height:sz-.2,href:camPhoto(it),style:'pointer-events:none'},g)}
     const tag=it.kind==='alarm'&&it.zone!=null?'Z'+it.zone:it.kind==='cam'?'C'+it.num+' '+camModelLabel(it):it.kind==='nvr'?'N85':'';
     if(tag){const tt=el('text',{x:it.x,y:it.y-rr-.3,'font-size':.7,'text-anchor':'middle',fill:'#2e2f2a','font-weight':600,style:'pointer-events:none'},g);tt.textContent=tag}
-    if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:.55,fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
-  drawSugGhosts();
-  bDel.disabled=bDup.disabled=!sel;
-  bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
-  renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();store();
+    if(it.kind==='alarm'&&it.wiring==='Wireless'){const bx=it.x+rr*.78,by=it.y+rr*.78;el('circle',{cx:bx,cy:by,r:.4,fill:'#fff',stroke:'#0089f7','stroke-width':.09,'data-wbadge':1,style:'pointer-events:none'},g);const wt=el('text',{x:bx,y:by+.2,'font-size':.52,'text-anchor':'middle',fill:'#0089f7','font-weight':700,style:'pointer-events:none'},g);wt.textContent='W'}
+    if(warn[it.id]){const cx=it.x-rr*.95,cy=it.y-rr*.95,ws=1;const wg=el('g',{'data-warn':it.id,'data-warnmark':1,style:'cursor:pointer'},svg);el('title',{},wg).textContent=strip(warn[it.id].t)+' (click for the fix)';el('path',{d:`M${cx},${cy-ws*.62} L${cx+ws*.58},${cy+ws*.42} L${cx-ws*.58},${cy+ws*.42} Z`,fill:'#facc15',stroke:'#92400e','stroke-width':.08,'stroke-linejoin':'round'},wg);const wx=el('text',{x:cx,y:cy+.33,'font-size':.62,'text-anchor':'middle',fill:'#78350f','font-weight':700,style:'pointer-events:none'},wg);wx.textContent='!'}
+    if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:Math.max(.55,HS()/2),fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
+  drawIssueMarks(PR);
+  if(!PR)drawSugGhosts();
 }
 
 // ---- interaction ----
@@ -679,21 +828,25 @@ let drag=null;
 function stackAt(e){const out=[];for(const n of document.elementsFromPoint(e.clientX,e.clientY)){if(!svg.contains(n))continue;const g=n.closest('[data-item],[data-room]');if(!g)continue;
   const k=g.dataset.item?{t:'item',id:g.dataset.item}:{t:'room',id:g.dataset.room};if(!out.some(o=>o.t===k.t&&o.id===k.id))out.push(k)}return out}
 // doors/windows sitting on a room's own walls (facing into that room)
-function wallOps(r){const out=[],E=.05;for(const it of P.items){if(it.kind!=='opening')continue;const inw=it.inward||1;
+function wallOps(r){const out=[],E=.05;for(const it of FI()){if(it.kind!=='opening')continue;const inw=it.inward||1;
   if(it.orient==='h'&&it.x>=r.x-E&&it.x<=r.x+r.w+E){if(Math.abs(it.y-r.y)<E&&inw>0)out.push({it,side:'top'});else if(Math.abs(it.y-(r.y+r.h))<E&&inw<0)out.push({it,side:'bottom'})}
   if(it.orient==='v'&&it.y>=r.y-E&&it.y<=r.y+r.h+E){if(Math.abs(it.x-r.x)<E&&inw>0)out.push({it,side:'left'});else if(Math.abs(it.x-(r.x+r.w))<E&&inw<0)out.push({it,side:'right'})}}return out}
 // what travels with a room when it is dragged: its doors/windows + devices inside it (hold Alt to move the room alone)
-function roomKids(r){const set=new Set(wallOps(r).map(w=>w.it));for(const it of P.items)if(it.kind!=='opening'&&roomAt(it.x,it.y)===r)set.add(it);
+function roomKids(r){const set=new Set(wallOps(r).map(w=>w.it));for(const it of FI())if(it.kind!=='opening'&&roomAt(it.x,it.y)===r)set.add(it);
   return {x0:r.x,y0:r.y,list:[...set].map(it=>({it,x:it.x,y:it.y}))}}
 function itemBox(it){if(it.kind==='opening'){const h2=(+it.width||3)/2;return it.orient==='h'?[it.x-h2,it.y-.9,it.x+h2,it.y+.9]:[it.x-.9,it.y-h2,it.x+.9,it.y+h2]}
   const rr=it.kind==='outlet'?.75:it.kind==='alarm'?.95:1.05;return [it.x-rr,it.y-rr,it.x+rr,it.y+rr]}
-function overlapping(it){const a=itemBox(it);return P.items.filter(o=>o!==it&&(()=>{const b=itemBox(o);return a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3]})())}
+function overlapping(it){const a=itemBox(it);return FI().filter(o=>o!==it&&(()=>{const b=itemBox(o);return a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3]})())}
 function itemLabel(it){if(it.kind==='opening')return (it.type==='door'?'Door':'Window')+(it.name?' · '+it.name:'');if(it.kind==='alarm')return ALARM[it.type].label+(it.zone!=null?' Z'+it.zone:'');if(it.kind==='outlet')return 'Outlet';if(it.kind==='cam')return 'C'+it.num+' '+camModelLabel(it);return 'N85'}
 svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   if(CUST()){drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0};svg.setPointerCapture(e.pointerId);return}
   if(SC.on){scaleClick(p);return}
   if(t.getAttribute('data-underlay')&&P.underlay&&!P.underlay.locked){drag={m:'ul',o:P.underlay,dx:p.x-P.underlay.x,dy:p.y-P.underlay.y,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);return}
   const sg=t.closest('[data-sug]');if(sg){SUG.focus=sg.dataset.sug;render();const li=document.querySelector(`.sugRow[data-s="${sg.dataset.sug}"]`);if(li)li.scrollIntoView({block:'nearest'});return}
+  const wm=t.closest('[data-warn]');if(wm){sel={t:'item',id:wm.dataset.warn};render();return}
+  const ie=t.getAttribute('data-iend'),isg=t.closest('[data-issue]');
+  if(ie||isg){if(ie){const [id,k]=ie.split(':');drag={m:'iend',o:P.issues.find(i=>i.id===id),k}}else{const o=P.issues.find(i=>i.id===isg.dataset.issue);sel={t:'issue',id:o.id};drag={m:'imove',o,dx:p.x-o.x,dy:p.y-o.y,x0:o.x,y0:o.y,x2:o.x2,y2:o.y2,sx:e.clientX,sy:e.clientY,moved:0}}
+    svg.setPointerCapture(e.pointerId);drag.vb0={...VB0};render();return}
   const aim=t.getAttribute('data-aim'),rs=t.getAttribute('data-resize'),ig=t.closest('[data-item]'),rg=t.closest('[data-room]');
   if(aim){drag={m:'aim',o:P.items.find(i=>i.id===aim)}}
   else if(rs){const o=P.rooms.find(r=>r.id===rs);drag={m:'resize',o,ops:wallOps(o).map(w=>({...w,ox:w.it.x,oy:w.it.y}))}}
@@ -712,6 +865,8 @@ svg.addEventListener('pointermove',e=>{if(!drag)return;
   if(drag.m==='pan'){const sc=VB.w/svg.clientWidth,dx=(e.clientX-drag.sx)*sc,dy=(e.clientY-drag.sy)*sc;drag.moved=Math.max(drag.moved,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return;ZV.cx=drag.cx-dx;ZV.cy=drag.cy-dy;render();return}
   const p=pt(e),o=drag.o,snap=v=>Math.round(v*2)/2,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   if(drag.m==='ul'){o.x=Math.round((p.x-drag.dx)*4)/4;o.y=Math.round((p.y-drag.dy)*4)/4;render();return}
+  if(drag.m==='imove'){drag.moved=Math.max(drag.moved,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return;const nx=snap(p.x-drag.dx),ny=snap(p.y-drag.dy);o.x=nx;o.y=ny;if(o.x2!=null){o.x2=drag.x2+nx-drag.x0;o.y2=drag.y2+ny-drag.y0}render();return}
+  if(drag.m==='iend'){if(drag.k==='1'){o.x=snap(p.x);o.y=snap(p.y)}else{o.x2=snap(p.x);o.y2=snap(p.y)}render();return}
   if(drag.m==='move'){drag.moved=Math.max(drag.moved||0,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return}
   if(drag.m==='move'&&o.kind==='opening'){const rx=p.x-drag.dx,ry=p.y-drag.dy;if(!snapOpening(o,rx,ry,2.5)){o.x=snap(rx);o.y=snap(ry)}}
   else if(drag.m==='move'){o.x=cl(snap(p.x-drag.dx),VB0.x,VB0.x+VB0.w-(o.w||0));o.y=cl(snap(p.y-drag.dy),VB0.y,VB0.y+VB0.h-(o.h||0));
@@ -733,9 +888,9 @@ document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.te
   if(CUST())return;
   const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
-function delSel(){if(!sel)return;if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
+function delSel(){if(!sel)return;if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
 bDel.onclick=delSel;
-bDup.onclick=()=>{if(!sel)return;if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
+bDup.onclick=()=>{if(!sel)return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
 cCones.onchange=cGrid.onchange=cView.onchange=render;
 
 // ---- properties ----
@@ -766,10 +921,11 @@ function renderProps(){
   }
   if(!sel){b.className='empty';b.innerHTML='Select something on the plan.';return}
   b.className='';let h='';
+  if(sel.t==='issue'){renderIssueProps(b);return}
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
     h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`;
     const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag the red corner to resize.</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
-    b.innerHTML=h;bind(b,r);propActs(b);return}
+    h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);return}
   const it=P.items.find(i=>i.id===sel.id);if(!it){sel=null;return renderProps()}
   const room=roomName(it);
   if(it.kind==='alarm'){const a=ALARM[it.type];h=`<div class="propHead">${ibadge(it.type,a.c,'lg')}<b>${a.label}</b></div>`;
@@ -789,7 +945,7 @@ function renderProps(){
     h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button><label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
   const ov=overlapping(it);if(ov.length)h=`<div class="alsoHere">Also here:${ov.map(o=>`<button class="btn ghost sm" type="button" data-also="${esc(o.id)}">${esc(itemLabel(o))}</button>`).join('')}</div>`+h;
   h+=`<div class="propAct"><button class="btn sm" type="button" data-pdel>Delete${it.kind==='opening'?(it.type==='door'?' door':' window'):''}</button>${it.kind==='opening'?'':'<button class="btn ghost sm" type="button" data-pdup>Duplicate</button>'}</div>`;
-  b.innerHTML=h;bind(b,it);propActs(b);
+  h=warnBox(it)+h;h=h.replace('<div class="propAct">',floorSel(it)+'<div class="propAct">');b.innerHTML=h;bind(b,it);propActs(b);bindFloorSel(b,it);bindFix(b);
   const rb=b.querySelector('[data-reset]');if(rb)rb.onclick=()=>{const c=CAMS[it.model];it.fov=c.fov;it.range=ftR(c.nightM);render()};
 }
 function propActs(b){const d=b.querySelector('[data-pdel]');if(d)d.onclick=delSel;const u=b.querySelector('[data-pdup]');if(u)u.onclick=()=>bDup.click();
@@ -801,40 +957,55 @@ function bind(b,o){b.querySelectorAll('[data-k]').forEach(inp=>{inp.oninput=()=>
 // ---- checks ----
 function checks(){
   const out=[],cams=P.items.filter(i=>i.kind==='cam'),nvrs=P.items.filter(i=>i.kind==='nvr'),outlets=P.items.filter(i=>i.kind==='outlet');
-  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),lab=it=>`C${it.num} ${camModelLabel(it)}`;
-  for(const it of cams){const c=CAMS[it.model];
-    if(c.outlet){const d=outlets.length?Math.min(...outlets.map(o=>dist(o,it))):Infinity;if(d>OUTLET_FT)out.push({w:1,id:it.id,t:`<b>${lab(it)}</b> needs an outlet within ${OUTLET_FT} ft — ${outlets.length?`nearest is ${d.toFixed(1)} ft away`:'no outlet on the plan'}.`})}
-    if(c.poe&&!nvrs.length)out.push({w:1,id:it.id,t:`<b>${lab(it)}</b> is PoE and needs an N85 NVR on the plan.`});
-    if((it.model==='D1'||it.model==='R5')&&!nvrs.length)out.push({w:1,id:it.id,t:`<b>${lab(it)}</b> records to the N85, but there's no N85 on the plan.`});
-    if(it.model==='S2'){if(it.rec==='N85')out.push({w:1,id:it.id,t:`<b>${lab(it)}</b> is set to record to the N85, but the S2 doesn't work with the N85. Set it to Local.`});else out.push({w:0,id:it.id,t:`<b>${lab(it)}</b> records locally (S2 doesn't work with the N85).`})}
-    if(it.model==='F1'){const r=roomAt(it.x,it.y);if(r&&/garage/i.test(r.name)){const a=it.rot*Math.PI/180,dd=Math.min(3,it.range);if(!inRoom(r,it.x+dd*Math.cos(a),it.y+dd*Math.sin(a)))out.push({w:1,id:it.id,t:`<b>${lab(it)}</b> is in ${esc(r.name)} but its cone points outside the room. Aim it into the garage.`})}}
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),lab=it=>`C${it.num} ${camModelLabel(it)}`,multi=(P.floors||[]).length>1;
+  for(const it of cams){const c=CAMS[it.model],f=flOf(it),fo=outlets.filter(o=>flOf(o)===f);
+    if(c.outlet){const d=fo.length?Math.min(...fo.map(o=>dist(o,it))):Infinity;if(d>OUTLET_FT)out.push({w:1,id:it.id,fix:'outlet',t:`<b>${lab(it)}</b> needs an outlet within ${OUTLET_FT} ft — ${fo.length?`nearest is ${d.toFixed(1)} ft away`:(multi?'no outlet on this floor':'no outlet on the plan')}.`})}
+    if(c.poe&&!nvrs.length)out.push({w:1,id:it.id,fix:'n85',t:`<b>${lab(it)}</b> is PoE and needs an N85 NVR on the plan.`});
+    if((it.model==='D1'||it.model==='R5')&&!nvrs.length)out.push({w:1,id:it.id,fix:'n85',t:`<b>${lab(it)}</b> records to the N85, but there's no N85 on the plan.`});
+    if(it.model==='S2'){if(it.rec==='N85')out.push({w:1,id:it.id,fix:'s2local',t:`<b>${lab(it)}</b> is set to record to the N85, but the S2 doesn't work with the N85. Set it to Local.`});else out.push({w:0,id:it.id,t:`<b>${lab(it)}</b> records locally (S2 doesn't work with the N85).`})}
+    if(it.model==='F1'){const r=roomAtF(it.x,it.y,f);if(r&&/garage/i.test(r.name)){const a=it.rot*Math.PI/180,dd=Math.min(3,it.range);if(!inRoom(r,it.x+dd*Math.cos(a),it.y+dd*Math.sin(a)))out.push({w:1,id:it.id,fix:'aimgarage',t:`<b>${lab(it)}</b> is in ${esc(r.name)} but its cone points outside the room. Aim it into the garage.`})}}
   }
   for(const ex of (P.exteriors||[])){const s=suggestCam(ex);if(s.warn)out.push({w:1,t:`<b>${esc(ex.side)} exterior:</b> ${esc(s.warn)}`})}
   const used=cams.filter(i=>i.model!=='S2'&&(NVR_CAMS.includes(i.model)||i.rec==='N85'));const cap=nvrs.length*N85_CH;
   if(used.length){if(nvrs.length&&used.length>cap)out.push({w:1,id:nvrs[0].id,t:`<b>N85 channels:</b> ${used.length} cameras need a channel but ${nvrs.length>1?`${nvrs.length} N85s give ${cap}`:`the N85 has ${N85_CH}`}.`});
     else if(nvrs.length)out.push({w:0,t:`<b>N85 channels:</b> ${used.length} of ${cap} used.`})}
   const zs={};P.items.filter(i=>i.kind==='alarm'&&i.zone!=null).forEach(i=>(zs[i.zone]=zs[i.zone]||[]).push(i));
-  for(const [z,l] of Object.entries(zs))if(l.length>1)out.push({w:1,id:l[1].id,t:`<b>Zone ${z}</b> is used by ${l.length} devices.`});
-  const nums={};cams.forEach(i=>(nums[i.num]=nums[i.num]||[]).push(i));for(const [n,l] of Object.entries(nums))if(l.length>1)out.push({w:1,id:l[1].id,t:`<b>Camera #${n}</b> is used by ${l.length} cameras.`});
+  for(const [z,l] of Object.entries(zs))if(l.length>1)out.push({w:1,id:l[1].id,fix:'zone',t:`<b>Zone ${z}</b> is used by ${l.length} devices.`});
+  const nums={};cams.forEach(i=>(nums[i.num]=nums[i.num]||[]).push(i));for(const [n,l] of Object.entries(nums))if(l.length>1)out.push({w:1,id:l[1].id,fix:'camnum',t:`<b>Camera #${n}</b> is used by ${l.length} cameras.`});
+  // site issues: metal / concrete walls between a wireless device and the panel; pets; problem notes
+  const iss=P.issues||[],walls=iss.filter(q=>ISSUE[q.type]&&ISSUE[q.type].line&&q.x2!=null);
+  if(walls.length)for(const it of P.items.filter(i=>i.kind==='alarm'&&i.type!=='panel'&&i.wiring==='Wireless')){const f=flOf(it),pn=P.items.find(i=>i.kind==='alarm'&&i.type==='panel'&&flOf(i)===f);if(!pn)continue;
+    const hit=walls.find(q=>flOf(q)===f&&segX(it,pn,{x:q.x,y:q.y},{x:q.x2,y:q.y2}));
+    if(hit)out.push({w:1,id:it.id,fix:'wired',t:`<b>${esc(itemLabel(it))}</b> — Possible wireless interference: its straight line to the panel crosses a ${hit.type==='metal'?'metal':'concrete / thick'} wall. Consider a wired device or repeater.`})}
+  const pet=iss.find(q=>q.type==='pet');
+  if(pet){const mo=P.items.find(i=>i.kind==='alarm'&&i.type==='motion');out.push({w:0,...(mo?{id:mo.id}:{iid:pet.id}),t:`<b>Pet in home:</b> choose pet-immune motion sensors and mount and aim them per the manufacturer's instructions.`})}
+  for(const q of iss)if(q.severity==='problem'&&q.type!=='pet')out.push({w:0,iid:q.id,t:`<b>Site issue${multi?' ('+esc(floorName(flOf(q)))+')':''}:</b> ${esc((ISSUE[q.type]||ISSUE.other).label)}${q.note?' — '+esc(q.note):''}`});
+  if(COMM()){const nf=P.items.filter(i=>i.kind==='alarm'&&FIRE.includes(i.type)).length;out.push({w:0,t:`<b>Commercial project:</b> commercial fire alarm systems are designed separately to code by qualified staff.${nf?` This plan still has ${nf} fire device${nf>1?'s':''} you chose to keep.`:''}`})}
   return out}
-function renderChecks(){const l=checks();const w=l.filter(x=>x.w).length;
-  checksEl.innerHTML=(w?'':`<li class="ok">No warnings.</li>`)+l.sort((a,b)=>b.w-a.w).map(x=>`<li class="${x.w?'w':'n'}" ${x.id?`data-id="${x.id}"`:''}>${x.w?'⚠ ':'ℹ '}${x.t}</li>`).join('');
-  checksEl.querySelectorAll('[data-id]').forEach(li=>li.onclick=()=>{sel={t:'item',id:li.dataset.id};render()})}
+function renderChecks(){const l=CHK.slice();const w=l.filter(x=>x.w).length;
+  checksEl.innerHTML=(w?'':`<li class="ok">No warnings.</li>`)+l.sort((a,b)=>b.w-a.w).map(x=>`<li class="${x.w?'w':'n'}" ${x.id?`data-id="${x.id}"`:''}${x.iid?` data-iid="${x.iid}"`:''}>${x.w?'⚠ ':'ℹ '}${x.t}${x.fix&&FIXL[x.fix]?` <button type="button" class="btn sm fixBtn" data-fix="${x.fix}" data-fid="${x.id}">${FIXL[x.fix]}</button>`:''}</li>`).join('');
+  checksEl.querySelectorAll('[data-id]').forEach(li=>li.onclick=()=>{const it=P.items.find(i=>i.id===li.dataset.id);if(it&&flOf(it)!==FID())switchFloorRaw(flOf(it));sel={t:'item',id:li.dataset.id};render()});
+  checksEl.querySelectorAll('[data-iid]').forEach(li=>li.onclick=()=>{const o=(P.issues||[]).find(i=>i.id===li.dataset.iid);if(!o)return;if(flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:'issue',id:o.id};render()});
+  bindFix(checksEl)}
 const checksEl=document.getElementById('checks');
 
 // ---- schedules + CSV ----
-function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(+a.zone||1e9)-(+b.zone||1e9)).map(i=>({id:i.id,c:[i.zone,ALARM[i.type].label,i.name,roomName(i),i.wiring,i.notes],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
-const ZCOLS=['Zone #','Device','Name / Location','Room','Wired / Wireless','Notes'];
-function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(+a.num||1e9)-(+b.num||1e9)).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
+function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[i.zone,ALARM[i.type].label,i.name,floorName(flOf(i)),roomName(i),i.wiring,i.notes],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
+const ZCOLS=['Zone #','Device','Name / Location','Floor','Room','Wired / Wireless','Notes'];
+function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
   const auto=[];if(i.model==='S2')auto.push('Records locally; not compatible with N85');if(c.poe)auto.push('PoE from N85');if(i.model==='D1')auto.push('Needs existing hardwired doorbell');
   const mn=c.name.replace(/^R5W \/ R5B/,camModelLabel(i));
-  return {id:i.id,h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),c.env,c.power,rec,[i.notes,...auto].filter(Boolean).join('; ')]}})}
-const CCOLS=['Camera #','Model','Location / Room','Indoor / Outdoor','Power','Records to','Notes'];
+  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,[i.notes,...auto].filter(Boolean).join('; ')]}})}
+const CCOLS=['Camera #','Model','Location / Room','Floor','Indoor / Outdoor','Power','Records to','Notes'];
 function extRows(){return (P.exteriors||[]).map(ex=>{const s=suggestCam(ex);return {id:ex.id,c:[ex.side,ex.name,ex.watch,ex.distance,ex.power,ex.mount,ex.wifi,s.model||'',s.reason+(s.warn?' '+s.warn:'')]}})}
 const ECOLS=['Side','Name','Watch','Distance (ft)','Power','Mount','Wi-Fi','Suggested','Reason'];
-function tbl(host,cols,rows,empty){host.innerHTML=rows.length?`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`:`<div class="empty">${empty}</div>`;
-  host.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{if(P.exteriors.some(e=>e.id===tr.dataset.id)){selExt=tr.dataset.id;document.querySelector('#leftTabs [data-tab=exterior]').click()}else{sel={t:'item',id:tr.dataset.id}}render()})}
-function renderTables(){tbl(zoneTbl,ZCOLS,zoneRows(),'No zones yet.');tbl(camTbl,CCOLS,camRows(),'No cameras yet.');tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
+function tbl(host,cols,rows,empty,grouped){
+  const tb=rs=>`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rs.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  if(!rows.length)host.innerHTML=`<div class="empty">${empty}</div>`;
+  else if(grouped)host.innerHTML=P.floors.map((f,i)=>{const rs=rows.filter(r=>r.f===f.id);return rs.length?`<div class="flSub">${esc(f.name)}<small>Floor ${i+1} of ${P.floors.length} · ${rs.length} row${rs.length>1?'s':''}</small></div>`+tb(rs):''}).join('');
+  else host.innerHTML=tb(rows);
+  host.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{const id=tr.dataset.id;if(P.exteriors.some(e=>e.id===id)){selExt=id;document.querySelector('#leftTabs [data-tab=exterior]').click()}else{const it=P.items.find(i=>i.id===id),is=(P.issues||[]).find(i=>i.id===id),o=it||is;if(o&&flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:it?'item':'issue',id}}render()})}
+function renderTables(){tbl(zoneTbl,ZCOLS,zoneRows(),'No zones yet.',true);tbl(camTbl,CCOLS,camRows(),'No cameras yet.',true);tbl(issueTbl,ICOLS,issueRows(),'No site issues noted.',true);tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
 function renderPrintExt(){
   printExt.innerHTML=(P.exteriors||[]).map(ex=>{const s=suggestCam(ex);return `<figure><img onclick="openLb(this.src)" src="${ex.dataUrl}" alt=""><figcaption><b>${esc(ex.side)}</b> — ${esc(ex.name)}<br>${esc(ex.watch)} · ${esc(ex.distance)} ft · ${esc(ex.power)}<br>Suggested: <b>${esc(s.model)}</b> — ${esc(s.reason)}${s.warn?' '+esc(s.warn):''}</figcaption></figure>`}).join('')||'<div class="empty">No exterior photos.</div>';
 }
@@ -847,15 +1018,15 @@ bCamCsv.onclick=()=>dl(slug()+'-camera-schedule.csv',csv(CCOLS,camRows()),'text/
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render()}
-bNew.onclick=()=>{if(confirm('Start a new empty project? Unsaved changes on this plan will be cleared.'))load(blank())};
-bDemo.onclick=()=>{if(!P.items.length||confirm('Replace the current plan with the demo project?'))load(demo())};
+function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];normalizeP();lastMode=null;floorKey='';pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render()}
+bNew.onclick=()=>{if(confirm('Start a new empty project? The current plan stays under Recent.')){autosave();load(blank());askMode()}};
+bDemo.onclick=()=>{if(!P.items.length||confirm('Replace the current plan with the demo project? The current plan stays under Recent.')){autosave();load(demo())}};
 bSave.onclick=()=>dl(slug()+'.vyplan.json',JSON.stringify(P,null,1),'application/json');
 bOpen.onclick=()=>fOpen.click();
-fOpen.onchange=()=>{const f=fOpen.files[0];if(!f)return;f.text().then(t=>{try{const p=JSON.parse(t);if(!Array.isArray(p.items)||!Array.isArray(p.rooms))throw 0;load(p)}catch(e){alert('That file is not a planner project.')}});fOpen.value=''};
+fOpen.onchange=()=>{const f=fOpen.files[0];if(!f)return;f.text().then(t=>{try{const p=JSON.parse(t);if(!Array.isArray(p.items)||!Array.isArray(p.rooms))throw 0;autosave();load(p)}catch(e){alert('That file is not a planner project.')}});fOpen.value=''};
 
 function demo(){
-  uid=1;const p={name:'Demo — 214 Maple Ct',rooms:[],items:[],exteriors:[],streetSide:'front'};
+  uid=1;const p={pid:'demo',name:'Demo — 214 Maple Ct',rooms:[],items:[],exteriors:[],streetSide:'front'};
   const R=(name,x,y,w,h)=>p.rooms.push({id:nid('r'),name,x,y,w,h});
   // rooms inside footprint (20,18)-(80,52)
   R('Garage',22,20,18,16);R('Kitchen',40,20,18,14);R('Primary Bedroom',58,20,20,14);
@@ -901,7 +1072,7 @@ function demo(){
 // ---- palette: doors / windows ----
 palBtn(palOpen,ibadge('door','#8a8780','lg'),'#8a8780','Door','Snaps to a room wall',()=>placeNew('opening','door'));
 palBtn(palOpen,ibadge('window','#0089f7','lg'),'#0089f7','Window','Snaps to a room wall',()=>placeNew('opening','window'));
-function roomEdges(){const E=[];for(const r of P.rooms){E.push({r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y,inward:1},{r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y+r.h,inward:-1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x,inward:1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x+r.w,inward:-1})}return E}
+function roomEdges(){const E=[];for(const r of FR()){E.push({r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y,inward:1},{r,o:'h',x0:r.x,x1:r.x+r.w,y:r.y+r.h,inward:-1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x,inward:1},{r,o:'v',y0:r.y,y1:r.y+r.h,x:r.x+r.w,inward:-1})}return E}
 function snapOpening(o,x,y,maxD){let best=null;const half=(+o.width||3)/2;
   for(const e of roomEdges()){let px,py,d;
     if(e.o==='h'){if(e.x1-e.x0<o.width)continue;px=Math.max(e.x0+half,Math.min(e.x1-half,x));py=e.y;d=Math.hypot(px-x,py-y)}
@@ -909,7 +1080,7 @@ function snapOpening(o,x,y,maxD){let best=null;const half=(+o.width||3)/2;
     if(d<=maxD&&(!best||d<best.d))best={d,px,py,e}}
   if(!best)return false;o.x=Math.round(best.px*2)/2;o.y=Math.round(best.py*2)/2;o.orient=best.e.o;o.inward=best.e.inward;return true}
 // slide a new door/window along its wall so it doesn't land on top of another one
-function opClash(o){const h=(+o.width||3)/2;return P.items.some(q=>q!==o&&q.kind==='opening'&&q.orient===o.orient&&(o.orient==='h'?Math.abs(q.y-o.y)<.05&&Math.abs(q.x-o.x)<h+(+q.width||3)/2:Math.abs(q.x-o.x)<.05&&Math.abs(q.y-o.y)<h+(+q.width||3)/2))}
+function opClash(o){const h=(+o.width||3)/2;return FI().some(q=>q!==o&&q.kind==='opening'&&q.orient===o.orient&&(o.orient==='h'?Math.abs(q.y-o.y)<.05&&Math.abs(q.x-o.x)<h+(+q.width||3)/2:Math.abs(q.x-o.x)<.05&&Math.abs(q.y-o.y)<h+(+q.width||3)/2))}
 function freeSpot(o){if(!opClash(o))return;const x0=o.x,y0=o.y,or=o.orient,step=.5;
   for(let k=1;k<200;k++){const d=Math.ceil(k/2)*step*(k%2?1:-1);const t={...o};if(!snapOpening(t,or==='h'?x0+d:x0,or==='h'?y0:y0+d,.01))continue;if(t.orient!==or)continue;t.id=o.id;if(!opClash(Object.assign(o,{x:t.x,y:t.y})))return}
   o.x=x0;o.y=y0}
@@ -919,7 +1090,7 @@ function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width
   const H=it.orient==='h';
   const a=H?[it.x-h2,it.y]:[it.x,it.y-h2],b=H?[it.x+h2,it.y]:[it.x,it.y+h2];
   if(it.type==='door'){const lf=H?[a[0],a[1]+inw*w]:[a[0]+inw*w,a[1]],sw=H?(inw>0?0:1):(inw>0?1:0);el('path',{d:`M${a[0]},${a[1]} L${lf[0]},${lf[1]} A${w},${w} 0 0 ${sw} ${b[0]},${b[1]} Z`,fill:s?'rgba(218,0,41,.07)':'transparent','data-hit':1},g)}
-  el('rect',H?{x:it.x-h2-.3,y:it.y-.9,width:w+.6,height:1.8}:{x:it.x-.9,y:it.y-h2-.3,width:1.8,height:w+.6},g).setAttribute('fill',s?'rgba(218,0,41,.14)':'transparent');
+  const T=Math.max(.9,HS()/2);el('rect',H?{x:it.x-h2-.3,y:it.y-T,width:w+.6,height:2*T}:{x:it.x-T,y:it.y-h2-.3,width:2*T,height:w+.6},g).setAttribute('fill',s?'rgba(218,0,41,.14)':'transparent');
   el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#ffffff','stroke-width':.42},g);
   if(it.type==='door'){const leaf=H?[a[0],a[1]+inw*w]:[a[0]+inw*w,a[1]];
     el('line',{x1:a[0],y1:a[1],x2:leaf[0],y2:leaf[1],stroke:'#2e2f2a','stroke-width':.14},g);
@@ -946,8 +1117,8 @@ bZin.onclick=()=>zoomAt(1.4);bZout.onclick=()=>zoomAt(1/1.4);bZfit.onclick=()=>{
 // ---- undo / redo ----
 const H_=[],R_=[];let hTimer=null,lastSnap=null,restoring=false;
 function scheduleHist(){if(restoring||drag)return;clearTimeout(hTimer);const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&!/^(checkbox|file|button)$/.test(ae.type))hTimer=setTimeout(pushHist,350);else pushHist()}
-function pushHist(){clearTimeout(hTimer);const s=JSON.stringify(P);if(s===lastSnap)return;if(lastSnap!==null){H_.push(lastSnap);if(H_.length>80)H_.shift();R_.length=0}lastSnap=s;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
-function restore(s){restoring=true;P=JSON.parse(s);pname.value=P.name;if(sel&&!(sel.t==='room'?P.rooms:P.items).some(o=>o.id===sel.id))sel=null;if(selExt&&!P.exteriors.some(x=>x.id===selExt))selExt=null;syncUid();fillJob();render();restoring=false;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
+function pushHist(){clearTimeout(hTimer);const s=JSON.stringify(P);if(s===lastSnap)return;if(lastSnap!==null){H_.push(lastSnap);if(H_.length>50)H_.shift();R_.length=0}lastSnap=s;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
+function restore(s){restoring=true;P=JSON.parse(s);pname.value=P.name;if(sel&&!(sel.t==='room'?P.rooms:sel.t==='issue'?(P.issues||[]):P.items).some(o=>o.id===sel.id))sel=null;if(selExt&&!P.exteriors.some(x=>x.id===selExt))selExt=null;syncUid();fillJob();render();restoring=false;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
 function undo(){pushHist();if(!H_.length)return;R_.push(lastSnap);lastSnap=H_.pop();restore(lastSnap)}
 function redo(){pushHist();if(!R_.length)return;H_.push(lastSnap);lastSnap=R_.pop();restore(lastSnap)}
 bUndo.onclick=undo;bRedo.onclick=redo;
@@ -955,7 +1126,7 @@ bUndo.onclick=undo;bRedo.onclick=redo;
 // ---- job header ----
 function fillJob(){document.querySelectorAll('[data-j]').forEach(i=>{i.value=(P.job||{})[i.dataset.j]||''})}
 document.querySelectorAll('[data-j]').forEach(i=>i.oninput=()=>{P.job=P.job||{};P.job[i.dataset.j]=i.value;renderJob();store()});
-function renderJob(){const j=P.job||{},f=[['Customer',j.customer],['Address',j.address],['Account #',j.account],['Date',j.date],['Tech',j.tech]];
+function renderJob(){const j=P.job||{},f=[[COMM()?'Business':'Customer',j.customer],['Address',j.address],['Account #',j.account],['Date',j.date],['Tech',j.tech]];
   jobSummary.innerHTML=`<dl>${f.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)||'—'}</dd></div>`).join('')}</dl>`}
 
 // ---- walkthrough video ----
@@ -985,6 +1156,7 @@ function renderLegend(){const L=[],has=f=>P.items.some(f);
   if(has(i=>i.kind==='opening'&&i.type==='door'))L.push(`<li>${ibadge('door','#8a8780')}Door (arc shows swing)</li>`);
   if(has(i=>i.kind==='opening'&&i.type==='window'))L.push(`<li>${ibadge('window','#0089f7')}Window</li>`);
   if(has(i=>i.kind==='cam'))L.push(`<li><span class="sw cone">◢</span>Camera view at night range</li>`);
+  if(has(i=>i.kind==='alarm'&&i.wiring==='Wireless'))L.push(`<li>${WB}Wireless device (no badge = wired)</li>`);
   L.push(`<li><span class="sw" style="background:#c5c2bb;color:#2e2f2a">ST</span>Street side</li>`);
   legendList.innerHTML=L.join('')}
 
@@ -995,7 +1167,7 @@ function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onloa
 function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
   const L=40,TW=PX-2*L,ws=fr.map(f=>f*TW),pad=12,lh=30;let y=y0+20;
   const wrap=(t,w)=>{const out=[];for(const para of String(t??'').split('\n')){let cur='';for(const wd of para.split(/\s+/).filter(Boolean)){const tt=cur?cur+' '+wd:wd;if(!cur||g.measureText(tt).width<=w)cur=tt;else{out.push(cur);cur=wd}}out.push(cur)}return out.length?out:['']};
-  if(draw){g.fillStyle='#2e2f2a';g.font='600 38px "Cormorant Garamond", Georgia, serif';g.fillText(title+(rows.length?`  (${rows.length})`:''),L,y+36)}
+  const nR=rows.filter(r=>!r.fh).length;if(draw){g.fillStyle='#2e2f2a';g.font='600 38px "Cormorant Garamond", Georgia, serif';g.fillText(title+(nR?`  (${nR})`:''),L,y+36)}
   y+=58;
   // header
   g.font='600 17px Poppins, Arial, sans-serif';const hl=cols.map((c,i)=>wrap(c.toUpperCase(),ws[i]-2*pad)),hh=Math.max(...hl.map(l=>l.length))*24+2*pad;
@@ -1003,7 +1175,7 @@ function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
   y+=hh;
   if(!rows.length){if(draw){g.fillStyle='#626262';g.font='italic 22px Poppins, Arial, sans-serif';g.fillText(empty,L+pad,y+34)}return y+50-y0}
   g.font='22px Poppins, Arial, sans-serif';
-  rows.forEach((r,ri)=>{const cells=r.c.map((v,i)=>wrap(v,ws[i]-2*pad-(i===1?30:0))),rh=Math.max(...cells.map(l=>l.length))*lh+2*pad;
+  rows.forEach((r,ri)=>{if(r.fh){if(draw){g.fillStyle='#da0029';g.font='600 26px Poppins, Arial, sans-serif';g.fillText(r.fh,L+pad,y+38)}g.font='22px Poppins, Arial, sans-serif';y+=56;return}const cells=r.c.map((v,i)=>wrap(v,ws[i]-2*pad-(i===1?30:0))),rh=Math.max(...cells.map(l=>l.length))*lh+2*pad;
     if(draw){if(ri%2)g.fillStyle='#fcfbfb',g.fillRect(L,y,TW,rh);let x=L;
       cells.forEach((ls,i)=>{let xo=0;if(i===1){if(r._ic){g.drawImage(r._ic,x+pad-2,y+pad-1,26,26);xo=30}else{g.fillStyle=colorOf(r);g.beginPath();g.arc(x+pad+10,y+pad+11,10,0,7);g.fill();xo=28}}
         g.fillStyle=i===0?'#2e2f2a':'#5e5758';g.font=(i===0?'600 ':'')+'22px Poppins, Arial, sans-serif';ls.forEach((t,k)=>g.fillText(t,x+pad+xo,y+pad+22+k*lh));x+=ws[i]});
@@ -1011,33 +1183,35 @@ function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
     y+=rh});
   return y+16-y0}
 async function exportPNG(){
-  const s0=sel;sel=null;render();
-  const clone=svg.cloneNode(true);sel=s0;render();
-  clone.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts]').forEach(n=>n.remove());
-  const B=VB0,PX=2400,sc=PX/B.w,ph=Math.round(B.h*sc);
-  clone.setAttribute('xmlns',NS);clone.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);clone.setAttribute('width',PX);clone.setAttribute('height',ph);
-  clone.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
-  const xml=new XMLSerializer().serializeToString(clone);
-  const map=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml));
+  const snaps=floorSnaps(),n=snaps.length,PX=2400,FH=124,maps=[];
+  for(const s of snaps){const B=s.B,ph=Math.round(B.h*PX/B.w),cl=s.clone;
+    cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);cl.setAttribute('width',PX);cl.setAttribute('height',ph);cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
+    const xml=new XMLSerializer().serializeToString(cl);maps.push({img:await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml)),ph,f:s.f,i:s.i})}
   const head=140,c=document.createElement('canvas');c.width=PX;let g=c.getContext('2d');
-  const zr=zoneRows(),cr=camRows();
-  const zcol=r=>{const it=P.items.find(i=>i.id===r.id);return it&&ALARM[it.type]?ALARM[it.type].c:'#8a8780'},ccol=r=>{const it=P.items.find(i=>i.id===r.id);return it?camColor[CAMS[it.model].env]:'#8a8780'};
-  const TB=[['Zone schedule',ZCOLS,[.08,.17,.22,.15,.12,.26],zr,zcol,'No zones yet.'],['Camera schedule',CCOLS,[.08,.15,.2,.11,.12,.1,.24],cr,ccol,'No cameras yet.']];
+  const zr=zoneRows(),cr=camRows(),ir=CUST()?[]:issueRows();
+  const grp=rows=>{const o=[];P.floors.forEach((f,i)=>{const rs=rows.filter(r=>r.f===f.id);if(rs.length){o.push({fh:`${f.name}  ·  Floor ${i+1} of ${n}`});o.push(...rs)}});return o};
+  const zcol=r=>{const it=P.items.find(i=>i.id===r.id);return it&&ALARM[it.type]?ALARM[it.type].c:'#8a8780'},ccol=r=>{const it=P.items.find(i=>i.id===r.id);return it?camColor[CAMS[it.model].env]:'#8a8780'},icol=r=>(SEV[r.sev]||SEV.caution).c;
+  const TB=[['Zone schedule',ZCOLS,[.07,.16,.19,.11,.13,.12,.22],grp(zr),zcol,'No zones yet.'],['Camera schedule',CCOLS,[.07,.14,.17,.1,.1,.11,.09,.22],grp(cr),ccol,'No cameras yet.']];
+  if(!CUST())TB.push(['Site issues',ICOLS,[.2,.12,.12,.14,.34,.08],grp(ir),icol,'No site issues noted.']);
   const icImg={};for(const r of [...zr,...cr]){const it=P.items.find(i=>i.id===r.id);if(!it)continue;const k=it.kind==='cam'?camIconKey(it.model):it.type,col=it.kind==='cam'?camColor[CAMS[it.model].env]:ALARM[it.type].c,key=k+col;
     if(!icImg[key])icImg[key]=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(badgeSvg(k,col).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" ')));r._ic=icImg[key]}
-  const tabH=TB.reduce((h,t)=>h+pngTable(g,0,PX,...t,false),0);
-  c.height=ph+head+tabH+40;g=c.getContext('2d');
+  const tabH=TB.reduce((h,t)=>h+pngTable(g,0,PX,...t,false),0),mapsH=maps.reduce((h,m)=>h+FH+m.ph,0);
+  c.height=head+mapsH+tabH+40;g=c.getContext('2d');
   g.fillStyle='#ffffff';g.fillRect(0,0,c.width,c.height);
   try{const lg=await loadImg(window.VY_LOGO);const lh=46,lw=lg.width*lh/lg.height;g.drawImage(lg,40,34,lw,lh);
     g.fillStyle='#2e2f2a';g.font='600 44px "Cormorant Garamond", Georgia, serif';g.fillText('Home Map',40+lw+22,74)}catch(e){}
   const j=P.job||{};g.fillStyle='#5e5758';g.font='26px Poppins, Arial, sans-serif';
   g.fillText([j.customer,j.address,j.account&&('Acct '+j.account),j.date,j.tech&&('Tech: '+j.tech)].filter(Boolean).join('   ·   ')||P.name,40,118);
   g.fillStyle='#da0029';g.fillRect(0,head-6,PX,6);
-  g.drawImage(map,0,head,PX,ph);
-  let ty=head+ph+20;for(const t of TB)ty+=pngTable(g,ty,PX,...t,true);
-  window.__pngExport={zones:zr.length,cams:cr.length,zoneNums:zr.map(r=>r.c[0]),camNums:cr.map(r=>r.c[0]),height:c.height};
+  let y=head;
+  for(const m of maps){g.fillStyle='#2e2f2a';g.font='700 76px "Cormorant Garamond", Georgia, serif';g.textAlign='left';g.fillText(m.f.name,40,y+88);
+    g.fillStyle='#da0029';g.font='600 30px Poppins, Arial, sans-serif';g.textAlign='right';g.fillText(`FLOOR ${m.i+1} OF ${n}`,PX-40,y+84);g.textAlign='left';g.fillRect(40,y+FH-10,PX-80,4);
+    y+=FH;g.drawImage(m.img,0,y,PX,m.ph);y+=m.ph}
+  let ty=y+20;for(const t of TB)ty+=pngTable(g,ty,PX,...t,true);
+  window.__pngExport={zones:zr.length,cams:cr.length,issues:ir.length,floors:n,floorNames:maps.map(m=>m.f.name),zoneNums:zr.map(r=>r.c[0]),camNums:cr.map(r=>r.c[0]),height:c.height};
   await new Promise(r=>c.toBlob(b=>{dlBlob(slug()+'-home-map.png',b);r()},'image/png'));
 }
+
 bPng.onclick=()=>exportPNG().catch(e=>alert('PNG export failed: '+e));
 
 
@@ -1091,7 +1265,7 @@ const RX={
 };
 const isIn=r=>!RX.outside.test(r.name);
 const rArea=r=>r.w*r.h, rCx=r=>r.x+r.w/2, rCy=r=>r.y+r.h/2;
-function inRoomAt(x,y){let best=null;for(const r of P.rooms){if(!isIn(r))continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||rArea(r)<rArea(best))best=r}}return best}
+function inRoomAt(x,y){let best=null;for(const r of FR()){if(!isIn(r))continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){if(!best||rArea(r)<rArea(best))best=r}}return best}
 function clampIn(r,x,y,m=.9){return [Math.max(r.x+m,Math.min(r.x+r.w-m,x)),Math.max(r.y+m,Math.min(r.y+r.h-m,y))]}
 function adjoin(a,b,min=3){ // share a wall segment at least min ft long
   const ox=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),oy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);
@@ -1110,11 +1284,11 @@ function bestExt(side,re){const L=(P.exteriors||[]).filter(e=>{const k=sideKey(e
 
 function buildSuggestions(){
   const S=[];let k=0;const add=o=>{o.sid='s'+(++k);o.on=true;S.push(o);return o};
-  const ex=P.items,rooms=P.rooms.filter(isIn);
+  const ex=FI(),rooms=FR().filter(isIn);
   if(!rooms.length)return S;
   const has=(f)=>ex.some(f);
   const roomHas=(r,f)=>ex.some(i=>f(i)&&inRoomAt(i.x,i.y)===r);
-  const commercial=rooms.some(r=>RX.commercial.test(r.name));
+  const commercial=COMM()||rooms.some(r=>RX.commercial.test(r.name));
   const beds=rooms.filter(r=>RX.bed.test(r.name)),halls=rooms.filter(r=>RX.hall.test(r.name)&&!RX.bed.test(r.name));
   const ops=ex.filter(i=>i.kind==='opening').map(o=>({o,...opInfo(o)}));
   const doors=ops.filter(d=>d.o.type==='door'),wins=ops.filter(d=>d.o.type==='window');
@@ -1146,6 +1320,8 @@ function buildSuggestions(){
   if(largest)mRooms.set(largest,'Largest room / main traffic area.');
   halls.forEach(r=>{if(mOK(r))mRooms.set(r,mRooms.get(r)||'Hallway: main traffic path between rooms.')});
   pDoors.forEach(d=>{if(d.room&&mOK(d.room)&&!mRooms.has(d.room))mRooms.set(d.room,'Room with an exterior door.')});
+  if(COMM())rooms.forEach(r=>{if(mOK(r)&&RX.open.test(r.name)&&!mRooms.has(r))mRooms.set(r,'Large open area: interior motion coverage.')});
+  const PETN=(P.issues||[]).some(q=>q.type==='pet'&&onF(q))?' Pet in home: choose a pet-immune motion sensor and mount and aim it per the manufacturer\u2019s instructions.':'';
   for(const [r,why] of mRooms){if(roomHas(r,i=>i.kind==='alarm'&&i.type==='motion'))continue;
     const rd=doors.filter(d=>d.room===r||d.other===r),C=[[r.x+.9,r.y+.9],[r.x+r.w-.9,r.y+.9],[r.x+.9,r.y+r.h-.9],[r.x+r.w-.9,r.y+r.h-.9]];
     const tgt=rd.length?rd:[{o:{x:rCx(r),y:rCy(r)}}];
@@ -1156,8 +1332,10 @@ function buildSuggestions(){
     const pick=isHall?[ends.sort((a,b)=>score(b)-score(a))[0]]:two?[cs[0],C[3-C.indexOf(cs[0])]]:[cs[0]];
     const aimAt=rd.length?nm(rd.sort((a,b)=>Math.hypot(b.o.x-pick[0][0],b.o.y-pick[0][1])-Math.hypot(a.o.x-pick[0][0],a.o.y-pick[0][1]))[0]):'room center';
     pick.forEach((c,i)=>add({cat:'Interior',kind:'alarm',type:'motion',x:c[0],y:c[1],name:r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' motion'+(pick.length>1?' '+(i+1):''),
-      reason:why+(isHall?' End-of-hall mount looking down its length.':` Corner mount aimed into the room${rd.length?' at '+aimAt:''}.`)+(two?' Room is over ~40 ft across, so two sensors.':'')}))}
-  // 4) fire / life safety
+      reason:why+(isHall?' End-of-hall mount looking down its length.':` Corner mount aimed into the room${rd.length?' at '+aimAt:''}.`)+(two?' Room is over ~40 ft across, so two sensors.':'')+PETN}))}
+  const garages=rooms.filter(r=>RX.garage.test(r.name));
+  // 4) fire / life safety (Residential only: commercial fire systems are designed separately to code)
+  if(!COMM()){
   const fireIn=(r,t)=>roomHas(r,i=>i.kind==='alarm'&&(i.type===t));
   const grid=(r,n)=>{const cols=Math.max(1,Math.round(Math.sqrt(n*r.w/r.h))),rows=Math.ceil(n/cols),P2=[];for(let j=0;j<rows;j++)for(let i=0;i<cols&&P2.length<n;i++)P2.push([r.x+r.w*(i+.5)/cols,r.y+r.h*(j+.5)/rows]);return P2};
   for(const r of rooms){
@@ -1171,24 +1349,27 @@ function buildSuggestions(){
       grid(r,n).forEach((c,i)=>add({cat:'Fire / CO',kind:'alarm',type:'smoke',x:c[0],y:c[1],name:nmR+' smoke'+(n>1?' '+(i+1):''),reason:n>1?`${Math.round(a)} sq ft open area: one smoke per ~900 sq ft, spread evenly (${n}).`:'Open / living area; at least one smoke per level, centered.'}))}
   }
   // CO: near sleeping areas + rooms adjoining garage
-  const garages=rooms.filter(r=>RX.garage.test(r.name));
   if(beds.length&&!has(i=>i.kind==='alarm'&&i.type==='co')){const h=halls.find(h=>beds.some(b=>adjoin(b,h,2)));const r=h||beds[0];
     add({cat:'Fire / CO',kind:'alarm',type:'co',x:rCx(r),y:rCy(r)+(r.h>4?1.6:0),name:r.name+' CO',reason:h?'CO detector in the hallway outside the bedrooms.':'CO detector near the sleeping area.'})}
   for(const g of garages)for(const r of rooms){if(r===g||RX.garage.test(r.name)||!adjoin(g,r,3))continue;if(roomHas(r,i=>i.kind==='alarm'&&i.type==='co')||S.some(s=>s.type==='co'&&inRoomAt(s.x,s.y)===r))continue;
     const wx=Math.abs(g.x+g.w-r.x)<.6?r.x+1.5:Math.abs(r.x+r.w-g.x)<.6?r.x+r.w-1.5:rCx(r),wy=Math.abs(g.y+g.h-r.y)<.6?r.y+1.5:Math.abs(r.y+r.h-g.y)<.6?r.y+r.h-1.5:rCy(r);
     add({cat:'Fire / CO',kind:'alarm',type:'co',x:wx,y:wy,name:r.name+' CO',reason:`Shares a wall with the ${g.name.toLowerCase()} (car exhaust).`})}
+  }
   // water
   for(const r of rooms){const why=RX.kitchen.test(r.name)?'Kitchen: under the sink / by the dishwasher.':RX.laundry.test(r.name)?'Laundry: behind the washer.':RX.bath.test(r.name)?'Bathroom: by the toilet / under the sink.':RX.wheater.test(r.name)?'Water heater spot.':'';
     if(!why||roomHas(r,i=>i.kind==='alarm'&&i.type==='water'))continue;const [x,y]=clampIn(r,rCx(r)+r.w*.3,rCy(r)-r.h*.3,1);
     add({cat:'Fire / CO',kind:'alarm',type:'water',x,y,name:r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' water/flood',reason:why+' (confirm exact spot)'})}
   // panel + siren
-  let panel=ex.find(i=>i.kind==='alarm'&&i.type==='panel');
+  if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panel')){const emp=pDoors.find(d=>/employee|staff|rear|back|service/i.test(d.o.name||''))||pDoors.find(d=>d.room&&/break|storage|warehouse|loading/i.test(d.room.name))||main;
+    if(emp&&emp.room){const [x,y]=clampIn(emp.room,emp.o.x+emp.n.x*2+emp.t.x*2,emp.o.y+emp.n.y*2+emp.t.y*2,.9);add({cat:'Control',kind:'alarm',type:'panel',x,y,name:'Keypad by '+nm(emp).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim().toLowerCase(),reason:(emp===main&&!/employee|staff/i.test(emp.o.name||''))?'Keypad inside the main entry. Name a door "Employee entrance" to move it there.':'Keypad at the employee entrance, inside near the door.'})}}
+  let panel=ex.find(i=>i.kind==='alarm'&&i.type==='panel')||S.find(q=>q.type==='panel');
   if(!panel&&main){const [x,y]=clampIn(main.room,main.o.x+main.n.x*2+main.t.x*2,main.o.y+main.n.y*2+main.t.y*2,.9);
     panel=add({cat:'Control',kind:'alarm',type:'panel',x,y,name:'Panel / keypad by '+nm(main).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim().toLowerCase(),reason:'Keypad inside the main entry, within ~5 ft of the door.'})}
   if(!has(i=>i.kind==='alarm'&&i.type==='siren')){const all=rooms.filter(r=>!RX.garage.test(r.name)),A=all.reduce((s,r)=>s+rArea(r),0)||1;
     const cx=all.reduce((s,r)=>s+rCx(r)*rArea(r),0)/A,cy=all.reduce((s,r)=>s+rCy(r)*rArea(r),0)/A;
     const c0=inRoomAt(cx,cy),okS=r=>!RX.garage.test(r.name)&&!RX.bath.test(r.name)&&!RX.bed.test(r.name);const cand=(c0&&okS(c0))?c0:all.filter(okS).slice().sort((a,b)=>Math.hypot(rCx(a)-cx,rCy(a)-cy)-Math.hypot(rCx(b)-cx,rCy(b)-cy))[0]||largest||rooms[0];
     const [x,y]=clampIn(cand,cx,cy,.9);add({cat:'Control',kind:'alarm',type:'siren',x,y,name:cand.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' siren',reason:'Central location so it is heard throughout.'})}
+  if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panic'))rooms.filter(r=>/reception|lobby|front desk|retail|register|checkout|cashier|sales/i.test(r.name)).slice(0,3).forEach(r=>{const [x,y]=clampIn(r,r.x+r.w*.75,r.y+r.h*.7,1);add({cat:'Control',kind:'alarm',type:'panic',x,y,name:r.name.replace(/\s*\?\s*/g,' ').trim()+' panic button',reason:'Generic panic / hold-up button where staff work (reception desk or register). Confirm the exact spot with the business.'})});
   // 5) cameras
   const camAt=(model,x,y,rot,name,reason,extra={})=>add({cat:'Cameras',kind:'cam',model,x,y,rot:((rot%360)+360)%360,name,reason,...extra});
   const outCams=ex.filter(i=>i.kind==='cam'&&isOutdoorCam(i));
@@ -1207,12 +1388,12 @@ function buildSuggestions(){
     const off=model==='D1'?2.2:3.5;
     camAt(model,d.o.x-d.n.x*1+d.t.x*off,d.o.y-d.n.y*1+d.t.y*off,Math.atan2(-d.n.y,-d.n.x)*180/Math.PI-Math.sign(off)*20,nm(d).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' camera',`Covers ${d===main?'the main entry':'an exterior door'}. ${why}`);
     camDoors.push(d);if(d.side==='front')streetCovered=true}
-  if(outCams.length)streetCovered=streetCovered||outCams.some(c=>{const a=((c.rot%360)+360)%360,phys=['front','right','back','left'][{front:0,right:1,back:2,left:3}[P.streetSide||'front']];return phys==='front'?a>45&&a<135:phys==='back'?a>225&&a<315:phys==='left'?a>135&&a<225:(a<45||a>315)});
-  if(!streetCovered){const bx0=Math.min(...rooms.map(r=>r.x)),by0=Math.min(...rooms.map(r=>r.y)),bx1=Math.max(...rooms.map(r=>r.x+r.w)),by1=Math.max(...rooms.map(r=>r.y+r.h));
+  const parkCovered=!!outCams.length&&outCams.some(c=>{const a=((c.rot%360)+360)%360,phys=['front','right','back','left'][{front:0,right:1,back:2,left:3}[P.streetSide||'front']];return phys==='front'?a>45&&a<135:phys==='back'?a>225&&a<315:phys==='left'?a>135&&a<225:(a<45||a>315)});if(parkCovered)streetCovered=true;
+  if(!streetCovered||(COMM()&&!parkCovered)){const bx0=Math.min(...rooms.map(r=>r.x)),by0=Math.min(...rooms.map(r=>r.y)),bx1=Math.max(...rooms.map(r=>r.x+r.w)),by1=Math.max(...rooms.map(r=>r.y+r.h));
     const phys=['front','right','back','left'][({front:0,right:1,back:2,left:3}[P.streetSide||'front'])];
     const exs=(P.exteriors||[]).find(e=>e.side==='Driveway')||bestExt('front',/drive|street|yard|wide|area/i);let s=exs?suggestCam(exs):null;let model=s&&s.model!=='D1'?s.model:'F1',why=s&&s.model!=='D1'?`${s.reason} (from ${exs.side} exterior spot)`:'Street side: F1 for color night view plus blue/red deterrent lights (PoE via N85).';
     const pos={front:[main&&main.side==='front'?(main.o.x>(bx0+bx1)/2?bx0+3:bx1-3):bx1-3,by1+1,90],back:[bx0+3,by0-1,270],left:[bx0-1,by1-3,180],right:[bx1+1,by1-3,0]}[phys];
-    camAt(model,pos[0],pos[1],pos[2],'Street-side camera','Watches the street / driveway side. '+why)}
+    camAt(model,pos[0],pos[1],pos[2],COMM()?'Parking lot camera':'Street-side camera',(COMM()?'Watches the parking lot / street side. ':'Watches the street / driveway side. ')+why)}
   // indoor PT
   const pt=(r,c,aim,why,model='P1')=>{const a=angTo({x:c[0],y:c[1]},aim);camAt(model,c[0],c[1],a,r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' indoor camera',why,{outlet:true})};
   if(largest&&!roomHas(largest,i=>i.kind==='cam')){const r=largest,C=[[r.x+1,r.y+1],[r.x+r.w-1,r.y+1],[r.x+1,r.y+r.h-1],[r.x+r.w-1,r.y+r.h-1]];
@@ -1223,6 +1404,7 @@ function buildSuggestions(){
       pt(r,c2,{x:rCx(r),y:rCy(r)},`Opposite-corner P1 so the ${Math.round(r.w)}×${Math.round(r.h)} ft room is covered both ways (P1 night range ~${nightFt('P1')} ft).`)}
     else{const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));
       pt(r,cs[0],aim,`Largest common area: indoor P1 pan/tilt in the far corner aimed at ${inMain?'the main entry':'the room entry'}.`)}}
+  if(COMM())rooms.filter(r=>/retail|register|checkout|cashier|sales/i.test(r.name)&&!roomHas(r,i=>i.kind==='cam')&&!S.some(q=>q.kind==='cam'&&inRoomAt(q.x,q.y)===r)).forEach(r=>pt(r,[r.x+1,r.y+1],{x:rCx(r),y:rCy(r)},'Covers the register / point-of-sale area. Aim it at the counter once placed.'));
   // outlets for outlet cams
   for(const s of S.filter(s=>s.kind==='cam'&&CAMS[s.model].outlet)){
     if(ex.some(i=>i.kind==='outlet'&&Math.hypot(i.x-s.x,i.y-s.y)<=OUTLET_FT))continue;
@@ -1230,7 +1412,7 @@ function buildSuggestions(){
     const o=add({cat:'Power',kind:'outlet',x,y,name:'Confirm outlet for '+s.name,reason:`${s.model} needs an outlet within ${OUTLET_FT} ft — confirm one exists here.`,parent:s.sid});(s.deps=s.deps||[]).push(o.sid)}
   // N85
   const needN=S.some(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model)))||ex.some(i=>i.kind==='cam'&&(CAMS[i.model].poe||NVR_CAMS.includes(i.model)));
-  if(needN&&!has(i=>i.kind==='nvr')){const g=garages[0]||rooms.find(r=>RX.laundry.test(r.name)||/closet|utility|server|it\b|mechanical/i.test(r.name));let x,y,where;
+  if(needN&&!P.items.some(i=>i.kind==='nvr')){const g=garages[0]||rooms.find(r=>RX.laundry.test(r.name)||/closet|utility|server|it\b|mechanical/i.test(r.name));let x,y,where;
     if(g){[x,y]=[g.x+2,g.y+2];where=g.name.toLowerCase()}else if(panel){const r=inRoomAt(panel.x,panel.y)||rooms[0];[x,y]=clampIn(r,panel.x+3,panel.y,1);where='near the panel'}else{[x,y]=[rCx(rooms[0]),rCy(rooms[0])];where=rooms[0].name}
     const n=add({cat:'Recorder',kind:'nvr',x,y,name:'N85 NVR ('+where+')',reason:'PoE / N85-recording cameras suggested: N85 powers and records them (8 channels).'});
     S.filter(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model))).forEach(s=>(s.deps=s.deps||[]).push(n.sid))}
@@ -1269,9 +1451,9 @@ function drawSugGhosts(){if(CUST()||!SUG.list.length)return;const g=el('g',{'dat
     const isz=rr*1.2,ic=el('svg',{x:s.x-isz/2,y:s.y-isz/2,width:isz,height:isz,viewBox:'0 0 24 24',fill:'none',stroke:c,'stroke-width':2.2,'stroke-linecap':'round','stroke-linejoin':'round',style:'pointer-events:none'},gg);ic.innerHTML=ICON[ik];
     if(f){const tt=el('text',{x:s.x,y:s.y-rr-.5,'font-size':.75,'text-anchor':'middle',fill:'#b45309','font-weight':600,style:'pointer-events:none'},gg);tt.textContent=s.name}}}
 function renderSug(){const c=document.getElementById('sugCard');if(!c)return;
-  const showB=!SUG.bannerOff&&!SUG.list.length&&P.rooms.some(isIn)&&!P.items.some(i=>i.kind!=='opening');sugBanner.hidden=!showB;
+  const showB=!SUG.bannerOff&&!SUG.list.length&&FR().some(isIn)&&!FI().some(i=>i.kind!=='opening');sugBanner.hidden=!showB;
   c.hidden=!SUG.list.length;if(!SUG.list.length){sugList.innerHTML='';return}
-  const n=SUG.list.length,on=SUG.list.filter(s=>s.on).length;sugCount.textContent=`${n} suggested · ${on} selected`;
+  const n=SUG.list.length,on=SUG.list.filter(s=>s.on).length;sugCount.textContent=`${n} suggested · ${on} selected`+(COMM()?' · Commercial: no fire devices are suggested (designed separately to code by qualified staff).':'');
   let last='';sugList.innerHTML=SUG.list.map(s=>{const [ik,c2]=sugIcon(s);const h=s.cat!==last?`<li class="sugCat">${esc(last=s.cat)}</li>`:'';
     const ph=s.kind==='cam'?photoTag(s.model==='R5'?'R5W':s.model,'ph sm'):s.kind==='nvr'?photoTag('N85','ph sm'):'';
     return h+`<li class="sugRow${SUG.focus===s.sid?' on':''}" data-s="${s.sid}"><input type="checkbox" ${s.on?'checked':''} aria-label="Select"><span class="sugIc">${ph||ibadge(ik,c2)}</span><span class="sugTx"><b>${esc(s.name)}</b><small>${esc(s.reason)}</small></span><span class="sugBtns"><button type="button" class="ok" title="Accept" data-a="1">✓</button><button type="button" class="no" title="Reject" data-r="1">✕</button></span></li>`}).join('');
@@ -1286,9 +1468,346 @@ bSugSel.onclick=()=>acceptSug(SUG.list.filter(s=>s.on).map(s=>s.sid));
 bSugRej.onclick=()=>rejectSug(SUG.list.filter(s=>s.on).map(s=>s.sid));
 bSugClear.onclick=()=>{SUG.list=[];render()};
 
+// ===================== UX additions (floors, tray, templates, warnings, issues, modes, autosave, guide, guidelines) =====================
+const AUTO=!!navigator.webdriver&&!localStorage.getItem('vyForceUI');
+const FIRE=['smoke','co','heat'];
+const COMM=()=>P.mode==='commercial';
+const FID=()=>P.curFloor||((P.floors||[])[0]||{}).id;
+const flOf=o=>o.floor||((P.floors||[])[0]||{}).id;
+const onF=o=>flOf(o)===FID();
+const FR=()=>P.rooms.filter(onF), FI=()=>P.items.filter(onF);
+const floorName=id=>{const f=(P.floors||[]).find(f=>f.id===id);return f?f.name:''};
+const floorIdx=id=>Math.max(0,(P.floors||[]).findIndex(f=>f.id===id));
+const COARSE=matchMedia('(pointer:coarse)').matches;
+function HS(){return COARSE?26*VB.w/(svg.clientWidth||900):0}
+const strip=s=>String(s||'').replace(/<[^>]+>/g,'');
+const newPid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const fmtTime=ts=>{try{return new Date(+ts).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+let CHK=[];
+RX.open=/open office|warehouse|retail|sales floor|showroom|lobby|reception/i;
+
+// ---- site issues ----
+const ISSUE={
+  metal:{label:'Metal wall/structure',sub:'possible wireless interference',line:true,ic:'M',col:'#334155'},
+  concrete:{label:'Concrete/brick or thick wall',line:true,ic:'C',col:'#78716c'},
+  far:{label:'Long distance from panel',ic:'D'},
+  nooutlet:{label:'No outlet nearby',ic:'O'},
+  signal:{label:'No/weak Wi-Fi or cell signal',ic:'S'},
+  pet:{label:'Pet in home',sub:'motion consideration',ic:'P'},
+  ceiling:{label:'High ceiling',ic:'H'},
+  wire:{label:'Exposed/hard-to-run wire path',ic:'X'},
+  water:{label:'Water/moisture risk',ic:'≈'},
+  glare:{label:'Bright light / glare',ic:'L'},
+  other:{label:'Other',ic:'?'}
+};
+const SEV={info:{label:'Info',c:'#1e40af'},caution:{label:'Caution',c:'#b45309'},problem:{label:'Problem',c:'#da0029'}};
+const SEVORD={problem:0,caution:1,info:2};
+const issueBadge=(s,sz=22)=>{const I=ISSUE[s.type]||ISSUE.other,c=(SEV[s.severity]||SEV.caution).c;return `<svg class="isb" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 23 12 12 23 1 12Z" fill="${c}" stroke="#fff" stroke-width="1.5"/><text x="12" y="16" font-size="11" font-weight="700" text-anchor="middle" fill="#fff" font-family="Poppins,Arial,sans-serif">${I.ic}</text></svg>`};
+const issueMid=s=>{const L=ISSUE[s.type]&&ISSUE[s.type].line&&s.x2!=null;return L?[(s.x+s.x2)/2,(s.y+s.y2)/2]:[s.x,s.y]};
+const issueRoom=s=>{const [x,y]=issueMid(s),r=roomAtF(x,y,flOf(s));return r?r.name:''};
+issueType.innerHTML=Object.entries(ISSUE).map(([k,v])=>`<option value="${k}">${v.label}${v.sub?' ('+v.sub+')':''}</option>`).join('');
+function addIssue(type){const I=ISSUE[type]||ISSUE.other;applyZoom();const x=Math.round((ZV.cx||W/2)*2)/2,y=Math.round((ZV.cy||H/2)*2)/2;
+  const s={id:nid('x'),type,severity:'caution',note:'',floor:FID(),x,y};if(I.line){s.x=x-4;s.x2=x+4;s.y2=y}
+  P.issues.push(s);sel={t:'issue',id:s.id};render()}
+bIssueAdd.onclick=()=>addIssue(issueType.value);
+function drawIssueLines(){if(CUST())return;for(const s of (P.issues||[]).filter(onF)){const I=ISSUE[s.type];if(!I||!I.line||s.x2==null)continue;
+  const on=sel&&sel.t==='issue'&&sel.id===s.id,g=el('g',{'data-issue':s.id,style:'cursor:move'},svg);
+  el('line',{x1:s.x,y1:s.y,x2:s.x2,y2:s.y2,stroke:'transparent','stroke-width':Math.max(1.6,HS()),'stroke-linecap':'round'},g);
+  el('line',{x1:s.x,y1:s.y,x2:s.x2,y2:s.y2,stroke:on?'#f59e0b':I.col,'stroke-width':.62},g);
+  const dx=s.x2-s.x,dy=s.y2-s.y,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux,n=Math.floor(L/.45);
+  for(let k=1;k<n;k++){const cx=s.x+ux*k*.45,cy=s.y+uy*k*.45;
+    if(s.type==='metal')el('line',{x1:cx-nx*.27-ux*.15,y1:cy-ny*.27-uy*.15,x2:cx+nx*.27+ux*.15,y2:cy+ny*.27+uy*.15,stroke:'#fff','stroke-width':.07,style:'pointer-events:none'},g);
+    else el('circle',{cx,cy,r:.08,fill:'#fff',style:'pointer-events:none'},g)}}}
+function drawIssueMarks(PR){if(CUST())return;for(const s of (P.issues||[]).filter(onF)){const I=ISSUE[s.type]||ISSUE.other,on=sel&&sel.t==='issue'&&sel.id===s.id,c=(SEV[s.severity]||SEV.caution).c;
+  const [mx,my]=issueMid(s),g=el('g',{'data-issue':s.id,style:'cursor:move'},svg);el('title',{},g).textContent=`Site issue: ${I.label}${s.note?' — '+s.note:''}`;
+  const r=Math.max(.95,HS()/2);el('path',{d:`M${mx},${my-r} L${mx+r},${my} L${mx},${my+r} L${mx-r},${my} Z`,fill:c,stroke:on?'#f59e0b':'#fff','stroke-width':on?.28:.14},g);
+  const tx=el('text',{x:mx,y:my+.31,'font-size':.85,'text-anchor':'middle',fill:'#fff','font-weight':700,style:'pointer-events:none'},g);tx.textContent=I.ic;
+  if(s.photo)el('circle',{cx:mx+.75,cy:my-.75,r:.28,fill:'#fff',stroke:c,'stroke-width':.1,style:'pointer-events:none'},g);
+  if(on&&!PR&&I.line&&s.x2!=null)for(const k of ['1','2'])el('circle',{cx:k==='1'?s.x:s.x2,cy:k==='1'?s.y:s.y2,r:Math.max(.5,HS()/2),fill:'#fff',stroke:'#f59e0b','stroke-width':.15,'data-iend':s.id+':'+k,style:'cursor:crosshair'},svg)}}
+function issueRows(){return (P.issues||[]).slice().sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((SEVORD[a.severity]??1)-(SEVORD[b.severity]??1))).map(s=>{const I=ISSUE[s.type]||ISSUE.other;
+  return {id:s.id,f:flOf(s),sev:s.severity,c:[I.label,(SEV[s.severity]||SEV.caution).label,floorName(flOf(s)),issueRoom(s),s.note||'',s.photo?'Yes':''],
+    h:{0:`<span class="cellIc">${issueBadge(s)}${esc(I.label)}</span>`,5:s.photo?`<img class="ph sm" src="${s.photo}" alt="Site issue photo">`:''}}})}
+const ICOLS=['Issue','Severity','Floor','Room','Note','Photo'];
+bIssueCsv.onclick=()=>dl(slug()+'-site-issues.csv',csv(ICOLS,issueRows()),'text/csv');
+function renderIssueProps(b){const s=P.issues.find(i=>i.id===sel.id);if(!s){sel=null;return renderProps()}const I=ISSUE[s.type]||ISSUE.other;
+  let h=`<div class="propHead">${issueBadge(s,34)}<b>Site issue</b></div>`+selFld('Type','type',s,Object.entries(ISSUE).map(([k,v])=>[k,v.label+(v.sub?' ('+v.sub+')':'')]))+selFld('Severity','severity',s,Object.entries(SEV).map(([k,v])=>[k,v.label]))+ro('Room (from plan)',issueRoom(s))+`<label class="f">Note</label><textarea data-k="note" placeholder="What you saw and where">${esc(s.note)}</textarea>`;
+  h+=`<label class="f">Photo</label>${s.photo?`<img class="issuePh" src="${s.photo}" alt="Site issue photo" data-iphv>`:''}<div class="row2"><button class="btn soft sm" data-iph type="button">${s.photo?'Replace photo':'Attach photo'}</button>${s.photo?'<button class="btn ghost sm" data-iphx type="button">Remove photo</button>':''}</div><input type="file" accept="image/*" data-iphf hidden>`;
+  if(I.line)h+=`<div class="legend">${s.x2==null?'<button class="btn ghost sm" data-iline type="button">Draw as a wall line</button>':'Drag the line to move it. Drag its round ends to fit the wall. Wireless devices whose line to the panel crosses it get a warning.'}</div>`;
+  h+=floorSel(s)+`<div class="propAct"><button class="btn sm" data-pdel type="button">Delete issue</button><button class="btn ghost sm" data-pdup type="button">Duplicate</button></div>`;
+  b.innerHTML=h;bind(b,s);propActs(b);bindFloorSel(b,s);
+  const f=b.querySelector('[data-iphf]');b.querySelector('[data-iph]').onclick=()=>f.click();
+  f.onchange=()=>{const file=f.files[0];if(!file)return;const rd=new FileReader();rd.onload=async()=>{const img=await loadImg(rd.result);const k=Math.min(1,1200/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);s.photo=c.toDataURL('image/jpeg',.8);render()};rd.readAsDataURL(file)};
+  const x=b.querySelector('[data-iphx]');if(x)x.onclick=()=>{delete s.photo;render()};
+  const v=b.querySelector('[data-iphv]');if(v)v.onclick=()=>openLb(s.photo);
+  const ln=b.querySelector('[data-iline]');if(ln)ln.onclick=()=>{s.x2=s.x+4;s.y2=s.y;s.x-=4;render()}}
+const segX=(a,b,c,d)=>{const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));return o(a,b,c)!==o(a,b,d)&&o(c,d,a)!==o(c,d,b)};
+
+// ---- floors ----
+function switchFloorRaw(fid){if(fid===P.curFloor)return;const cur=P.floors.find(f=>f.id===P.curFloor),nf=P.floors.find(f=>f.id===fid);if(!nf)return;
+  if(cur){if(P.underlay)cur.underlay=P.underlay;else delete cur.underlay}P.underlay=nf.underlay||null;delete nf.underlay;P.curFloor=fid}
+function switchFloor(fid){if(SC.on)scaleEnd();switchFloorRaw(fid);sel=null;SUG.list=[];SUG.focus=null;focusHouse();render()}
+function addFloor(name){const f={id:nid('f'),name};if(/basement/i.test(name))P.floors.unshift(f);else P.floors.push(f);switchFloor(f.id)}
+function deleteFloor(){if(P.floors.length<2)return;const id=FID(),f=P.floors.find(x=>x.id===id),nr=P.rooms.filter(onF).length,ni=P.items.filter(onF).length,ns=(P.issues||[]).filter(onF).length;
+  if(!confirm(`Delete "${f.name}" with its ${nr} room${nr===1?'':'s'}, ${ni} device/door/window${ni===1?'':'s'} and ${ns} site issue${ns===1?'':'s'}? Undo brings it back.`))return;
+  P.rooms=P.rooms.filter(o=>!onF(o));P.items=P.items.filter(o=>!onF(o));P.issues=(P.issues||[]).filter(o=>!onF(o));
+  P.floors=P.floors.filter(x=>x.id!==id);const nf=P.floors[0];P.underlay=nf.underlay||null;delete nf.underlay;P.curFloor=nf.id;sel=null;SUG.list=[];focusHouse();render()}
+let floorKey='';
+function renderFloors(){const n=P.floors.length,cust=CUST(),key=JSON.stringify([P.floors.map(f=>[f.id,f.name]),FID(),cust]);if(key===floorKey)return;floorKey=key;
+  floorBar.innerHTML=P.floors.map((f,i)=>`<button type="button" class="fl${f.id===FID()?' on':''}" data-f="${f.id}" title="${esc(f.name)}: floor ${i+1} of ${n}" aria-pressed="${f.id===FID()}">${esc(f.name)}</button>`).join('')+
+    (cust?'':`<select id="flAdd" aria-label="Add a floor" title="Add a floor"><option value="">+ Floor</option>${['Basement','Main Floor','Upper Floor','Second Floor','Third Floor','Attic','Custom name…'].map(x=>`<option>${x}</option>`).join('')}</select><button type="button" class="flx" id="flRen" title="Rename this floor" aria-label="Rename this floor">✎</button><button type="button" class="flx" id="flDel" title="Delete this floor" aria-label="Delete this floor" ${n<2?'disabled':''}>✕</button>`);
+  floorBar.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{if(b.dataset.f!==FID())switchFloor(b.dataset.f)});
+  const a=document.getElementById('flAdd');if(a)a.onchange=()=>{let v=a.value;a.value='';if(!v)return;if(v==='Custom name…'){v=prompt('Name for the new floor',`Floor ${n+1}`);if(!v||!v.trim())return;v=v.trim()}addFloor(v)};
+  const rn=document.getElementById('flRen');if(rn)rn.onclick=()=>{const f=P.floors.find(x=>x.id===FID());const v=prompt('Rename this floor',f.name);if(v&&v.trim()){f.name=v.trim();render()}};
+  const dl_=document.getElementById('flDel');if(dl_)dl_.onclick=deleteFloor}
+function floorSel(o){if(P.floors.length<2)return '';return `<label class="f">Floor</label><select data-floor-move>${P.floors.map(f=>`<option value="${f.id}" ${f.id===flOf(o)?'selected':''}>${esc(f.name)}</option>`).join('')}</select>`}
+function bindFloorSel(b,o){const s=b.querySelector('[data-floor-move]');if(!s)return;s.onchange=()=>{const v=s.value;if(v===flOf(o))return;
+  if(sel&&sel.t==='room'){for(const k of roomKids(o).list)k.it.floor=v}o.floor=v;const keep=sel;switchFloorRaw(v);focusHouse();sel=keep;render()}}
+function floorSnaps(){const st={cf:P.curFloor,sel,ZV:{...ZV},drag};QUIET=true;drag=null;sel=null;const out=[];
+  try{P.floors.forEach((f,i)=>{switchFloorRaw(f.id);ZV={k:1,cx:null,cy:null};drawPlan({print:true});const c=svg.cloneNode(true);c.removeAttribute('id');c.removeAttribute('aria-label');c.setAttribute('role','img');c.setAttribute('aria-label',f.name+' floor map');
+    c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend]').forEach(n=>n.remove());
+    c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
+    out.push({f,i,clone:c,B:{...VB0}})})}
+  finally{switchFloorRaw(st.cf);sel=st.sel;ZV=st.ZV;drag=st.drag;drawPlan();QUIET=false}return out}
+function buildPrintFloors(){if(drag)return;const snaps=floorSnaps(),n=snaps.length,j=P.job||{},who=[j.customer,j.address,j.date].filter(Boolean).join(' · ');
+  printFloors.innerHTML='';for(const s of snaps){const sec=document.createElement('section');sec.className='fpPage'+(s.i?' fpBreak':'');sec.dataset.floor=s.f.id;
+    sec.innerHTML=`<div class="fpHead"><b>${esc(s.f.name)} · Floor ${s.i+1} of ${n}</b><span>${esc(who||P.name||'')}</span></div><h2 class="fpTitle">${esc(s.f.name)}<small>Floor ${s.i+1} of ${n}</small></h2>`;
+    sec.appendChild(s.clone);sec.insertAdjacentHTML('beforeend',`<div class="fpKey">${mapKeyHtml(true)}</div><div class="fpFoot"><span>${esc(s.f.name)} · Floor ${s.i+1} of ${n}</span><span>${esc(P.name||'')}</span></div>`);printFloors.appendChild(sec)}}
+let pfT=null;function schedulePF(){clearTimeout(pfT);pfT=setTimeout(()=>{if(drag||PINCH){schedulePF();return}buildPrintFloors()},400)}
+addEventListener('beforeprint',buildPrintFloors);
+try{matchMedia('print').addEventListener('change',e=>{if(e.matches)buildPrintFloors()})}catch(e){}
+
+// ---- map key / W badge ----
+const WB=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="#fff" stroke="#0089f7" stroke-width="1.6"/><text x="8" y="11.3" font-size="9" font-weight="700" text-anchor="middle" fill="#0089f7" font-family="Poppins,Arial,sans-serif">W</text></svg>`;
+const WARNSVG=`<svg width="16" height="15" viewBox="0 0 16 15" aria-hidden="true"><path d="M8 1 15 14H1Z" fill="#facc15" stroke="#92400e" stroke-width="1.2" stroke-linejoin="round"/><text x="8" y="12.6" font-size="9" font-weight="700" text-anchor="middle" fill="#78350f" font-family="Poppins,Arial,sans-serif">!</text></svg>`;
+function mapKeyHtml(pr){return `<span>${WB} Wireless device (no badge = wired)</span>`+
+  `<span class="team-only">${issueBadge({type:'other',severity:'caution'},16)} Site issue: <b style="color:#1e40af">info</b> · <b style="color:#b45309">caution</b> · <b style="color:#da0029">problem</b></span>`+
+  `<span class="team-only"><svg width="30" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#334155"/><path d="M3 9 7 1M9 9l4-8M15 9l4-8M21 9l4-8" stroke="#fff" stroke-width="1"/></svg> Metal wall</span>`+
+  `<span class="team-only"><svg width="30" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#78716c"/><circle cx="5" cy="5" r="1" fill="#fff"/><circle cx="11" cy="5" r="1" fill="#fff"/><circle cx="17" cy="5" r="1" fill="#fff"/><circle cx="23" cy="5" r="1" fill="#fff"/></svg> Concrete / thick wall</span>`+
+  (pr?'':`<span class="edit-only">${WARNSVG} Placement warning: click it for the fix</span>`)}
+let mkDone=false;function renderMapKey(){if(mkDone)return;mkDone=true;mapKey.innerHTML=mapKeyHtml(false)}
+
+// ---- plain-language warnings with one-click fixes ----
+const FIXL={outlet:'Add outlet',n85:'Add N85',s2local:'Set to Local',aimgarage:'Aim into garage',zone:'Use next free zone',camnum:'Use next free number',wired:'Mark as wired'};
+function warnIds(){const m={};for(const c of CHK)if(c.w&&c.id&&!m[c.id])m[c.id]=c;return m}
+function warnBox(it){const ws=CHK.filter(c=>c.id===it.id);return ws.map(c=>`<div class="warnBox${c.w?'':' note'}">${c.w?'⚠':'ℹ'} <span>${c.t}</span>${c.fix&&FIXL[c.fix]?`<button class="btn sm" type="button" data-fix="${c.fix}" data-fid="${it.id}">${FIXL[c.fix]}</button>`:''}</div>`).join('')}
+function bindFix(host){host.querySelectorAll('[data-fix]').forEach(b=>b.onclick=e=>{e.stopPropagation();applyFix(b.dataset.fix,b.dataset.fid)})}
+function applyFix(code,id){const it=P.items.find(i=>i.id===id);if(!it)return;const f=flOf(it),sn=v=>Math.round(v*2)/2;
+  if(code==='outlet'){const r=roomAtF(it.x,it.y,f);let spot=null;
+    for(const rad of [2,3.5])for(let a=0;a<360&&!spot;a+=45){const x=sn(it.x+rad*Math.cos(a*Math.PI/180)),y=sn(it.y+rad*Math.sin(a*Math.PI/180));
+      if(Math.hypot(x-it.x,y-it.y)>OUTLET_FT)continue;if(r&&!(x>=r.x+.5&&x<=r.x+r.w-.5&&y>=r.y+.5&&y<=r.y+r.h-.5))continue;
+      if(P.items.some(o=>o!==it&&flOf(o)===f&&o.kind!=='opening'&&Math.hypot(o.x-x,o.y-y)<1.6))continue;spot=[x,y]}
+    if(!spot)spot=[sn(it.x+1.5),sn(it.y)];const o=mkItem('outlet','outlet',spot[0],spot[1]);o.floor=f;o.notes='Added from the placement check. Confirm the real outlet location.';P.items.push(o);sel={t:'item',id:o.id}}
+  else if(code==='n85'){const g=P.rooms.find(r=>flOf(r)===f&&RX.garage.test(r.name));let x,y;if(g){x=g.x+2;y=g.y+2}else{const r=roomAtF(it.x,it.y,f);[x,y]=r?clampIn(r,it.x+3,it.y,1):[it.x+3,it.y]}
+    const n=mkItem('nvr','N85',sn(x),sn(y));n.floor=f;n.notes='Added from the placement check. Pick the real spot (near the router).';P.items.push(n);sel={t:'item',id:n.id}}
+  else if(code==='s2local')it.rec='Local';
+  else if(code==='aimgarage'){const r=roomAtF(it.x,it.y,f);if(r)it.rot=Math.round(((Math.atan2(r.y+r.h/2-it.y,r.x+r.w/2-it.x)*180/Math.PI)+360)%360)}
+  else if(code==='zone')it.zone=nextZone();
+  else if(code==='camnum')it.num=nextCam();
+  else if(code==='wired')it.wiring='Wired';
+  render()}
+
+// ---- device tray + room templates ----
+const TPL={residential:[['Bedroom',11,12],['Primary bedroom',14,16],['Bathroom',5,8],['Kitchen',12,14],['Living room',15,20],['Garage (1 car)',12,22],['Garage (2 car)',22,22],['Office',10,11],['Hallway',4,12]],
+  commercial:[['Office',10,12],['Open office',30,40],['Conference',14,20],['Lobby / reception',15,20],['Storage',10,12],['Warehouse',40,60],['Break room',12,15],['Server / IT room',8,10],['Restroom',8,10],['Retail floor',30,40],['Loading dock',12,20]]};
+let TD=null;
+function overPlan(e){if(CUST())return false;const r=svg.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom}
+function trayBind(b,act){
+  b.addEventListener('pointerdown',e=>{if(e.button>0)return;TD={b,sx:e.clientX,sy:e.clientY,moved:false,gh:null};try{b.setPointerCapture(e.pointerId)}catch(_){}});
+  b.addEventListener('pointermove',e=>{if(!TD||TD.b!==b)return;if(!TD.moved&&Math.hypot(e.clientX-TD.sx,e.clientY-TD.sy)>6){TD.moved=true;TD.gh=b.cloneNode(true);TD.gh.classList.add('trayGhost');TD.gh.removeAttribute('id');document.body.appendChild(TD.gh)}
+    if(TD.gh){TD.gh.style.left=e.clientX+'px';TD.gh.style.top=e.clientY+'px';svg.classList.toggle('dropOk',overPlan(e))}});
+  b.addEventListener('pointerup',e=>{if(!TD||TD.b!==b)return;const t=TD;TD=null;if(t.gh)t.gh.remove();svg.classList.remove('dropOk');if(!t.moved){act(null);return}if(overPlan(e))act(pt(e))});
+  b.addEventListener('pointercancel',()=>{if(TD&&TD.gh)TD.gh.remove();svg.classList.remove('dropOk');TD=null});
+  b.addEventListener('click',e=>{if(e.detail===0)act(null)})}
+function placeAt(kind,type,p){if(!p){placeNew(kind,type);return}const sn=v=>Math.round(v*2)/2,it=mkItem(kind,type,sn(p.x),sn(p.y));
+  if(kind==='opening'){if(snapOpening(it,p.x,p.y,4))freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
+function freeRoomSpot(w,h){const rs=FR(),hit=(x,y)=>rs.some(r=>x<r.x+r.w&&r.x<x+w&&y<r.y+r.h&&r.y<y+h);
+  for(let y=FOOT.y;y<=FOOT.y+Math.max(0,FOOT.h-h);y+=1)for(let x=FOOT.x;x<=FOOT.x+Math.max(0,FOOT.w-w);x+=1)if(!hit(x,y))return [x,y];
+  return [Math.max(FOOT.x,...rs.map(r=>r.x+r.w)),FOOT.y]}
+function addTpl(t,p){const [name,w,h]=t;let x,y;if(p){x=Math.round((p.x-w/2)*2)/2;y=Math.round((p.y-h/2)*2)/2}else[x,y]=freeRoomSpot(w,h);
+  let nm=name,k=2;while(FR().some(r=>r.name===nm))nm=name+' '+k++;
+  const r={id:nid('r'),name:nm,x,y,w,h,floor:FID(),est:1};P.rooms.push(r);sel={t:'room',id:r.id};render()}
+function renderTray(){const D=[['opening','door',ibadge('door','#8a8780','lg'),'Door'],['opening','window',ibadge('window','#0089f7','lg'),'Window']];
+  for(const [k,a] of Object.entries(ALARM))if(k!=='panic'||COMM())D.push(['alarm',k,ibadge(k,a.c,'lg'),a.label,FIRE.includes(k)]);
+  D.push(['outlet','outlet',ibadge('outlet',OUTLET.c,'lg'),'Outlet']);for(const [k,c] of Object.entries(CAMS))D.push(['cam',k,photoTag(k),'Vyanet '+c.name]);D.push(['nvr','N85',photoTag('N85'),'Vyanet N85 5MP PoE NVR']);
+  const T=TPL[COMM()?'commercial':'residential'];
+  tray.innerHTML=`<div class="sub trayH">Drag onto the map <small>or click to add</small></div><div class="trayGrid">${D.filter(d=>!(d[4]&&COMM())).map((d,i)=>`<button type="button" class="trayIt${d[4]?' fireDev':''}" data-i="${i}" title="${esc(d[3])}: drag onto the map, or click to add" aria-label="Add ${esc(d[3])}">${d[2]}</button>`).join('')}</div>`+
+    `<div class="sub trayH">Room templates <small>${COMM()?'commercial':'residential'} · typical sizes (estimates), resize to fit</small></div><div class="trayTpls">${T.map((t,i)=>`<button type="button" class="trayTpl" data-t="${i}" title="${esc(t[0])}: typical ${t[1]} × ${t[2]} ft estimate. Drag onto the map or click.">${esc(t[0])}<small>${t[1]}×${t[2]}′</small></button>`).join('')}</div>`;
+  const DD=D.filter(d=>!(d[4]&&COMM()));tray.querySelectorAll('.trayIt').forEach(b=>{const d=DD[+b.dataset.i];trayBind(b,p=>placeAt(d[0],d[1],p))});
+  tray.querySelectorAll('.trayTpl').forEach(b=>{const t=T[+b.dataset.t];trayBind(b,p=>addTpl(t,p))})}
+function placeTray(){const narrow=matchMedia('(pointer:coarse) and (max-width:1366px), (max-width:1100px)').matches;tray.classList.toggle('h',narrow);(narrow?trayDockPlan:trayDockLeft).appendChild(tray)}
+try{matchMedia('(pointer:coarse) and (max-width:1366px), (max-width:1100px)').addEventListener('change',placeTray)}catch(e){}
+
+// ---- pinch-zoom / two-finger pan ----
+const PTRS=new Map();let PINCH=null;
+svg.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;PTRS.set(e.pointerId,{x:e.clientX,y:e.clientY});if(PTRS.size===2){const [a,b]=[...PTRS.values()],mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+  PINCH={d:Math.max(10,Math.hypot(a.x-b.x,a.y-b.y)),k:ZV.k,w:pt({clientX:mx,clientY:my})};drag=null;try{svg.setPointerCapture(e.pointerId)}catch(_){}e.stopImmediatePropagation();e.preventDefault()}},true);
+svg.addEventListener('pointermove',e=>{if(!PTRS.has(e.pointerId))return;PTRS.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!PINCH||PTRS.size<2)return;e.stopImmediatePropagation();
+  const [a,b]=[...PTRS.values()],mx=(a.x+b.x)/2,my=(a.y+b.y)/2,d=Math.hypot(a.x-b.x,a.y-b.y);ZV.k=Math.max(1,Math.min(10,PINCH.k*d/PINCH.d));
+  const w=VB0.w/ZV.k,h=VB0.h/ZV.k,R=svg.getBoundingClientRect(),s=w/R.width;ZV.cx=PINCH.w.x-(mx-R.left)*s+w/2;ZV.cy=PINCH.w.y-(my-R.top)*s+h/2;render()},true);
+const ptrEnd=e=>{PTRS.delete(e.pointerId);if(PINCH&&PTRS.size<2){PINCH=null;drag=null;e.stopImmediatePropagation()}};
+svg.addEventListener('pointerup',ptrEnd,true);svg.addEventListener('pointercancel',ptrEnd,true);
+
+// ---- modal, guide, mode chooser ----
+function modal(html,label){ovl.innerHTML=`<div class="mBox" role="dialog" aria-modal="true" aria-label="${esc(label||'Dialog')}">${html}</div>`;ovl.hidden=false;const f=ovl.querySelector('button');if(f)setTimeout(()=>f.focus(),0);return ovl.firstChild}
+function closeModal(){ovl.hidden=true;ovl.innerHTML='';ovl.dataset.kind=''}
+document.addEventListener('keydown',e=>{if(ovl.hidden)return;if(e.key==='Escape'){if(ovl.dataset.kind==='guide')localStorage.setItem('vyGuideSeen','1');closeModal();e.stopImmediatePropagation();return}
+  if(e.key==='Delete'||e.key==='Backspace'||((e.ctrlKey||e.metaKey)&&/^[zy]$/i.test(e.key)))e.stopImmediatePropagation()},true);
+const GSTEPS=[
+  {t:'Draw rooms',b:'Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it and its red corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
+  {t:'Add doors and windows',b:'Drag <b>Door</b> or <b>Window</b> from the tray onto a wall, or click it in the list. It snaps to the nearest room wall.'},
+  {t:'Place devices',b:'Drag sensors, outlets, Vyanet cameras and the N85 onto the map, or press <b>Suggest devices</b> for a starting layout. A yellow <b>!</b> marks a placement warning with a one-click fix. A small <b>W</b> means wireless.'},
+  {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone, camera and site-issue schedules. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
+function showGuide(i){const s=GSTEPS[i],n=GSTEPS.length;const box=modal(`<div class="gStep"><div class="gNum">${i+1}</div><div><div class="sub" style="margin-top:0">Getting started · Step ${i+1} of ${n}</div><h2>${s.t}</h2><p>${s.b}</p></div></div><div class="gDots">${GSTEPS.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div><div class="mAct"><button class="btn ghost sm" data-g="skip" type="button">Skip guide</button>${i?'<button class="btn ghost sm" data-g="back" type="button">Back</button>':''}<button class="btn sm" data-g="next" type="button">${i<n-1?'Next':'Done'}</button></div><div class="legend">Reopen it any time with Show guide, just above the map.</div>`,'Getting started guide');
+  ovl.dataset.kind='guide';const done=()=>{localStorage.setItem('vyGuideSeen','1');closeModal()};
+  box.querySelector('[data-g=skip]').onclick=done;const bk=box.querySelector('[data-g=back]');if(bk)bk.onclick=()=>showGuide(i-1);box.querySelector('[data-g=next]').onclick=()=>i<n-1?showGuide(i+1):done()}
+bGuide.onclick=e=>{e.preventDefault();showGuide(0)};
+function askMode(){if(AUTO)return;const box=modal(`<h2>New project</h2><p>Is this a home or a business? You can change it later in <b>Project type</b>.</p><div class="mChoice"><button type="button" data-m="residential"><b>Residential</b><small>Homes: bedrooms, kitchen, garage. Intrusion, fire/CO and Vyanet cameras.</small></button><button type="button" data-m="commercial"><b>Commercial</b><small>Businesses: offices, retail, warehouse. Intrusion, panic button and Vyanet cameras. No fire devices.</small></button></div>`,'Choose project type');
+  box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{P.mode=b.dataset.m;closeModal();render()})}
+function setMode(m){if(m===P.mode)return;const fire=P.items.filter(i=>i.kind==='alarm'&&FIRE.includes(i.type));
+  const go=rm=>{if(rm)P.items=P.items.filter(i=>!fire.includes(i));P.mode=m;SUG.list=[];closeModal();if(sel&&!P.items.some(i=>i.id===sel.id)&&sel.t==='item')sel=null;render()};
+  if(m==='commercial'&&fire.length){const box=modal(`<h2>Switch to Commercial?</h2><p>This project has <b>${fire.length} fire device${fire.length>1?'s':''}</b> (smoke, CO or heat). Commercial projects in this planner have no fire devices: commercial fire alarm systems are designed separately to code by qualified staff.</p><div class="mAct"><button class="btn ghost sm" data-m="cancel" type="button">Cancel</button><button class="btn ghost sm" data-m="keep" type="button">Keep them</button><button class="btn sm" data-m="rm" type="button">Remove them</button></div>`,'Switch to Commercial');
+    box.querySelector('[data-m=rm]').onclick=()=>go(true);box.querySelector('[data-m=keep]').onclick=()=>go(false);box.querySelector('[data-m=cancel]').onclick=()=>{closeModal();pMode.value=P.mode};return}
+  go(false)}
+pMode.onchange=()=>setMode(pMode.value);
+let lastMode=null;
+function renderModeUI(){const m=P.mode||'residential';document.body.classList.toggle('commercial',m==='commercial');pMode.value=m;if(m===lastMode)return;lastMode=m;
+  jCustL.textContent=m==='commercial'?'Business name':'Customer';jCust.placeholder=m==='commercial'?'Business name':'Customer name';renderTray();if(!tabGuide.hidden)renderGuidelines();renderGuidePrint()}
+
+// ---- autosave + recent projects ----
+const AS_KEY='vyPlanner2',REC_KEY='vyRecent';let asT=null,QUIET=false;
+const hasContent=p=>!!(p&&((p.rooms||[]).length||(p.items||[]).length));
+function autosave(){clearTimeout(asT);asT=null;const s=JSON.stringify(P);try{localStorage.setItem(AS_KEY,s);localStorage.setItem('vyAutosaveAt',String(Date.now()))}catch(e){}if(hasContent(P)&&P.pid!=='demo')upsertRecent(P,s)}
+function getRecent(){try{const L=JSON.parse(localStorage.getItem(REC_KEY)||'[]');return Array.isArray(L)?L:[]}catch(e){return []}}
+function putRecent(L){while(true){try{localStorage.setItem(REC_KEY,JSON.stringify(L));return true}catch(e){if(!L.length)return false;L.pop()}}}
+function upsertRecent(p,s){const L=getRecent().filter(r=>r.pid!==p.pid);L.unshift({pid:p.pid,name:p.name||'Untitled project',customer:(p.job||{}).customer||'',mode:p.mode||'residential',at:Date.now(),rooms:(p.rooms||[]).length,items:(p.items||[]).length,floors:(p.floors||[]).length||1,data:s});putRecent(L.slice(0,5))}
+addEventListener('pagehide',()=>{if(asT)autosave()});
+function renderRecent(){autosave();const L=getRecent();
+  recentPanel.innerHTML=`<div class="thead"><h2>Recent projects</h2><span class="sp"></span><button class="btn ghost sm" id="rpX" type="button">Close</button></div><div class="legend">Your last 5 plans save automatically in this browser as you work. Use Save for a file you can keep or share.</div>`+
+    (L.length?`<ul class="rpList">${L.map(r=>`<li data-pid="${esc(r.pid)}"><div><b>${esc(r.name)}</b>${r.pid===P.pid?' <span class="chip">Open now</span>':''}<small>${[r.customer,r.mode==='commercial'?'Commercial':'Residential',`${r.floors||1} floor${(r.floors||1)>1?'s':''}`,`${r.rooms} rooms · ${r.items} items`,'Saved '+fmtTime(r.at)].filter(Boolean).map(esc).join(' · ')}</small></div><span class="rpBtns"><button class="btn sm" data-ro type="button" ${r.pid===P.pid?'disabled':''}>Open</button><button class="btn ghost sm" data-rx type="button" ${r.pid===P.pid?'disabled title="This plan is open now"':''}>Remove</button></span></li>`).join('')}</ul>`:'<div class="empty" style="margin-top:8px">No recent projects yet.</div>');
+  document.getElementById('rpX').onclick=()=>{recentPanel.hidden=true;bRecent.setAttribute('aria-expanded','false')};
+  recentPanel.querySelectorAll('li[data-pid]').forEach(li=>{const pid=li.dataset.pid;
+    li.querySelector('[data-ro]').onclick=()=>{const r=getRecent().find(x=>x.pid===pid);if(!r)return;let p;try{p=JSON.parse(r.data)}catch(e){alert('That saved plan could not be read.');return}recentPanel.hidden=true;load(p)};
+    li.querySelector('[data-rx]').onclick=()=>{putRecent(getRecent().filter(x=>x.pid!==pid));renderRecentList()}})}
+function renderRecentList(){renderRecent()}
+bRecent.onclick=e=>{e.stopPropagation();if(!recentPanel.hidden){recentPanel.hidden=true;bRecent.setAttribute('aria-expanded','false');return}renderRecent();const r=bRecent.getBoundingClientRect();
+  recentPanel.style.left=Math.max(8,Math.min(innerWidth-480,r.left+scrollX))+'px';recentPanel.style.top=(r.bottom+scrollY+6)+'px';recentPanel.hidden=false;bRecent.setAttribute('aria-expanded','true')};
+document.addEventListener('click',e=>{if(!recentPanel.hidden&&!recentPanel.contains(e.target)&&e.target!==bRecent){recentPanel.hidden=true;bRecent.setAttribute('aria-expanded','false')}});
+function offerRestore(p){const at=+localStorage.getItem('vyAutosaveAt')||0;const j=p.job||{};
+  const box=modal(`<h2>Pick up where you left off?</h2><p><b>${esc(p.name||'Untitled project')}</b>${j.customer?' · '+esc(j.customer):''}<br><small>${(p.rooms||[]).length} rooms · ${(p.items||[]).length} items${at?' · autosaved '+esc(fmtTime(at)):''}</small></p><p class="legend">If you choose Not now, it stays under Recent.</p><div class="mAct"><button class="btn ghost sm" data-r="no" type="button">Not now</button><button class="btn sm" data-r="yes" type="button">Restore it</button></div>`,'Restore autosaved plan');
+  box.querySelector('[data-r=yes]').onclick=()=>{closeModal();load(p)};box.querySelector('[data-r=no]').onclick=closeModal}
+function normalizeP(){if(!Array.isArray(P.floors)||!P.floors.length)P.floors=[{id:'f0',name:'Main Floor'}];const f0=P.floors[0].id;
+  for(const o of [...P.rooms,...P.items])if(!o.floor||!P.floors.some(f=>f.id===o.floor))o.floor=f0;
+  if(!Array.isArray(P.issues))P.issues=[];for(const s of P.issues){if(!s.floor||!P.floors.some(f=>f.id===s.floor))s.floor=f0;if(!SEV[s.severity])s.severity='caution';if(!ISSUE[s.type])s.type='other'}
+  if(!P.curFloor||!P.floors.some(f=>f.id===P.curFloor))P.curFloor=f0;if(P.mode!=='commercial')P.mode='residential';if(!P.pid)P.pid=newPid()}
+
+// ---- Guidelines tab ----
+const SRC={
+  NFPA:['NFPA: Installing and maintaining smoke alarms','https://www.nfpa.org/education-and-research/home-fire-safety/smoke-alarms/installing-and-maintaining-smoke-alarms'],
+  USFA_SA:['U.S. Fire Administration: Smoke alarm pictographs','https://www.usfa.fema.gov/gallery/pictographs/smoke-alarms.html'],
+  NFPA72:['NFPA 72 §29.11.3.4 extract (UpCodes)','https://up.codes/s/specific-location-requirements'],
+  CPSC_QA:['CPSC: Carbon monoxide questions and answers','https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/Carbon-Monoxide-Information-Center/Carbon-Monoxide-Questions-and-Answers'],
+  CPSC_CO:['CPSC: CO alarms','https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/Carbon-Monoxide-Information-Center/CO-Alarms'],
+  USFA_CO:['U.S. Fire Administration: Install carbon monoxide alarms','https://www.usfa.fema.gov/gallery/pictographs/pictograph29.html'],
+  ARC:['City of Arcadia, CA Fire: Smoke and CO alarms','https://www.arcadiaca.gov/government/fire/fire_prevention/smoke_detectors_carbon_monoxide_alarms.php'],
+  USFA_HA:['U.S. Fire Administration: Heat alarms','https://www.usfa.fema.gov/prevention/home-fires/prepare-for-fire/heat-alarms/'],
+  CHAT:['Chatham County, NC Fire Marshal: Heat alarms','https://www.chathamcountync.gov/government/departments-programs-a-h/fire-marshal/smoke-alarms-smoke-detectors/heat-detectors-heat-alarms'],
+  AG:['Alarm Grid FAQ: Where should I install my motion detector?','https://www.alarmgrid.com/faq/where-should-i-install-my-motion-detector'],
+  COR:['Cornelius, NC Police: Ways to prevent false alarms','https://www.cornelius.org/police/false_alarm_reduction_program/ways_to_prevent_false_alarms.php'],
+  EPS:['Edmonton Police Service: False alarm prevention tips','https://www.edmontonpolice.ca/CommunityPolicing/OperationalServices/AlarmBylawProgram/AlarmTips'],
+  AAA:['AAA Smart Home Security: Installing your glass break sensor','https://mwg.aaa.com/home-security/install/glass-break-sensor'],
+  TRV:['Travelers Insurance: How water sensors can help prevent damage','https://www.travelers.com/resources/home/smart-home/how-water-sensors-can-help-prevent-damage'],
+  HAN:['The Hanover: Tips to prevent water damage inside your home','https://www.hanover.com/resources/tips-individuals-and-businesses/prepare-now-learn-how/tips-prevent-water-damage-inside'],
+  VYR:['Vyanet planning rule (Brittany)',''],
+  VYS:['Vyanet Home Map: Suggest devices rule (built in)',''],
+  VYC:['Vyanet Home Map: placement check (built in)',''],
+  SPEC:['Device spec sheet / manufacturer instructions (varies by model)','']};
+const GCATS=['Smoke','CO','Heat','Motion','Glass break','Water / flood','Door / window contacts','Keypad & siren','Panic button','Vyanet cameras','Other'];
+const FIRECATS=['Smoke','CO','Heat'];
+const GLINK={smoke900:['Suggest devices: smoke per ~900 sq ft','sug'],coGarage:['Suggest devices: CO next to a garage','sug'],heatKG:['Suggest devices: heat in kitchen / garage','sug'],motion2:['Suggest devices: two motions in big rooms','sug'],glass3:['Suggest devices: glass break for 3+ windows','sug'],contacts:['Suggest devices: perimeter contacts','sug'],keypad:['Suggest devices: keypad placement','sug'],siren:['Suggest devices: siren placement','sug'],
+  pet:['Placement check: pet note','chk'],outlet5:['Placement check: outlet within 5 ft','chk'],poe:['Placement check: PoE needs an N85','chk'],rec:['Placement check: records to the N85','chk'],s2:['Placement check: S2 and the N85','chk'],f1g:['Placement check: F1 in a garage','chk'],n85ch:['Placement check: N85 channels','chk'],wifi:['Placement check: wireless interference','chk']};
+const G0=[
+ ['g1','Smoke','residential','One smoke per ~900 sq ft (Vyanet rule)','In open / living areas, plan one smoke detector per ~900 sq ft, spread evenly. Suggest devices uses this rule.',['VYR'],'smoke900'],
+ ['g2','Smoke','residential','Every bedroom, outside sleeping areas, every level','Install smoke alarms inside each bedroom, outside each sleeping area and on every level of the home, including the basement. On levels without bedrooms, put them in the living room (or den or family room) or near the stairway to the upper level. Larger homes need additional alarms.',['NFPA','USFA_SA']],
+ ['g3','Smoke','residential','Mounting height and basements','Mount high on walls or ceilings. A wall-mounted alarm goes not more than 12 in from the ceiling (to the top of the alarm). In the basement, put it on the ceiling at the bottom of the stairs to the next level. Keep alarms away from windows, doors and ducts where drafts interfere.',['NFPA']],
+ ['g4','Smoke','residential','Keep away from cooking appliances','Install smoke alarms at least 10 ft (3 m) from a cooking appliance to reduce nuisance alarms.',['NFPA','USFA_SA']],
+ ['g5','Smoke','residential','Bathrooms, supply vents and ceiling fans','Not within a 36 in horizontal path of a door to a bathroom with a shower or tub, of a forced-air supply register (and outside its direct airflow), or of the tip of a ceiling-fan blade.',['NFPA72']],
+ ['g6','CO','residential','Every level and outside sleeping areas','Install CO alarms on every level of the home and outside sleeping areas, with battery power or battery backup. Interconnected alarms are best. Follow the manufacturer\u2019s installation instructions.',['CPSC_QA','USFA_CO']],
+ ['g7','CO','residential','Where not to put CO alarms','Avoid spots near heating vents or where furniture or drapes can cover the alarm. CPSC does not recommend CO alarms in kitchens or above fuel-burning appliances, or in attics or basements unless they include a sleeping area.',['CPSC_QA','CPSC_CO']],
+ ['g8','CO','residential','Attached garage or fuel-burning appliances','Homes with an attached garage or gas-fired appliances need CO alarms; a common local rule is outside each sleeping area and on every level. Suggest devices also proposes a CO detector in rooms that share a wall with a garage.',['ARC','VYS'],'coGarage'],
+ ['g9','Heat','residential','Garage, kitchen and attic','Heat alarms suit areas where smoke alarms are not recommended, such as attached garages, kitchens, attics and unheated crawl spaces. They add to smoke alarms; they do not replace them. Suggest devices proposes heat instead of smoke in kitchens and garages.',['CHAT','USFA_HA','VYS'],'heatKG'],
+ ['g10','Heat','residential','Garage heat alarm rating','For garages, USFA suggests a heat alarm that can interconnect with the home\u2019s smoke alarms and is rated for 175\u2013250 \u00b0F.',['USFA_HA']],
+ ['g11','Motion','both','Mounting height and spot','Typically mounted about 6\u20138 ft off the floor, usually in a room corner for the widest coverage. Hallways are good spots because people must pass through them. Coverage range and pattern vary by model, so check the device\u2019s spec sheet.',['AG','SPEC']],
+ ['g12','Motion','both','Avoid false alarms','Keep motion sensors away from heat sources such as HVAC vents and ducts, and do not aim them at windows (sunlight). Drafts from heating or A/C that move plants, curtains or balloons are a common cause of false alarms.',['AG','COR']],
+ ['g13','Motion','both','Spacing, overlap and walk test','Coverage patterns vary by model; check the device\u2019s spec sheet and walk-test every sensor after mounting so the patterns cover the traffic paths. Suggest devices proposes two sensors when a room is over ~40 ft across.',['AG','SPEC','VYS'],'motion2'],
+ ['g14','Motion','both','Pets','Wandering pets are a common cause of false alarms. Where there are pets, choose pet-immune motion sensors and mount and aim them per the manufacturer\u2019s instructions. A \u201cPet in home\u201d site issue adds this note to the plan.',['COR','EPS','SPEC'],'pet'],
+ ['g15','Glass break','both','Range and line of sight','Typically placed within about 20 ft of the protected windows; range varies by model, so check the device\u2019s spec sheet. It listens for breaking glass, so nothing should block the sound path. Mount it up high on a wall or ceiling and avoid small, humid or noisy areas such as kitchens and garages.',['AAA','SPEC']],
+ ['g16','Glass break','both','Rooms with several windows','Suggest devices proposes one glass break facing the windows when a room has 3 or more perimeter windows, instead of a contact on each.',['VYS'],'glass3'],
+ ['g17','Water / flood','both','Where to put leak sensors','Place sensors where leaks start: by the water heater, behind or beside the washing machine, under sinks, and by dishwashers, refrigerator ice-maker lines, toilets and furnaces or boilers.',['TRV','HAN']],
+ ['g18','Door / window contacts','both','Perimeter doors and windows','Every exterior door gets a contact, and perimeter windows reachable from the ground get a contact (Suggest devices rules). Loose-fitting doors and windows are a common false-alarm cause, so make sure they latch.',['VYS','COR','EPS'],'contacts'],
+ ['g19','Door / window contacts','both','Magnet gap','Mount the sensor and magnet aligned, and keep the gap within the maximum on the device\u2019s spec sheet; it varies by model.',['SPEC']],
+ ['g20','Keypad & siren','both','Keypad location','Residential: inside the main entry, within ~5 ft of the door. Commercial: at the employee entrance. Train everyone who uses the system to arm, disarm and cancel a false alarm.',['VYS','EPS'],'keypad'],
+ ['g21','Keypad & siren','both','Siren location','A central location so it can be heard throughout.',['VYS'],'siren'],
+ ['g22','Panic button','commercial','Panic / hold-up button','Place it where staff work and can reach it, such as the reception desk or register, and confirm the exact spot with the business. Keep panic buttons out of the reach of small children.',['VYS','EPS']],
+ ['g23','Vyanet cameras','both','Outlet within 5 ft','The V5P, E1, P1, M1 and R5 need an outlet within 5 ft.',['VYC'],'outlet5'],
+ ['g24','Vyanet cameras','both','PoE cameras need an N85','The F1 and T1 are PoE and need an N85 NVR on the plan.',['VYC'],'poe'],
+ ['g25','Vyanet cameras','both','D1 and R5 record to the N85','The D1 doorbell and the R5 record to the N85, so the plan needs one. The D1 needs existing hardwired doorbell wiring.',['VYC'],'rec'],
+ ['g26','Vyanet cameras','both','S2 records locally','The S2 does not work with the N85; it records locally.',['VYC'],'s2'],
+ ['g27','Vyanet cameras','both','F1 in a garage','An F1 inside a garage should aim into the garage.',['VYC'],'f1g'],
+ ['g28','Vyanet cameras','both','N85 channels','The N85 has 8 channels. The check warns when more cameras need a channel than the N85s on the plan provide.',['VYC'],'n85ch'],
+ ['g29','Other','both','Metal and concrete walls','Mark metal or concrete walls as site issues. Wireless devices whose straight line to the panel crosses one get a \u201cPossible wireless interference\u201d warning: consider a wired device or a repeater.',['VYC'],'wifi']
+].map(([id,cat,mode,title,text,src,link])=>({id,cat,mode,title,text,src:src.map(k=>SRC[k].slice()),link:link||''}));
+const GUI={all:false,edit:null};
+function getG(){try{const g=JSON.parse(localStorage.getItem('vyGuidelines')||'null');if(Array.isArray(g))return g}catch(e){}return JSON.parse(JSON.stringify(G0))}
+function saveG(g){try{localStorage.setItem('vyGuidelines',JSON.stringify(g))}catch(e){alert('Could not save the guidelines in this browser.')}renderGuidePrint()}
+const gVisible=(it,all)=>all||((it.mode||'both')==='both'||it.mode===(P.mode||'residential'))&&!(COMM()&&FIRECATS.includes(it.cat));
+const FIRENOTE='Commercial fire alarm systems are designed separately to code by qualified staff.';
+function gSrcHtml(it){return (it.src||[]).map(([n,u])=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n)).join('; ')}
+function renderGuidelines(){const G=getG(),vis=G.filter(it=>gVisible(it,GUI.all)),gp=localStorage.getItem('vyGuidePrint')==='1';
+  let h=`<div class="glBanner"><b>General guidance.</b> Always follow local code, the AHJ, and manufacturer instructions.</div>
+  <div class="glCtl"><label><input type="checkbox" id="gAll" ${GUI.all?'checked':''}> Show all (both modes)</label><label><input type="checkbox" id="gPrint" ${gp?'checked':''}> Include guidelines in print</label></div>
+  <div class="glCtl"><button class="btn sm" id="gAdd" type="button">Add</button><button class="btn ghost sm" id="gExp" type="button">Export</button><button class="btn ghost sm" id="gImp" type="button">Import</button><button class="btn ghost sm" id="gReset" type="button">Reset</button><input type="file" id="gFile" accept=".json,application/json" hidden></div>
+  <div class="legend" style="margin:0 0 6px">Showing ${COMM()?'Commercial':'Residential'} items${GUI.all?' and all others':''} (${vis.length} of ${G.length}). Edits save in this browser.</div>`;
+  if(COMM())h+=`<div class="glFire" id="gFireNote">${FIRENOTE}</div>`;
+  const cats=[...GCATS,...new Set(G.map(g=>g.cat).filter(c=>!GCATS.includes(c)))];
+  if(GUI.edit==='new')h+=gForm({id:'',cat:'Other',mode:'both',title:'',text:'',src:[],link:''});
+  for(const c of cats){const L=vis.filter(g=>g.cat===c);if(!L.length)continue;h+=`<div class="sub">${esc(c)}</div>`;
+    for(const it of L)h+=GUI.edit===it.id?gForm(it):`<div class="gl" data-g="${esc(it.id)}"><div class="glT">${esc(it.title)}${(it.mode||'both')!=='both'?` <span class="glMode">${it.mode==='commercial'?'Commercial':'Residential'}</span>`:''}</div><div class="glX">${esc(it.text)}</div><div class="glS">Source: ${gSrcHtml(it)||'—'}</div>${it.link&&GLINK[it.link]?`<button type="button" class="glLink" data-link="${it.link}" title="Show where the tool uses this">↳ ${esc(GLINK[it.link][0])}</button>`:''}<div class="glA"><button class="btn ghost sm" data-ge type="button">Edit</button><button class="btn ghost sm" data-gd type="button">Delete</button></div></div>`}
+  tabGuide.innerHTML=h;
+  gAll.onchange=()=>{GUI.all=gAll.checked;renderGuidelines()};
+  gPrint.onchange=()=>{localStorage.setItem('vyGuidePrint',gPrint.checked?'1':'0');renderGuidePrint()};
+  gAdd.onclick=()=>{GUI.edit='new';renderGuidelines()};
+  gExp.onclick=()=>dl('vyanet-placement-guidelines.json',JSON.stringify({type:'vyanet-guidelines',version:1,guidelines:getG()},null,1),'application/json');
+  gImp.onclick=()=>gFile.click();
+  gFile.onchange=()=>{const f=gFile.files[0];gFile.value='';if(!f)return;f.text().then(t=>{try{let g=JSON.parse(t);if(g&&Array.isArray(g.guidelines))g=g.guidelines;if(!Array.isArray(g)||!g.length||!g.every(x=>x&&typeof x.title==='string'&&typeof x.text==='string'))throw 0;
+    g=g.map((x,i)=>({id:String(x.id||('gi'+Date.now().toString(36)+i)),cat:String(x.cat||'Other'),mode:['residential','commercial'].includes(x.mode)?x.mode:'both',title:x.title,text:x.text,src:Array.isArray(x.src)?x.src.filter(s=>Array.isArray(s)).map(s=>[String(s[0]||''),String(s[1]||'')]):[],link:GLINK[x.link]?x.link:''}));saveG(g);renderGuidelines()}catch(e){alert('That file is not a guidelines export.')}})};
+  gReset.onclick=()=>{if(confirm('Reset all guidelines to the defaults? Your edits will be lost.')){localStorage.removeItem('vyGuidelines');GUI.edit=null;renderGuidePrint();renderGuidelines()}};
+  tabGuide.querySelectorAll('.gl[data-g]').forEach(card=>{const id=card.dataset.g;const e=card.querySelector('[data-ge]'),d=card.querySelector('[data-gd]');
+    if(e)e.onclick=()=>{GUI.edit=id;renderGuidelines()};if(d)d.onclick=()=>{if(confirm('Delete this guideline?')){saveG(getG().filter(x=>x.id!==id));renderGuidelines()}}});
+  tabGuide.querySelectorAll('[data-link]').forEach(b=>b.onclick=()=>{const k=GLINK[b.dataset.link][1],t=k==='chk'?document.getElementById('checksCard'):bSuggest;t.scrollIntoView({block:'center',behavior:'smooth'});t.classList.remove('flash');void t.offsetWidth;t.classList.add('flash')});
+  const fm=tabGuide.querySelector('.glForm');if(fm){fm.querySelector('[data-gc]').onclick=()=>{GUI.edit=null;renderGuidelines()};
+    fm.querySelector('[data-gs]').onclick=()=>{const v=k=>fm.querySelector(`[name=${k}]`).value.trim();if(!v('title')||!v('text')){alert('A guideline needs a title and text.');return}
+      const src=v('src').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.lastIndexOf('|');return i<0?[l,'']:[l.slice(0,i).trim(),l.slice(i+1).trim()]});
+      const G=getG(),id=fm.dataset.id;const o={id:id||('gu'+Date.now().toString(36)),cat:v('cat')||'Other',mode:v('mode'),title:v('title'),text:v('text'),src,link:v('link')};
+      if(id){const i=G.findIndex(x=>x.id===id);if(i>=0)G[i]=o;else G.push(o)}else G.push(o);saveG(G);GUI.edit=null;renderGuidelines()}}}
+function gForm(it){return `<div class="gl glForm" data-id="${esc(it.id)}"><label class="f">Title</label><input name="title" value="${esc(it.title)}"><label class="f">Category</label><input name="cat" list="gCatList" value="${esc(it.cat)}"><datalist id="gCatList">${GCATS.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+  <label class="f">Applies to</label><select name="mode">${[['both','Both modes'],['residential','Residential'],['commercial','Commercial']].map(([v,l])=>`<option value="${v}" ${it.mode===v?'selected':''}>${l}</option>`).join('')}</select>
+  <label class="f">Guideline</label><textarea name="text" rows="4">${esc(it.text)}</textarea><label class="f">Sources (one per line: name | link)</label><textarea name="src" rows="2">${esc((it.src||[]).map(s=>s[1]?s[0]+' | '+s[1]:s[0]).join('\n'))}</textarea>
+  <label class="f">Linked check</label><select name="link"><option value="">None</option>${Object.entries(GLINK).map(([k,v])=>`<option value="${k}" ${it.link===k?'selected':''}>${esc(v[0])}</option>`).join('')}</select>
+  <div class="glA"><button class="btn sm" data-gs type="button">Save</button><button class="btn ghost sm" data-gc type="button">Cancel</button></div></div>`}
+function renderGuidePrint(){const on=localStorage.getItem('vyGuidePrint')==='1';guidePrint.classList.toggle('on',on);if(!on){guidePrint.innerHTML='';return}
+  const vis=getG().filter(it=>gVisible(it,false));
+  guidePrint.innerHTML=`<h2>Placement guidelines (${COMM()?'Commercial':'Residential'})</h2><div class="glBanner"><b>General guidance.</b> Always follow local code, the AHJ, and manufacturer instructions.</div>${COMM()?`<div class="glFire">${FIRENOTE}</div>`:''}<ul class="gpList">${vis.map(it=>`<li><b>${esc(it.cat)}: ${esc(it.title)}.</b> ${esc(it.text)} <span class="glS">(${(it.src||[]).map(s=>esc(s[0])).join('; ')})</span></li>`).join('')}</ul>`}
+
 // ---- boot ----
-let saved=null;try{saved=JSON.parse(localStorage.getItem('vyPlanner2')||'null')}catch(e){}
-load(saved&&Array.isArray(saved.items)?saved:demo());
+function boot(){let saved=null;try{saved=JSON.parse(localStorage.getItem(AS_KEY)||'null')}catch(e){}
+  const ok=saved&&Array.isArray(saved.items)&&Array.isArray(saved.rooms),isDemo=p=>p.pid==='demo'||(p.job&&p.job.account==='DEMO-00214');
+  placeTray();
+  if(ok&&hasContent(saved)&&!isDemo(saved)){if(!saved.pid)saved.pid=newPid();upsertRecent(saved,JSON.stringify(saved));if(AUTO)load(saved);else{load(demo());offerRestore(saved)}}
+  else load(ok?saved:demo());
+  renderMapKey();renderGuidePrint();
+  if(!AUTO&&!localStorage.getItem('vyGuideSeen')&&ovl.hidden)showGuide(0)}
+
+boot();
 </script>
 </body>
 </html>
