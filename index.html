@@ -140,6 +140,9 @@ tbody tr{cursor:pointer}
 .pal .ic{background:transparent!important;flex:0 0 34px;height:34px}
 .cellIc{display:inline-flex;align-items:center;gap:8px}
 .propHead{display:flex;gap:10px;align-items:center;margin-bottom:4px}
+.propAct{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--vy-line)}
+.alsoHere{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 2px;font-size:11px;color:var(--vy-muted)}
+.alsoHere .btn{padding:3px 10px;font-size:10px}
 .legendList .ib{width:22px;height:22px}.legendList .ib svg{width:14px;height:14px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 header.app .proto{font-family:Poppins,sans-serif;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--vy-red);vertical-align:middle;margin-left:4px}
@@ -296,7 +299,7 @@ body.customer #plan{cursor:grab}
       <label><input type="checkbox" id="cCones" checked> Cones</label>
       <label><input type="checkbox" id="cGrid" checked> Grid</label>
       <label>View <select id="cView" style="font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--vy-line);border-radius:3px"><option value="full">Whole property (full cone range)</option><option value="house">House close-up</option></select></label>
-      <span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
+      <span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim · click again to pick what's underneath · Delete key removes</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
     </div>
     <div class="sugBanner edit-only no-print" id="sugBanner" hidden><span>This plan has rooms but no devices yet. Want a suggested device + camera layout to start from?</span><button class="btn sm" id="bSugBanner" type="button">Suggest devices</button><button class="btn ghost sm" id="bSugDismiss" type="button">Dismiss</button></div>
     <div id="planStage">
@@ -430,7 +433,7 @@ const isOutdoorCam=it=>CAMS[it.model]&&CAMS[it.model].env!=='Indoor';
 
 // ---- palette ----
 function palBtn(host,ic,c,label,sub,fn){const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="ic">${ic}</span><span>${label}${sub?`<small>${sub}</small>`:''}</span>`;b.onclick=fn;host.appendChild(b)}
-function placeNew(kind,type){const it=mkItem(kind,type,W/2+(Math.random()*6-3),H/2+(Math.random()*6-3));if(kind==='opening')snapOpening(it,it.x,it.y,99);P.items.push(it);sel={t:'item',id:it.id};render()}
+function placeNew(kind,type){const it=mkItem(kind,type,W/2+(Math.random()*6-3),H/2+(Math.random()*6-3));if(kind==='opening'){snapOpening(it,it.x,it.y,99);freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
 for(const [k,a] of Object.entries(ALARM))palBtn(palAlarm,ibadge(k,a.c,'lg'),a.c,a.label,a.zone?'':'Not a zone',()=>placeNew('alarm',k));
 palBtn(palPower,ibadge('outlet',OUTLET.c,'lg'),OUTLET.c,'Outlet','Marker for the 5 ft camera rule',()=>placeNew('outlet','outlet'));
 for(const [k,c] of Object.entries(CAMS))palBtn(palCam,photoTag(k),camColor[c.env],c.name,`${c.env} · ${c.power} · ${c.fov}° · ${ftR(c.nightM)} ft`,()=>placeNew('cam',k));
@@ -617,7 +620,7 @@ function drawYard(){
 function render(){
   if(!P.exteriors)P.exteriors=[];
   streetSide.value=P.streetSide||'front';
-  computeVB();VB0={...VB};applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  if(drag&&drag.vb0){VB0={...drag.vb0}}else{computeVB();VB0={...VB}}applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   svg.innerHTML='';
   drawYard();
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6'},g)}
@@ -626,8 +629,10 @@ function render(){
     el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,'fill-opacity':(P.underlay&&P.underlay.src&&(!CUST()||P.underlay.showCustomer))?.3:1,fill:s?'#fff5f6':'#ffffff',stroke:s?'#da0029':'#8a8780','stroke-width':s?.25:.16,style:'cursor:move'},g);
     const t=el('text',{x:r.x+.5,y:r.y+1.4,'font-size':1.1,fill:'#5e5758','font-weight':600,style:'pointer-events:none'},g);t.textContent=r.name;
     const sz=el('text',{x:r.x+.5,y:r.y+2.6,'font-size':.8,fill:'#9a9690',style:'pointer-events:none'},g);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
-    if(s)el('rect',{x:r.x+r.w-.7,y:r.y+r.h-.7,width:1.4,height:1.4,fill:'#da0029','data-resize':r.id,style:'cursor:nwse-resize'},g)}
+  }
   for(const it of P.items.filter(i=>i.kind==='opening'))drawOpening(it);
+  // resize corner drawn above doors/windows so an opening near the corner never hides it
+  if(sel&&sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r)el('rect',{x:r.x+r.w-.7,y:r.y+r.h-.7,width:1.4,height:1.4,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize'},svg)}
   // cones: outdoor unclipped (extend into yard); indoor clipped to their room
   if(cCones.checked)for(const it of P.items.filter(i=>i.kind==='cam')){
     const c=CAMS[it.model],on=sel&&sel.id===it.id;
@@ -649,7 +654,7 @@ function render(){
     if(s&&it.kind==='cam'&&camPhoto(it)){const sz=3.2;el('rect',{x:it.x+1.3,y:it.y-sz-.6,width:sz,height:sz,rx:.3,fill:'#fff',stroke:'#f59e0b','stroke-width':.12},g);const im=el('image',{x:it.x+1.4,y:it.y-sz-.5,width:sz-.2,height:sz-.2,href:camPhoto(it),style:'pointer-events:none'},g)}
     const tag=it.kind==='alarm'&&it.zone!=null?'Z'+it.zone:it.kind==='cam'?'C'+it.num+' '+camModelLabel(it):it.kind==='nvr'?'N85':'';
     if(tag){const tt=el('text',{x:it.x,y:it.y-rr-.3,'font-size':.7,'text-anchor':'middle',fill:'#2e2f2a','font-weight':600,style:'pointer-events:none'},g);tt.textContent=tag}
-    if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1},svg);el('circle',{cx:hx,cy:hy,r:.55,fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
+    if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:.55,fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
   drawSugGhosts();
   bDel.disabled=bDup.disabled=!sel;
   bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
@@ -659,37 +664,67 @@ function render(){
 // ---- interaction ----
 function pt(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 let drag=null;
+// everything that can be grabbed under the pointer, top first (devices, then doors/windows, then rooms)
+function stackAt(e){const out=[];for(const n of document.elementsFromPoint(e.clientX,e.clientY)){if(!svg.contains(n))continue;const g=n.closest('[data-item],[data-room]');if(!g)continue;
+  const k=g.dataset.item?{t:'item',id:g.dataset.item}:{t:'room',id:g.dataset.room};if(!out.some(o=>o.t===k.t&&o.id===k.id))out.push(k)}return out}
+// doors/windows sitting on a room's own walls (facing into that room)
+function wallOps(r){const out=[],E=.05;for(const it of P.items){if(it.kind!=='opening')continue;const inw=it.inward||1;
+  if(it.orient==='h'&&it.x>=r.x-E&&it.x<=r.x+r.w+E){if(Math.abs(it.y-r.y)<E&&inw>0)out.push({it,side:'top'});else if(Math.abs(it.y-(r.y+r.h))<E&&inw<0)out.push({it,side:'bottom'})}
+  if(it.orient==='v'&&it.y>=r.y-E&&it.y<=r.y+r.h+E){if(Math.abs(it.x-r.x)<E&&inw>0)out.push({it,side:'left'});else if(Math.abs(it.x-(r.x+r.w))<E&&inw<0)out.push({it,side:'right'})}}return out}
+// what travels with a room when it is dragged: its doors/windows + devices inside it (hold Alt to move the room alone)
+function roomKids(r){const set=new Set(wallOps(r).map(w=>w.it));for(const it of P.items)if(it.kind!=='opening'&&roomAt(it.x,it.y)===r)set.add(it);
+  return {x0:r.x,y0:r.y,list:[...set].map(it=>({it,x:it.x,y:it.y}))}}
+function itemBox(it){if(it.kind==='opening'){const h2=(+it.width||3)/2;return it.orient==='h'?[it.x-h2,it.y-.9,it.x+h2,it.y+.9]:[it.x-.9,it.y-h2,it.x+.9,it.y+h2]}
+  const rr=it.kind==='outlet'?.75:it.kind==='alarm'?.95:1.05;return [it.x-rr,it.y-rr,it.x+rr,it.y+rr]}
+function overlapping(it){const a=itemBox(it);return P.items.filter(o=>o!==it&&(()=>{const b=itemBox(o);return a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3]})())}
+function itemLabel(it){if(it.kind==='opening')return (it.type==='door'?'Door':'Window')+(it.name?' · '+it.name:'');if(it.kind==='alarm')return ALARM[it.type].label+(it.zone!=null?' Z'+it.zone:'');if(it.kind==='outlet')return 'Outlet';if(it.kind==='cam')return 'C'+it.num+' '+camModelLabel(it);return 'N85'}
 svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   if(CUST()){drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0};svg.setPointerCapture(e.pointerId);return}
   if(SC.on){scaleClick(p);return}
-  if(t.getAttribute('data-underlay')&&P.underlay&&!P.underlay.locked){drag={m:'ul',o:P.underlay,dx:p.x-P.underlay.x,dy:p.y-P.underlay.y};svg.setPointerCapture(e.pointerId);return}
+  if(t.getAttribute('data-underlay')&&P.underlay&&!P.underlay.locked){drag={m:'ul',o:P.underlay,dx:p.x-P.underlay.x,dy:p.y-P.underlay.y,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);return}
   const sg=t.closest('[data-sug]');if(sg){SUG.focus=sg.dataset.sug;render();const li=document.querySelector(`.sugRow[data-s="${sg.dataset.sug}"]`);if(li)li.scrollIntoView({block:'nearest'});return}
   const aim=t.getAttribute('data-aim'),rs=t.getAttribute('data-resize'),ig=t.closest('[data-item]'),rg=t.closest('[data-room]');
   if(aim){drag={m:'aim',o:P.items.find(i=>i.id===aim)}}
-  else if(rs){drag={m:'resize',o:P.rooms.find(r=>r.id===rs)}}
-  else if(ig){const o=P.items.find(i=>i.id===ig.dataset.item);sel={t:'item',id:o.id};drag={m:'move',o,dx:p.x-o.x,dy:p.y-o.y}}
-  else if(rg){const o=P.rooms.find(r=>r.id===rg.dataset.room);sel={t:'room',id:o.id};drag={m:'move',o,dx:p.x-o.x,dy:p.y-o.y}}
+  else if(rs){const o=P.rooms.find(r=>r.id===rs);drag={m:'resize',o,ops:wallOps(o).map(w=>({...w,ox:w.it.x,oy:w.it.y}))}}
+  else if(ig||rg){const st=stackAt(e);if(!st.length)st.push(ig?{t:'item',id:ig.dataset.item}:{t:'room',id:rg.dataset.room});
+    const cur=sel&&st.find(k=>k.t===sel.t&&k.id===sel.id);
+    // an already-selected door/window/device under the pointer stays the one you grab, even when something sits on top of it
+    const pick=cur&&cur.t==='item'?cur:st[0];
+    const o=pick.t==='room'?P.rooms.find(r=>r.id===pick.id):P.items.find(i=>i.id===pick.id);
+    const its=st.filter(k=>k.t==='item');
+    sel={t:pick.t,id:o.id};drag={m:'move',o,dx:p.x-o.x,dy:p.y-o.y,sx:e.clientX,sy:e.clientY,moved:0,
+      cycle:cur&&pick===cur&&pick.t==='item'&&its.length>1?its:null};
+    if(pick.t==='room'&&!e.altKey)drag.kids=roomKids(o)}
   else {drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0,desel:true}}
-  svg.setPointerCapture(e.pointerId);if(drag.m!=='pan')render()});
+  svg.setPointerCapture(e.pointerId);if(drag.m!=='pan'){drag.vb0={...VB0};render()}});
 svg.addEventListener('pointermove',e=>{if(!drag)return;
   if(drag.m==='pan'){const sc=VB.w/svg.clientWidth,dx=(e.clientX-drag.sx)*sc,dy=(e.clientY-drag.sy)*sc;drag.moved=Math.max(drag.moved,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return;ZV.cx=drag.cx-dx;ZV.cy=drag.cy-dy;render();return}
   const p=pt(e),o=drag.o,snap=v=>Math.round(v*2)/2,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   if(drag.m==='ul'){o.x=Math.round((p.x-drag.dx)*4)/4;o.y=Math.round((p.y-drag.dy)*4)/4;render();return}
+  if(drag.m==='move'){drag.moved=Math.max(drag.moved||0,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return}
   if(drag.m==='move'&&o.kind==='opening'){const rx=p.x-drag.dx,ry=p.y-drag.dy;if(!snapOpening(o,rx,ry,2.5)){o.x=snap(rx);o.y=snap(ry)}}
-  else if(drag.m==='move'){o.x=cl(snap(p.x-drag.dx),VB0.x,VB0.x+VB0.w-(o.w||0));o.y=cl(snap(p.y-drag.dy),VB0.y,VB0.y+VB0.h-(o.h||0))}
-  else if(drag.m==='resize'){o.w=Math.max(3,snap(p.x-o.x));o.h=Math.max(3,snap(p.y-o.y))}
+  else if(drag.m==='move'){o.x=cl(snap(p.x-drag.dx),VB0.x,VB0.x+VB0.w-(o.w||0));o.y=cl(snap(p.y-drag.dy),VB0.y,VB0.y+VB0.h-(o.h||0));
+    if(drag.kids){const ddx=o.x-drag.kids.x0,ddy=o.y-drag.kids.y0;for(const k of drag.kids.list){k.it.x=k.x+ddx;k.it.y=k.y+ddy}}}
+  else if(drag.m==='resize'){o.w=Math.max(3,snap(p.x-o.x));o.h=Math.max(3,snap(p.y-o.y));
+    for(const w of drag.ops||[]){const it=w.it,hw=(+it.width||3)/2;
+      if(w.side==='right')it.x=o.x+o.w;if(w.side==='bottom')it.y=o.y+o.h;
+      if(it.orient==='h')it.x=Math.max(o.x+hw,Math.min(o.x+o.w-hw,w.ox));else it.y=Math.max(o.y+hw,Math.min(o.y+o.h-hw,w.oy))}}
   else if(drag.m==='aim'){o.rot=Math.round(Math.atan2(p.y-o.y,p.x-o.x)*180/Math.PI);if(o.rot<0)o.rot+=360}
   render()});
-svg.addEventListener('pointerup',()=>{const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;render()}return}scheduleHist()});
+function endDrag(){const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;render()}return}
+  if(d&&d.m==='move'&&d.cycle&&(d.moved||0)<3){const i=d.cycle.findIndex(k=>sel&&k.id===sel.id),n=d.cycle[(i+1)%d.cycle.length];sel={t:n.t,id:n.id};render()}
+  if(d&&d.vb0)render();else scheduleHist()}
+svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
 svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.2:1/1.2,pt(e))},{passive:false});
 document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
   if((e.ctrlKey||e.metaKey)&&!inField&&!CUST()){const k=e.key.toLowerCase();if(k==='z'&&!e.shiftKey){e.preventDefault();undo();return}if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();redo();return}}
   if(e.key==='Escape'&&!lb.hidden){lb.hidden=true;return}
   if(CUST())return;
-  if((e.key==='Delete'||e.key==='Backspace')&&sel&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){delSel();e.preventDefault()}});
-function delSel(){if(!sel)return;if(sel.t==='room')P.rooms=P.rooms.filter(r=>r.id!==sel.id);else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
+  const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
+  if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
+function delSel(){if(!sel)return;if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
 bDel.onclick=delSel;
-bDup.onclick=()=>{if(!sel)return;if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};P.rooms.push(n);sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
+bDup.onclick=()=>{if(!sel)return;if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
 cCones.onchange=cGrid.onchange=cView.onchange=render;
 
 // ---- properties ----
@@ -722,7 +757,8 @@ function renderProps(){
   b.className='';let h='';
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
     h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`;
-    b.innerHTML=h;bind(b,r);return}
+    const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag the red corner to resize.</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
+    b.innerHTML=h;bind(b,r);propActs(b);return}
   const it=P.items.find(i=>i.id===sel.id);if(!it){sel=null;return renderProps()}
   const room=roomName(it);
   if(it.kind==='alarm'){const a=ALARM[it.type];h=`<div class="propHead">${ibadge(it.type,a.c,'lg')}<b>${a.label}</b></div>`;
@@ -740,9 +776,13 @@ function renderProps(){
     h+=fld('Cone range (ft)','range',it,'number','min=1 step=0.1');
     h+=c.noNvr?ro('Records to','Local (the S2 doesn’t work with the N85)')+(it.rec==='N85'?selFld('Records to (fix)','rec',it,[['Local','Local'],['N85','N85 — not supported']]):''):selFld('Records to','rec',it,[['N85','N85 NVR'],['Local','Local']]);
     h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button><label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  b.innerHTML=h;bind(b,it);
+  const ov=overlapping(it);if(ov.length)h=`<div class="alsoHere">Also here:${ov.map(o=>`<button class="btn ghost sm" type="button" data-also="${esc(o.id)}">${esc(itemLabel(o))}</button>`).join('')}</div>`+h;
+  h+=`<div class="propAct"><button class="btn sm" type="button" data-pdel>Delete${it.kind==='opening'?(it.type==='door'?' door':' window'):''}</button>${it.kind==='opening'?'':'<button class="btn ghost sm" type="button" data-pdup>Duplicate</button>'}</div>`;
+  b.innerHTML=h;bind(b,it);propActs(b);
   const rb=b.querySelector('[data-reset]');if(rb)rb.onclick=()=>{const c=CAMS[it.model];it.fov=c.fov;it.range=ftR(c.nightM);render()};
 }
+function propActs(b){const d=b.querySelector('[data-pdel]');if(d)d.onclick=delSel;const u=b.querySelector('[data-pdup]');if(u)u.onclick=()=>bDup.click();
+  b.querySelectorAll('[data-also]').forEach(x=>x.onclick=()=>{sel={t:'item',id:x.dataset.also};render()})}
 function bind(b,o){b.querySelectorAll('[data-k]').forEach(inp=>{inp.oninput=()=>{const k=inp.dataset.k;let v=inp.value;if(inp.type==='number'){v=parseFloat(v);if(isNaN(v))return}o[k]=v;
   if(inp.tagName==='SELECT'){render();return}
   const a=document.activeElement,ss=a.selectionStart;render();const n=propBody.querySelector(`[data-k="${k}"]`);if(n){n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}}})}
@@ -857,12 +897,18 @@ function snapOpening(o,x,y,maxD){let best=null;const half=(+o.width||3)/2;
     else{if(e.y1-e.y0<o.width)continue;py=Math.max(e.y0+half,Math.min(e.y1-half,y));px=e.x;d=Math.hypot(px-x,py-y)}
     if(d<=maxD&&(!best||d<best.d))best={d,px,py,e}}
   if(!best)return false;o.x=Math.round(best.px*2)/2;o.y=Math.round(best.py*2)/2;o.orient=best.e.o;o.inward=best.e.inward;return true}
+// slide a new door/window along its wall so it doesn't land on top of another one
+function opClash(o){const h=(+o.width||3)/2;return P.items.some(q=>q!==o&&q.kind==='opening'&&q.orient===o.orient&&(o.orient==='h'?Math.abs(q.y-o.y)<.05&&Math.abs(q.x-o.x)<h+(+q.width||3)/2:Math.abs(q.x-o.x)<.05&&Math.abs(q.y-o.y)<h+(+q.width||3)/2))}
+function freeSpot(o){if(!opClash(o))return;const x0=o.x,y0=o.y,or=o.orient,step=.5;
+  for(let k=1;k<200;k++){const d=Math.ceil(k/2)*step*(k%2?1:-1);const t={...o};if(!snapOpening(t,or==='h'?x0+d:x0,or==='h'?y0:y0+d,.01))continue;if(t.orient!==or)continue;t.id=o.id;if(!opClash(Object.assign(o,{x:t.x,y:t.y})))return}
+  o.x=x0;o.y=y0}
 function openingRoom(o){const dx=o.orient==='h'?0:.3*(o.inward||1),dy=o.orient==='h'?.3*(o.inward||1):0;const r=roomAt(o.x+dx,o.y+dy);return r?r.name:''}
 function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width||3,h2=w/2,inw=(it.inward||1)*(it.swing==='out'?-1:1);
   const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
   const H=it.orient==='h';
   const a=H?[it.x-h2,it.y]:[it.x,it.y-h2],b=H?[it.x+h2,it.y]:[it.x,it.y+h2];
-  el('rect',H?{x:it.x-h2-.2,y:it.y-.7,width:w+.4,height:1.4}:{x:it.x-.7,y:it.y-h2-.2,width:1.4,height:w+.4},g).setAttribute('fill',s?'rgba(245,158,11,.18)':'transparent');
+  if(it.type==='door'){const lf=H?[a[0],a[1]+inw*w]:[a[0]+inw*w,a[1]],sw=H?(inw>0?0:1):(inw>0?1:0);el('path',{d:`M${a[0]},${a[1]} L${lf[0]},${lf[1]} A${w},${w} 0 0 ${sw} ${b[0]},${b[1]} Z`,fill:s?'rgba(218,0,41,.07)':'transparent','data-hit':1},g)}
+  el('rect',H?{x:it.x-h2-.3,y:it.y-.9,width:w+.6,height:1.8}:{x:it.x-.9,y:it.y-h2-.3,width:1.8,height:w+.6},g).setAttribute('fill',s?'rgba(218,0,41,.14)':'transparent');
   el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#ffffff','stroke-width':.42},g);
   if(it.type==='door'){const leaf=H?[a[0],a[1]+inw*w]:[a[0]+inw*w,a[1]];
     el('line',{x1:a[0],y1:a[1],x2:leaf[0],y2:leaf[1],stroke:'#2e2f2a','stroke-width':.14},g);
@@ -870,7 +916,8 @@ function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width
     el('path',{d:`M${leaf[0]},${leaf[1]} A${w},${w} 0 0 ${sweep} ${b[0]},${b[1]}`,fill:'none',stroke:'#8a8780','stroke-width':.07,'stroke-dasharray':'.25 .15'},g);
     for(const q of [a,b])el('circle',{cx:q[0],cy:q[1],r:.12,fill:'#2e2f2a'},g)}
   else{const off=.13;for(const k of [-off,0,off])el('line',H?{x1:a[0],y1:a[1]+k,x2:b[0],y2:b[1]+k}:{x1:a[0]+k,y1:a[1],x2:b[0]+k,y2:b[1]},g).setAttribute('stroke',k?'#0089f7':'#9fd0ff'),g.lastChild.setAttribute('stroke-width',k?.07:.05)}
-  if(s){const r=el('rect',H?{x:it.x-h2-.2,y:it.y-.7,width:w+.4,height:1.4}:{x:it.x-.7,y:it.y-h2-.2,width:1.4,height:w+.4},g);r.setAttribute('fill','none');r.setAttribute('stroke','#f59e0b');r.setAttribute('stroke-width',.12)}
+  if(s){const r=el('rect',H?{x:it.x-h2-.3,y:it.y-.9,width:w+.6,height:1.8,rx:.3}:{x:it.x-.9,y:it.y-h2-.3,width:1.8,height:w+.6,rx:.3},g);r.setAttribute('fill','none');r.setAttribute('stroke','#da0029');r.setAttribute('stroke-width',.16);
+    for(const q of [a,b])el('circle',{cx:q[0],cy:q[1],r:.28,fill:'#fff',stroke:'#da0029','stroke-width':.1,style:'pointer-events:none'},g)}
 }
 
 // ---- pan / zoom ----
