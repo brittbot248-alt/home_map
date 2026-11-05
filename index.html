@@ -578,13 +578,15 @@ function mkItem(kind,type,x,y){
 function nextZone(){const u=new Set(P.items.filter(i=>i.zone!=null).map(i=>+i.zone));let n=1;while(u.has(n))n++;return n}
 function nextCam(){const u=new Set(P.items.filter(i=>i.kind==='cam').map(i=>+i.num));let n=1;while(u.has(n))n++;return n}
 // ---- room rotation: r.rot (deg, any value) turns the room about its center. A rectangle turned 180° looks the same,
-// so all geometry uses RA(r), the same turn folded into (-90°, 90°] (also keeps the room label readable).
+// so all geometry uses RA(r), the same turn folded into (-90°, 90°]. Room labels use labelAng (flip if upside-down).
 const RA=r=>{let a=((+r.rot||0)%180+180)%180;if(a>90)a-=180;return a};
 const rotP=(x,y,cx,cy,deg)=>{if(!deg)return [x,y];const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]};
 const toL=(r,x,y)=>rotP(x,y,r.x+r.w/2,r.y+r.h/2,-RA(r)), LW=(r,x,y)=>rotP(x,y,r.x+r.w/2,r.y+r.h/2,RA(r));
 const rotV=(v,deg)=>{const [x,y]=rotP(v.x,v.y,0,0,deg);return {x,y}};
 function rBox(r){if(!RA(r))return [r.x,r.y,r.x+r.w,r.y+r.h];const C=[[r.x,r.y],[r.x+r.w,r.y],[r.x+r.w,r.y+r.h],[r.x,r.y+r.h]].map(([x,y])=>LW(r,x,y));return [Math.min(...C.map(c=>c[0])),Math.min(...C.map(c=>c[1])),Math.max(...C.map(c=>c[0])),Math.max(...C.map(c=>c[1]))]}
 const n360=a=>((a%360)+360)%360, r2=v=>Math.round(v*1000)/1000;
+// room label angle: follow the room, but flip 180° when that would leave the text upside-down
+const labelAng=r=>{let a=n360(+r.rot||0);if(a>=90&&a<=270)a-=180;return a};
 // door/window frame: own angle (ang), inward normal and along-wall tangent in plan coordinates
 const opAng=o=>+o.ang||0;
 const opN=o=>rotV(o.orient==='h'?{x:0,y:o.inward||1}:{x:o.inward||1,y:0},opAng(o));
@@ -635,26 +637,33 @@ function newExt(side,dataUrl,name){
     notes:''};
 }
 function suggestCam(ex){
-  const d=+ex.distance||0, power=ex.power, wifi=ex.wifi, watch=(ex.watch||'').toLowerCase(), side=ex.side;
+  const d=+ex.distance||0, power=ex.power, wifi=ex.wifi, watch=(ex.watch||'').toLowerCase(), side=ex.side, mount=(ex.mount||'').toLowerCase();
   const cover=m=>nightFt(m)>=d;
-  const cand=[]; let reason='';
+  const wide=/yard|drive|gate|wide|area|street|parking|lot/.test(watch)||d>=40;
+  // Outdoor priority: E1/V5P first (outlet + Wi-Fi). F1/T1 only when those don't fit (no outlet / PoE-only, or range beyond E1/V5P).
+  const preferWifi=()=>{if(wide){return {cand:['E1','V5P'],reason:`E1 pan/tilt first (${CAMS.E1.fov}° FOV, ${nightFt('E1')} ft night) for this wide outdoor area; V5P bullet (${CAMS.V5P.fov}°) next. Needs an outlet within ${OUTLET_FT} ft + Wi-Fi.`}}
+    return {cand:['V5P','E1'],reason:`V5P bullet first (${CAMS.V5P.fov}° FOV, ${nightFt('V5P')} ft night) for directional coverage; E1 pan/tilt (${CAMS.E1.fov}°) if one camera must sweep wider. Needs an outlet within ${OUTLET_FT} ft + Wi-Fi.`}};
+  const preferPoe=()=>{if(/eave|soffit/.test(mount)){return {cand:['T1','F1'],reason:`No outlet within ${OUTLET_FT} ft — PoE only → T1 turret under eave (${CAMS.T1.fov}° FOV, ${nightFt('T1')} ft night); F1 if blue/red lights/siren wanted (${CAMS.F1.fov}°).`}}
+    return {cand:['F1','T1'],reason:`No outlet within ${OUTLET_FT} ft — PoE only → F1 (${CAMS.F1.fov}° FOV, lights/siren, ${nightFt('F1')} ft night) or T1 turret (${CAMS.T1.fov}°).`}};
+  let cand=[], reason='';
   if(side==='Front'&&/entry|door|doorbell|front/.test(watch)){
-    cand.push('D1'); reason=`Front door → D1 doorbell (${nightFt('D1')} ft night).`;
-  } else if(power==='PoE / ethernet run possible'){
-    if(/eave|soffit/.test((ex.mount||'').toLowerCase())){cand.push('T1','F1'); reason=`PoE + eave → T1 turret preferred, F1 for lights/siren (${nightFt('T1')} ft).`;}
-    else {cand.push('F1','T1'); reason=`PoE available → F1 (lights/siren, color night ${nightFt('F1')} ft) or T1 turret.`;}
-  } else if(power==='Outdoor outlet within 5 ft'&&wifi==='Yes'){
-    if(/yard|drive|gate|wide|area/.test(watch)||d>=40){cand.push('E1','V5P'); reason=`Outlet + Wi-Fi, wide area → E1 pan/tilt (or V5P bullet), ${nightFt('E1')} ft.`;}
-    else {cand.push('V5P','E1'); reason=`Outlet + Wi-Fi → V5P bullet (${nightFt('V5P')} ft); E1 if one camera must cover a wide area.`;}
+    cand=['D1']; reason=`Front door → D1 doorbell (${nightFt('D1')} ft night).`;
   } else if(power==='No power'){
-    cand.push('S2'); reason=`No power → S2 solar (${nightFt('S2')} ft). Records locally, not on N85.`;
+    cand=['S2']; reason=`No power → S2 solar (${nightFt('S2')} ft night). Records locally, not on N85.`;
+  } else if(power==='Outdoor outlet within 5 ft'){
+    ({cand,reason}=preferWifi());
+  } else if(power==='PoE / ethernet run possible'){
+    // Form says PoE is the power plan → treat as no outlet within 5 ft
+    ({cand,reason}=preferPoe());
+  } else if(wifi==='Yes'){
+    ({cand,reason}=preferWifi()); reason='Wi-Fi reachable; confirm an outlet within '+OUTLET_FT+' ft. '+reason;
   } else {
-    // fallbacks
-    if(power==='Outdoor outlet within 5 ft'){cand.push('V5P','E1'); reason=`Outlet nearby → V5P / E1 (Wi-Fi).`;}
-    else if(wifi==='Yes'){cand.push('V5P','E1'); reason=`Wi-Fi reachable; confirm outlet or use S2 if none.`;}
-    else {cand.push('S2'); reason=`Limited power/Wi-Fi → S2 solar (local recording).`;}
+    cand=['S2']; reason=`Limited power/Wi-Fi → S2 solar (local recording, ${nightFt('S2')} ft night).`;
   }
-  // Prefer candidate whose night range covers distance
+  // If Wi-Fi outdoor picks can't cover the distance, fall back to PoE cams (same night range today, but keeps the rule)
+  if(cand[0]&&['E1','V5P'].includes(cand[0])&&d>nightFt('E1')&&d>nightFt('V5P')){
+    const p=preferPoe(); if(p.cand.some(cover)){cand=p.cand;reason=`Needed ${d} ft exceeds E1/V5P night range (${nightFt('E1')} ft) → ${p.reason}`;}
+  }
   let pick=cand.find(cover)||cand[0];
   let warn='';
   const best=Math.max(...cand.map(nightFt),0);
@@ -806,15 +815,21 @@ function drawPlan(opt={}){
   drawYard();
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6'},g)}
   drawUnderlay();
-  for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const g=el('g',{'data-room':r.id},svg);if(RA(r))g.setAttribute('transform',`rotate(${RA(r)} ${r.x+r.w/2} ${r.y+r.h/2})`);
+  for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const cx=r.x+r.w/2,cy=r.y+r.h/2,A=RA(r),la=labelAng(r);
+    const g=el('g',{'data-room':r.id},svg);if(A)g.setAttribute('transform',`rotate(${A} ${cx} ${cy})`);
     el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,'fill-opacity':(P.underlay&&P.underlay.src&&(!CUST()||P.underlay.showCustomer))?.3:1,fill:s?'#fff5f6':'#ffffff',stroke:s?'#da0029':'#8a8780','stroke-width':s?.25:.16,style:'cursor:move'},g);
-    const t=el('text',{x:r.x+.5,y:r.y+1.4,'font-size':1.1,fill:'#5e5758','font-weight':600,style:'pointer-events:none'},g);t.textContent=r.name;
-    const sz=el('text',{x:r.x+.5,y:r.y+2.6,'font-size':.8,fill:'#9a9690',style:'pointer-events:none'},g);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
+    // name + size stay centered in the rotated room; net text angle = labelAng (upright, never upside-down)
+    const dA=la-A,ltf=dA?{transform:`rotate(${r2(dA)} ${cx} ${cy})`}:{};
+    const t=el('text',{x:cx,y:cy-.35,'font-size':1.1,'text-anchor':'middle',fill:'#5e5758','font-weight':600,style:'pointer-events:none','data-rlabel':'name',...ltf},g);t.textContent=r.name;
+    const sz=el('text',{x:cx,y:cy+.85,'font-size':.8,'text-anchor':'middle',fill:'#9a9690',style:'pointer-events:none','data-rlabel':'size',...ltf},g);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
   }
   for(const it of FI().filter(i=>i.kind==='opening'))drawOpening(it);
   drawIssueLines();
-  // resize corner drawn above doors/windows so an opening near the corner never hides it
+  // edge + corner resize handles (outside the walls so the room body stays draggable)
   if(sel&&sel.t==='room'&&!PR){const r=P.rooms.find(r=>r.id===sel.id&&onF(r));if(r){const hs=Math.max(1.4,HS()),A=RA(r),cx=r.x+r.w/2,cy=r.y+r.h/2,tf=A?{transform:`rotate(${A} ${cx} ${cy})`}:{};
+    for(const [side,x,y,cur] of [['top',r.x+r.w/2-hs/2,r.y-hs,'ns-resize'],['bottom',r.x+r.w/2-hs/2,r.y+r.h,'ns-resize'],['left',r.x-hs,r.y+r.h/2-hs/2,'ew-resize'],['right',r.x+r.w,r.y+r.h/2-hs/2,'ew-resize']]){
+      const er=el('rect',{x,y,width:hs,height:hs,rx:.25,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-edge':`${r.id}:${side}`,style:`cursor:${cur}`,...tf},svg);el('title',{},er).textContent='Drag to move this wall (opposite wall stays put)';
+    }
     el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize',...tf},svg);
 }}
   // cones: outdoor unclipped (extend into yard); indoor clipped to their room
@@ -890,7 +905,15 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   if(ie||isg){if(ie){const [id,k]=ie.split(':');drag={m:'iend',o:P.issues.find(i=>i.id===id),k}}else{const o=P.issues.find(i=>i.id===isg.dataset.issue);sel={t:'issue',id:o.id};drag={m:'imove',o,dx:p.x-o.x,dy:p.y-o.y,x0:o.x,y0:o.y,x2:o.x2,y2:o.y2,sx:e.clientX,sy:e.clientY,moved:0}}
     svg.setPointerCapture(e.pointerId);drag.vb0={...VB0};render();return}
   const rot_=t.getAttribute('data-rotate');if(rot_){const o=P.rooms.find(r=>r.id===rot_),cx=o.x+o.w/2,cy=o.y+o.h/2;drag={m:'rot',o,cx,cy,a0:Math.atan2(p.y-cy,p.x-cx)*180/Math.PI,r0:+o.rot||0,kids:e.altKey?null:roomKids(o),vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}
-  const aim=t.getAttribute('data-aim'),rs=t.getAttribute('data-resize'),ig=t.closest('[data-item]'),rg=t.closest('[data-room]');
+  const edge_=t.getAttribute('data-edge'),edgeHit=edge_?stackAt(e).find(k=>k.t==='item'):null;
+  if(edge_&&!edgeHit){const [id,side]=edge_.split(':'),o=P.rooms.find(r=>r.id===id),A=RA(o);
+    const an=side==='left'?LW(o,o.x+o.w,o.y):side==='top'?LW(o,o.x,o.y+o.h):LW(o,o.x,o.y);
+    const snaps=[];for(const or of FR()){if(or.id===o.id)continue;
+      for(const [lx,ly] of [[or.x,or.y],[or.x+or.w,or.y],[or.x+or.w,or.y+or.h],[or.x,or.y+or.h]]){const [wx,wy]=LW(or,lx,ly),[ux,uy]=rotP(wx-an[0],wy-an[1],0,0,-A);
+        snaps.push(side==='left'?-ux:side==='right'?ux:side==='top'?-uy:uy)}}
+    drag={m:'edge',o,side,A,an,w0:o.w,h0:o.h,snaps,ops:wallOps(o).map(w=>{const [lx,ly]=toL(o,w.it.x,w.it.y);return {it:w.it,side:w.side,lx:lx-o.x,ly:ly-o.y}}),vb0:{...VB0}};
+    svg.setPointerCapture(e.pointerId);render();return}
+  const aim=t.getAttribute('data-aim'),rs=t.getAttribute('data-resize'),ig=edgeHit?svg.querySelector(`[data-item="${edgeHit.id}"]`):t.closest('[data-item]'),rg=t.closest('[data-room]');
   if(aim){drag={m:'aim',o:P.items.find(i=>i.id===aim)}}
   else if(rs){const o=P.rooms.find(r=>r.id===rs),A=RA(o),an=LW(o,o.x,o.y);drag={m:'resize',o,A,an,ops:wallOps(o).map(w=>{const l=rotP(w.it.x-an[0],w.it.y-an[1],0,0,-A);return {...w,ox:w.it.x,oy:w.it.y,lx:l[0],ly:l[1]}})}}
   else if(ig||rg){const st=stackAt(e);if(!st.length)st.push(ig?{t:'item',id:ig.dataset.item}:{t:'room',id:rg.dataset.room});
@@ -924,6 +947,17 @@ svg.addEventListener('pointermove',e=>{if(!drag)return;
     for(const w of drag.ops||[]){const it=w.it,hw=(+it.width||3)/2;
       if(w.side==='right')it.x=o.x+o.w;if(w.side==='bottom')it.y=o.y+o.h;
       if(it.orient==='h')it.x=Math.max(o.x+hw,Math.min(o.x+o.w-hw,w.ox));else it.y=Math.max(o.y+hw,Math.min(o.y+o.h-hw,w.oy))}}
+  else if(drag.m==='edge'){const A=drag.A,an=drag.an,side=drag.side,u=rotP(p.x-an[0],p.y-an[1],0,0,-A);
+    const snapE=v=>{let best=null,bd=.75;for(const s of drag.snaps||[]){const d=Math.abs(s-v);if(d<bd){bd=d;best=s}}return best!=null?r2(best):Math.round(v*2)/2};
+    let w=drag.w0,h=drag.h0;
+    if(side==='right')w=Math.max(3,snapE(u[0]));else if(side==='left')w=Math.max(3,snapE(-u[0]));
+    else if(side==='bottom')h=Math.max(3,snapE(u[1]));else if(side==='top')h=Math.max(3,snapE(-u[1]));
+    o.w=w;o.h=h;const off=side==='left'?[-w/2,h/2]:side==='top'?[w/2,-h/2]:[w/2,h/2];
+    const c=rotP(an[0]+off[0],an[1]+off[1],an[0],an[1],A);o.x=r2(c[0]-w/2);o.y=r2(c[1]-h/2);
+    for(const wop of drag.ops||[]){const it=wop.it,hw=(+it.width||3)/2;let lx=wop.lx,ly=wop.ly;
+      if(wop.side==='right')lx=o.w;if(wop.side==='bottom')ly=o.h;if(wop.side==='left')lx=0;if(wop.side==='top')ly=0;
+      if(wop.side==='top'||wop.side==='bottom')lx=Math.max(hw,Math.min(o.w-hw,lx));else ly=Math.max(hw,Math.min(o.h-hw,ly));
+      const q=LW(o,o.x+lx,o.y+ly);it.x=r2(q[0]);it.y=r2(q[1])}}
   else if(drag.m==='aim'){o.rot=Math.round(Math.atan2(p.y-o.y,p.x-o.x)*180/Math.PI);if(o.rot<0)o.rot+=360}
   render()});
 function endDrag(){const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;render()}return}
@@ -974,7 +1008,7 @@ function renderProps(){
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
     h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`+
       `<label class="f">Rotation (°)</label><div class="rotRow"><button class="btn ghost sm" type="button" data-rot="-90" title="Rotate 90° left (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees left">⟲ 90°</button><input type="number" data-rotdeg step="1" value="${r2(n360(+r.rot||0))}" aria-label="Room angle in degrees"><button class="btn ghost sm" type="button" data-rot="90" title="Rotate 90° right (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees right">⟳ 90°</button></div>`;
-    const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag the red corner to resize. Drag the round handle above it to rotate (15° steps; Shift for free; Alt turns the room alone).</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
+    const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag a red edge handle to move one wall, or the corner to resize both. Drag the round handle above it to rotate (15° steps; Shift for free; Alt turns the room alone).</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
     h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);
     b.querySelectorAll('[data-rot]').forEach(x=>x.onclick=e=>rotateRoomBy(r,+x.dataset.rot,e.altKey));
     const rd=b.querySelector('[data-rotdeg]');rd.onchange=()=>{const v=parseFloat(rd.value);if(isNaN(v))return;rotateRoomBy(r,v-n360(+r.rot||0),false)};return}
@@ -1429,7 +1463,7 @@ function buildSuggestions(){
   const outCams=ex.filter(i=>i.kind==='cam'&&isOutdoorCam(i));
   const doorCam=(d,isMain)=>{const exs=bestExt(d.side,/door|entry|front|porch/i);let model,why;
     if(exs){const s=suggestCam(exs);model=s.model;why=`${s.reason} (from ${exs.side} exterior spot)`}
-    else {model='T1';why='No exterior spot info: assumes PoE run → T1 turret (use V5P/E1 if only outlet + Wi-Fi).'}
+    else {model='V5P';why=`No exterior spot info → V5P bullet first (${CAMS.V5P.fov}° FOV, ${nightFt('V5P')} ft night); needs an outlet within ${OUTLET_FT} ft + Wi-Fi. Use E1 if one camera must pan a wider area; F1/T1 only when PoE is the only power option.`}
     return {model,why}};
   let streetCovered=false;const camDoors=[];
   if(!commercial&&main&&!main.garageEdge&&!has(i=>i.kind==='cam'&&i.model==='D1')){
@@ -1438,14 +1472,14 @@ function buildSuggestions(){
   for(const d of pDoors){if(d.garageEdge)continue;if(d.unsure&&d!==main)continue;if(camDoors.includes(d))continue;
     if(camDoors.some(c=>Math.hypot(c.o.x-d.o.x,c.o.y-d.o.y)<10&&c.side===d.side))continue;
     if(outCams.some(c=>Math.hypot(c.x-d.o.x,c.y-d.o.y)<8))continue;
-    let {model,why}=doorCam(d,d===main);if(model==='D1')model='T1',why='Door already has a doorbell elsewhere; T1 turret over the door.';
+    let {model,why}=doorCam(d,d===main);if(model==='D1')model='V5P',why=`Door already has a doorbell elsewhere → V5P bullet over the door (${CAMS.V5P.fov}° FOV, ${nightFt('V5P')} ft night); needs an outlet within ${OUTLET_FT} ft.`;
     const off=model==='D1'?2.2:3.5;
     camAt(model,d.o.x-d.n.x*1+d.t.x*off,d.o.y-d.n.y*1+d.t.y*off,Math.atan2(-d.n.y,-d.n.x)*180/Math.PI-Math.sign(off)*20,nm(d).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' camera',`Covers ${d===main?'the main entry':'an exterior door'}. ${why}`);
     camDoors.push(d);if(d.side==='front')streetCovered=true}
   const parkCovered=!!outCams.length&&outCams.some(c=>{const a=((c.rot%360)+360)%360,phys=['front','right','back','left'][{front:0,right:1,back:2,left:3}[P.streetSide||'front']];return phys==='front'?a>45&&a<135:phys==='back'?a>225&&a<315:phys==='left'?a>135&&a<225:(a<45||a>315)});if(parkCovered)streetCovered=true;
   if(!streetCovered||(COMM()&&!parkCovered)){const RB=rooms.map(rBox),bx0=Math.min(...RB.map(b=>b[0])),by0=Math.min(...RB.map(b=>b[1])),bx1=Math.max(...RB.map(b=>b[2])),by1=Math.max(...RB.map(b=>b[3]));
     const phys=['front','right','back','left'][({front:0,right:1,back:2,left:3}[P.streetSide||'front'])];
-    const exs=(P.exteriors||[]).find(e=>e.side==='Driveway')||bestExt('front',/drive|street|yard|wide|area/i);let s=exs?suggestCam(exs):null;let model=s&&s.model!=='D1'?s.model:'F1',why=s&&s.model!=='D1'?`${s.reason} (from ${exs.side} exterior spot)`:'Street side: F1 for color night view plus blue/red deterrent lights (PoE via N85).';
+    const exs=(P.exteriors||[]).find(e=>e.side==='Driveway')||bestExt('front',/drive|street|yard|wide|area/i);let s=exs?suggestCam(exs):null;let model=s&&s.model!=='D1'?s.model:'E1',why=s&&s.model!=='D1'?`${s.reason} (from ${exs.side} exterior spot)`:`Street side → E1 pan/tilt first (${CAMS.E1.fov}° FOV, ${nightFt('E1')} ft night) for wide coverage; needs an outlet within ${OUTLET_FT} ft. Fall back to F1/T1 only if PoE is the only power option.`;
     const pos={front:[main&&main.side==='front'?(main.o.x>(bx0+bx1)/2?bx0+3:bx1-3):bx1-3,by1+1,90],back:[bx0+3,by0-1,270],left:[bx0-1,by1-3,180],right:[bx1+1,by1-3,0]}[phys];
     camAt(model,pos[0],pos[1],pos[2],COMM()?'Parking lot camera':'Street-side camera',(COMM()?'Watches the parking lot / street side. ':'Watches the street / driveway side. ')+why)}
   {const mS=P.streetSide||'front',rN={front:0,right:1,back:2,left:3}[mS]||0,aimOK=(a,ph)=>ph==='front'?a>45&&a<135:ph==='back'?a>225&&a<315:ph==='left'?a>135&&a<225:(a<45||a>315);
@@ -1455,20 +1489,31 @@ function buildSuggestions(){
      if(S.some(q=>q.kind==='cam'&&isOutdoorCam(q)&&aimOK(n360(+q.rot||0),ph)&&(/street|parking/i.test(q.name||'')||q.side===lg)))continue;
      const RB=rooms.map(rBox),bx0=Math.min(...RB.map(b=>b[0])),by0=Math.min(...RB.map(b=>b[1])),bx1=Math.max(...RB.map(b=>b[2])),by1=Math.max(...RB.map(b=>b[3]));
      const pos={front:[bx0+3,by1+1,90],back:[bx1-3,by0-1,270],left:[bx0-1,by0+3,180],right:[bx1+1,by0+3,0]}[ph];
-     const exs=bestExt(lg,/street|drive|yard|wide|area|side/i),s2=exs?suggestCam(exs):null,model=s2&&s2.model&&s2.model!=='D1'?s2.model:'F1';
-     const why=s2&&s2.model&&s2.model!=='D1'?`${s2.reason} (from ${exs.side} exterior spot)`:'Second street side: F1 for color night view plus blue/red deterrent lights (PoE via N85).';
+     const exs=bestExt(lg,/street|drive|yard|wide|area|side/i),s2=exs?suggestCam(exs):null,model=s2&&s2.model&&s2.model!=='D1'?s2.model:'E1';
+     const why=s2&&s2.model&&s2.model!=='D1'?`${s2.reason} (from ${exs.side} exterior spot)`:`Second street side → E1 pan/tilt first (${CAMS.E1.fov}° FOV, ${nightFt('E1')} ft night); needs an outlet within ${OUTLET_FT} ft.`;
      camAt(model,pos[0],pos[1],pos[2],`Street-side camera (${SSN[ph]})`,`Corner lot: the ${SSN[ph].toLowerCase()} side also faces a street. ${why}`,{side:lg})}}
-  // indoor PT
-  const pt=(r,c,aim,why,model='P1')=>{const a=angTo({x:c[0],y:c[1]},aim);camAt(model,c[0],c[1],a,r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' indoor camera',why,{outlet:true})};
+  // indoor: pick among P1 / M1 / R5 from CAMS specs (never F1/T1 indoors)
+  const pickIndoor=(r,aim)=>{
+    const area=rArea(r),diag=Math.hypot(r.w,r.h),dist=aim?Math.hypot((aim.x||0)-rCx(r),(aim.y||0)-rCy(r)):diag*.55;
+    const nvrHere=P.items.some(i=>i.kind==='nvr')||S.some(s=>s.kind==='nvr')||P.items.some(i=>i.kind==='cam'&&CAMS[i.model]&&CAMS[i.model].poe)||S.some(s=>s.kind==='cam'&&CAMS[s.model]&&CAMS[s.model].poe);
+    // R5: narrower FOV but records to N85 — good when NVR is already on the plan and the room is modest
+    if(nvrHere&&area<400&&diag<=28)return {model:'R5',why:`Indoor R5W/R5B (${CAMS.R5.fov}° FOV, ${nightFt('R5')} ft night) — records to the N85 already planned; needs an outlet within ${OUTLET_FT} ft.`};
+    // M1: 8MP radar PT — large commercial open areas
+    if(commercial&&area>=600)return {model:'M1',why:`Indoor M1 8MP radar PT (${CAMS.M1.fov}° FOV, ${nightFt('M1')} ft night) for this ${Math.round(area)} sq ft open area; needs an outlet within ${OUTLET_FT} ft.`};
+    // P1: widest indoor FOV — default / large rooms / covering an entry from a corner
+    return {model:'P1',why:`Indoor P1 (${CAMS.P1.fov}° FOV — widest indoor, ${nightFt('P1')} ft night) for the ${Math.round(r.w)}×${Math.round(r.h)} ft room${dist>nightFt('P1')?` (aim distance ~${Math.round(dist)} ft; night range ${nightFt('P1')} ft)`:''}; needs an outlet within ${OUTLET_FT} ft.`};
+  };
+  const pt=(r,c,aim,why,model)=>{const pick=model?{model,why}:pickIndoor(r,aim);const a=angTo({x:c[0],y:c[1]},aim);camAt(pick.model,c[0],c[1],a,r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' indoor camera',why||pick.why,{outlet:true})};
   if(largest&&!roomHas(largest,i=>i.kind==='cam')){const r=largest,C=[[r.x+1,r.y+1],[r.x+r.w-1,r.y+1],[r.x+1,r.y+r.h-1],[r.x+r.w-1,r.y+r.h-1]].map(c=>LW(r,...c));
     const inMain=main&&(main.room===r);const aim=inMain?{x:main.o.x,y:main.o.y}:(()=>{const dr=doors.filter(d=>d.room===r||d.other===r);return dr.length?{x:dr[0].o.x,y:dr[0].o.y}:{x:rCx(r),y:rCy(r)}})();
     const busy=c=>(S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?100:0)+(c[0]<r.x+2&&c[1]<r.y+2?6:0);
-    if(commercial&&rArea(r)>=600){const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));const bz=c=>S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?1:0;let c1,c2;if(bz(C[0])+bz(C[3])<=bz(C[1])+bz(C[2])){c1=C[3];c2=LW(r,r.x+1,r.y+3.5)}else{c1=C[1];c2=C[2]}
-      pt(r,c1,{x:rCx(r),y:rCy(r)},`Indoor P1 (widest 111° view) in a corner covering the ${r.name.toLowerCase()}${inMain?' and the entry':''}.`);
-      pt(r,c2,{x:rCx(r),y:rCy(r)},`Opposite-corner P1 so the ${Math.round(r.w)}×${Math.round(r.h)} ft room is covered both ways (P1 night range ~${nightFt('P1')} ft).`)}
+    const pick=pickIndoor(r,aim);
+    if(commercial&&rArea(r)>=600){const bz=c=>S.some(q=>Math.hypot(q.x-c[0],q.y-c[1])<3)?1:0;let c1,c2;if(bz(C[0])+bz(C[3])<=bz(C[1])+bz(C[2])){c1=C[3];c2=LW(r,r.x+1,r.y+3.5)}else{c1=C[1];c2=C[2]}
+      pt(r,c1,{x:rCx(r),y:rCy(r)},`${pick.why} Corner covering the ${r.name.toLowerCase()}${inMain?' and the entry':''}.`,pick.model);
+      pt(r,c2,{x:rCx(r),y:rCy(r)},`Opposite-corner ${pick.model} so the ${Math.round(r.w)}×${Math.round(r.h)} ft room is covered both ways (${pick.model} night range ~${nightFt(pick.model)} ft).`,pick.model)}
     else{const cs=C.slice().sort((a,b)=>Math.hypot(b[0]-aim.x,b[1]-aim.y)-busy(b)-Math.hypot(a[0]-aim.x,a[1]-aim.y)+busy(a));
-      pt(r,cs[0],aim,`Largest common area: indoor P1 pan/tilt in the far corner aimed at ${inMain?'the main entry':'the room entry'}.`)}}
-  if(COMM())rooms.filter(r=>/retail|register|checkout|cashier|sales/i.test(r.name)&&!roomHas(r,i=>i.kind==='cam')&&!S.some(q=>q.kind==='cam'&&inRoomAt(q.x,q.y)===r)).forEach(r=>pt(r,LW(r,r.x+1,r.y+1),{x:rCx(r),y:rCy(r)},'Covers the register / point-of-sale area. Aim it at the counter once placed.'));
+      pt(r,cs[0],aim,`Largest common area: ${pick.why} Far corner aimed at ${inMain?'the main entry':'the room entry'}.`,pick.model)}}
+  if(COMM())rooms.filter(r=>/retail|register|checkout|cashier|sales/i.test(r.name)&&!roomHas(r,i=>i.kind==='cam')&&!S.some(q=>q.kind==='cam'&&inRoomAt(q.x,q.y)===r)).forEach(r=>{const pick=pickIndoor(r,{x:rCx(r),y:rCy(r)});pt(r,LW(r,r.x+1,r.y+1),{x:rCx(r),y:rCy(r)},`Register / POS: ${pick.why}`,pick.model)});
   // outlets for outlet cams
   for(const s of S.filter(s=>s.kind==='cam'&&CAMS[s.model].outlet)){
     if(ex.some(i=>i.kind==='outlet'&&Math.hypot(i.x-s.x,i.y-s.y)<=OUTLET_FT))continue;
@@ -1672,7 +1717,7 @@ function applyFix(code,id){const it=P.items.find(i=>i.id===id);if(!it)return;con
   render()}
 
 // ---- device tray + room templates ----
-const TPL={residential:[['Bedroom',11,12],['Primary bedroom',14,16],['Bathroom',5,8],['Kitchen',12,14],['Living room',15,20],['Garage (1 car)',12,22],['Garage (2 car)',22,22],['Office',10,11],['Hallway',4,12]],
+const TPL={residential:[['Bedroom',11,12],['Primary bedroom',14,16],['Bathroom',5,8],['Kitchen',12,14],['Dining Room',12,14],['Living room',15,20],['Garage (1 car)',12,22],['Garage (2 car)',22,22],['Office',10,11],['Hallway',4,12]],
   commercial:[['Office',10,12],['Open office',30,40],['Conference',14,20],['Lobby / reception',15,20],['Storage',10,12],['Warehouse',40,60],['Break room',12,15],['Server / IT room',8,10],['Restroom',8,10],['Retail floor',30,40],['Loading dock',12,20]]};
 let TD=null;
 function overPlan(e){if(CUST())return false;const r=svg.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom}
@@ -1718,7 +1763,7 @@ function closeModal(){ovl.hidden=true;ovl.innerHTML='';ovl.dataset.kind=''}
 document.addEventListener('keydown',e=>{if(ovl.hidden)return;if(e.key==='Escape'){if(ovl.dataset.kind==='guide')localStorage.setItem('vyGuideSeen','1');closeModal();e.stopImmediatePropagation();return}
   if(e.key==='Delete'||e.key==='Backspace'||((e.ctrlKey||e.metaKey)&&/^[zy]$/i.test(e.key)))e.stopImmediatePropagation()},true);
 const GSTEPS=[
-  {t:'Draw rooms',b:'Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it and its red corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
+  {t:'Draw rooms',b:'Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it; drag a red edge to move one wall, or the corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
   {t:'Add doors and windows',b:'Drag <b>Door</b> or <b>Window</b> from the tray onto a wall, or click it in the list. It snaps to the nearest room wall.'},
   {t:'Place devices',b:'Drag sensors, outlets, Vyanet cameras and the N85 onto the map, or press <b>Suggest devices</b> for a starting layout. A yellow <b>!</b> marks a placement warning with a one-click fix. A small <b>W</b> means wireless.'},
   {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone, camera and site-issue schedules. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
