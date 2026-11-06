@@ -238,6 +238,8 @@ body.customer .team-only{display:none!important}
 .estNote{margin:2px 0 4px}
 .jobbar select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--vy-line);border-radius:3px;color:var(--vy-ink);background:#fff}
 body.commercial .fireDev,body:not(.commercial) .commDev{display:none!important}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#2e2f2a;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:min(520px,92vw);text-align:center}
+.toast[hidden]{display:none!important}
 .ovl{position:fixed;inset:0;background:rgba(46,47,42,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:18px}
 .mBox{background:#fff;border-radius:8px;border-top:4px solid var(--vy-red);max-width:540px;width:100%;padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
 .mBox h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;font-weight:600;margin:0 0 6px;color:var(--vy-near)}
@@ -328,6 +330,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   <span class="sp"></span>
   <button class="btn ghost sm" id="bCust" type="button" aria-pressed="false">Customer view</button>
   <button class="btn ghost sm" id="bPng" type="button">Export PNG</button>
+  <button class="btn soft sm" id="bEmail" type="button">Email plan</button>
   <button class="btn soft sm" onclick="window.print()">Print</button>
 </header>
 <div id="recentPanel" class="recentPanel no-print" hidden></div>
@@ -337,7 +340,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   <label>Address<input data-j="address" class="wide" placeholder="Street, city"></label>
   <label>Account #<input data-j="account" placeholder="Account #"></label>
   <label>Date<input data-j="date" type="date"></label>
-  <label>Tech<input data-j="tech" placeholder="Technician"></label>
+  <label>Sales Rep/Tech<input data-j="tech" placeholder="Sales rep/tech"></label>
 </div>
 <div class="jobsum" id="jobSummary"></div>
 <section id="printFloors" class="pf-only printFloors" aria-label="Floor maps for print"></section>
@@ -484,6 +487,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   <div class="card pf-only optional" id="guidePrint"></div>
 </section>
 <div id="ovl" class="ovl" hidden></div>
+<div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
 
 <div id="lb" class="lightbox" hidden><button class="btn ghost sm x" id="lbClose" type="button">Close</button><img id="lbImg" alt="Enlarged image"></div>
 
@@ -1141,7 +1145,7 @@ function demo(){
   const D=(type,x,y,orient,inward,name,width)=>p.items.push({id:nid('i'),kind:'opening',type,x,y,orient,inward,swing:'in',width:width||(type==='door'?3:4),name,notes:''});
   D('door',42,48,'h',-1,'Front door');D('door',49,20,'h',1,'Back door');D('door',40,28,'v',-1,'Garage entry door');
   D('window',48,48,'h',-1,'Living room front window');D('window',78,26,'v',-1,'Primary bedroom window');D('window',72,48,'h',-1,'Bedroom 2 window');D('window',54,20,'h',1,'Kitchen window');D('window',22,28,'v',1,'Garage side window',3);
-  p.job={customer:'Jordan Sample (demo)',address:'214 Maple Ct, Medford OR',account:'DEMO-00214',date:'2026-11-04',tech:'Demo Tech'};
+  p.job={customer:'Jordan Sample (demo)',address:'214 Maple Ct, Medford OR',account:'DEMO-00214',date:'2026-11-04',tech:'Demo Sales Rep/Tech'};
   // exterior placeholders
   const E=window.VY_EXT||{};
   const add=(side,key,watch,dist,power,mount,wifi,name)=>{
@@ -1214,7 +1218,7 @@ bUndo.onclick=undo;bRedo.onclick=redo;
 // ---- job header ----
 function fillJob(){document.querySelectorAll('[data-j]').forEach(i=>{i.value=(P.job||{})[i.dataset.j]||''})}
 document.querySelectorAll('[data-j]').forEach(i=>i.oninput=()=>{P.job=P.job||{};P.job[i.dataset.j]=i.value;renderJob();store()});
-function renderJob(){const j=P.job||{},f=[[COMM()?'Business':'Customer',j.customer],['Address',j.address],['Account #',j.account],['Date',j.date],['Tech',j.tech]];
+function renderJob(){const j=P.job||{},f=[[COMM()?'Business':'Customer',j.customer],['Address',j.address],['Account #',j.account],['Date',j.date],['Sales Rep/Tech',j.tech]];
   jobSummary.innerHTML=`<dl>${f.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)||'—'}</dd></div>`).join('')}</dl>`}
 
 // ---- walkthrough video ----
@@ -1289,7 +1293,7 @@ async function exportPNG(){
   try{const lg=await loadImg(window.VY_LOGO);const lh=46,lw=lg.width*lh/lg.height;g.drawImage(lg,40,34,lw,lh);
     g.fillStyle='#2e2f2a';g.font='600 44px "Cormorant Garamond", Georgia, serif';g.fillText('Home Map',40+lw+22,74)}catch(e){}
   const j=P.job||{};g.fillStyle='#5e5758';g.font='26px Poppins, Arial, sans-serif';
-  g.fillText([j.customer,j.address,j.account&&('Acct '+j.account),j.date,j.tech&&('Tech: '+j.tech)].filter(Boolean).join('   ·   ')||P.name,40,118);
+  g.fillText([j.customer,j.address,j.account&&('Acct '+j.account),j.date,j.tech&&('Sales rep/tech: '+j.tech)].filter(Boolean).join('   ·   ')||P.name,40,118);
   g.fillStyle='#da0029';g.fillRect(0,head-6,PX,6);
   let y=head;
   for(const m of maps){g.fillStyle='#2e2f2a';g.font='700 76px "Cormorant Garamond", Georgia, serif';g.textAlign='left';g.fillText(m.f.name,40,y+88);
@@ -1300,7 +1304,227 @@ async function exportPNG(){
   await new Promise(r=>c.toBlob(b=>{dlBlob(slug()+'-home-map.png',b);r()},'image/png'));
 }
 
+
 bPng.onclick=()=>exportPNG().catch(e=>alert('PNG export failed: '+e));
+
+// ---- Email plan (offline: share files or download + mailto; never sends) ----
+let _toastT=null;
+function showToast(msg){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(_toastT);_toastT=setTimeout(()=>{el.hidden=true},4200)}
+function pdfEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+function buildPdfFromJpegs(pages){
+  // pages: [{w,h,jpeg:Uint8Array}] — Letter 612×792 pt; image drawn full-page
+  const W=612,H=792,objs=[];
+  const add=(s)=>objs.push(typeof s==='string'?new TextEncoder().encode(s):s);
+  // we'll assemble manually with offsets
+  const parts=[]; // array of Uint8Array
+  const enc=new TextEncoder();
+  const u8=s=>typeof s==='string'?enc.encode(s):s;
+  const chunks=[];
+  let body=u8('%PDF-1.4\n');
+  const offsets=[0];
+  const pushObj=(n,bytes)=>{
+    offsets[n]=body.length;
+    const head=u8(`${n} 0 obj\n`);
+    const tail=u8('\nendobj\n');
+    const out=new Uint8Array(head.length+bytes.length+tail.length);
+    out.set(head,0);out.set(bytes,head.length);out.set(tail,head.length+bytes.length);
+    const nb=new Uint8Array(body.length+out.length);nb.set(body);nb.set(out,body.length);body=nb;
+  };
+  const kids=[];
+  let next=3; // 1=catalog 2=pages
+  const pageObjs=[];
+  pages.forEach((p,i)=>{
+    const imgObj=next++, contentObj=next++, pageObj=next++;
+    kids.push(pageObj);
+    // image
+    const imgDict=u8(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.jpeg.length} >>\nstream\n`);
+    const imgEnd=u8('\nendstream');
+    const imgBytes=new Uint8Array(imgDict.length+p.jpeg.length+imgEnd.length);
+    imgBytes.set(imgDict,0);imgBytes.set(p.jpeg,imgDict.length);imgBytes.set(imgEnd,imgDict.length+p.jpeg.length);
+    pushObj(imgObj, imgBytes);
+    // content
+    const cm=`q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+    const cstr=u8(`<< /Length ${cm.length} >>\nstream\n${cm}\nendstream`);
+    pushObj(contentObj, cstr);
+    // page
+    const pstr=u8(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Contents ${contentObj} 0 R /Resources << /XObject << /Im0 ${imgObj} 0 R >> >> >>`);
+    pushObj(pageObj, pstr);
+    pageObjs.push(pageObj);
+  });
+  const kidsStr=kids.map(k=>`${k} 0 R`).join(' ');
+  pushObj(2, u8(`<< /Type /Pages /Kids [${kidsStr}] /Count ${pages.length} >>`));
+  pushObj(1, u8(`<< /Type /Catalog /Pages 2 0 R >>`));
+  // xref
+  const xrefStart=body.length;
+  let xref=`xref\n0 ${next}\n0000000000 65535 f \n`;
+  for(let i=1;i<next;i++){
+    const off=offsets[i]||0;
+    xref+=String(off).padStart(10,'0')+' 00000 n \n';
+  }
+  body=(()=>{const x=u8(xref+`trailer\n<< /Size ${next} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`);const nb=new Uint8Array(body.length+x.length);nb.set(body);nb.set(x,body.length);return nb})();
+  return new Blob([body],{type:'application/pdf'});
+}
+async function canvasToJpegU8(c,q){
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q||0.86));
+  const buf=await blob.arrayBuffer();
+  return {w:c.width,h:c.height,jpeg:new Uint8Array(buf)};
+}
+function emailDrawHeader(g,W,scale,pageLabel){
+  const j=P.job||{};
+  g.fillStyle='#fff';g.fillRect(0,0,W,g.canvas.height);
+  g.fillStyle='#c8102e';g.fillRect(0,0,W,6*scale);
+  g.fillStyle='#2e2f2a';g.font=`600 ${13*scale}px Poppins,Arial,sans-serif`;
+  g.fillText('Vyanet Home Map',24*scale,28*scale);
+  g.fillStyle='#5e5758';g.font=`${10*scale}px Poppins,Arial,sans-serif`;
+  g.textAlign='right';g.fillText(pageLabel||'',W-24*scale,28*scale);g.textAlign='left';
+  g.fillStyle='#2e2f2a';g.font=`600 ${16*scale}px Poppins,Arial,sans-serif`;
+  g.fillText(P.name||'Untitled project',24*scale,52*scale);
+  const line=[j.customer,j.address,j.account&&('Acct '+j.account),j.date,j.tech&&('Sales rep/tech: '+j.tech)].filter(Boolean).join('   ·   ');
+  g.fillStyle='#5e5758';g.font=`${10.5*scale}px Poppins,Arial,sans-serif`;
+  g.fillText(line,24*scale,70*scale);
+  g.strokeStyle='#e1dfdf';g.beginPath();g.moveTo(24*scale,78*scale);g.lineTo(W-24*scale,78*scale);g.stroke();
+  return 88*scale;
+}
+function emailDrawTable(g,x,y,W,title,cols,rows,scale){
+  const pad=10*scale, lh=16*scale;
+  g.fillStyle='#2e2f2a';g.font=`600 ${12*scale}px Poppins,Arial,sans-serif`;
+  g.fillText(title,x,y);y+=18*scale;
+  if(!rows.length){g.fillStyle='#8a8484';g.font=`${10*scale}px Poppins,Arial,sans-serif`;g.fillText('None',x,y);return y+14*scale}
+  const n=cols.length, colW=cols.map((_,i)=> (i===0?0.07:i===1?0.26:(0.67/(n-2)))*W);
+  // normalize
+  const tw=colW.reduce((a,b)=>a+b,0);for(let i=0;i<n;i++)colW[i]=colW[i]/tw*W;
+  g.fillStyle='#f4f2f2';g.fillRect(x,y-12*scale,W,16*scale);
+  g.fillStyle='#5e5758';g.font=`600 ${9*scale}px Poppins,Arial,sans-serif`;
+  let cx=x;cols.forEach((c,i)=>{g.fillText(c,cx+2*scale,y);cx+=colW[i]});y+=8*scale;
+  g.font=`${9.5*scale}px Poppins,Arial,sans-serif`;
+  rows.forEach(r=>{
+    y+=lh;cx=x;g.fillStyle='#2e2f2a';
+    (r.c||r).forEach((cell,i)=>{const t=String(cell??'');g.fillText(t.length>42?t.slice(0,40)+'…':t,cx+2*scale,y);cx+=colW[i]});
+  });
+  return y+10*scale;
+}
+async function buildEmailPages(){
+  const scale=2; // 150 dpi-ish on Letter (612*2 × 792*2)
+  const W=612*scale, H=792*scale, margin=24*scale;
+  const snaps=floorSnaps();
+  const pages=[];
+  const totalGuess=snaps.length+1;
+  // Floor map pages
+  for(let i=0;i<snaps.length;i++){
+    const s=snaps[i], c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+    let y=emailDrawHeader(g,W,scale,`Page ${i+1}`);
+    g.fillStyle='#2e2f2a';g.font=`600 ${14*scale}px Poppins,Arial,sans-serif`;
+    g.fillText(`${s.f.name}  ·  Floor ${i+1} of ${snaps.length}`,margin,y);y+=16*scale;
+    const B=s.B, cl=s.clone;
+    cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
+    const mapW=W-2*margin, mapH=H-y-36*scale;
+    const aspect=B.w/B.h; let dw=mapW, dh=dw/aspect; if(dh>mapH){dh=mapH;dw=dh*aspect}
+    cl.setAttribute('width',Math.round(dw));cl.setAttribute('height',Math.round(dh));
+    cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
+    const xml=new XMLSerializer().serializeToString(cl);
+    const img=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml));
+    g.drawImage(img,margin,y,dw,dh);
+    g.fillStyle='#8a8484';g.font=`${9*scale}px Poppins,Arial,sans-serif`;
+    g.fillText(`${s.f.name} · Floor ${i+1} of ${snaps.length}`,margin,H-14*scale);
+    pages.push(await canvasToJpegU8(c));
+  }
+  // Schedules page(s)
+  const zr=zoneRows(), cr=camRows(), ir=CUST()?[]:issueRows();
+  let c=document.createElement('canvas');c.width=W;c.height=H;let g=c.getContext('2d');
+  let y=emailDrawHeader(g,W,scale,`Page ${pages.length+1}`);
+  const flush=async()=>{pages.push(await canvasToJpegU8(c));c=document.createElement('canvas');c.width=W;c.height=H;g=c.getContext('2d');y=emailDrawHeader(g,W,scale,`Page ${pages.length+1}`)};
+  const need=()=>y>H-80*scale;
+  // Zone schedule grouped lightly
+  y=emailDrawTable(g,margin,y,W-2*margin,'Zone schedule',ZCOLS,zr,scale);
+  if(need())await flush();
+  y=emailDrawTable(g,margin,y,W-2*margin,'Camera schedule',CCOLS,cr,scale);
+  if(!CUST()){
+    if(need())await flush();
+    const irows=ir.map(r=>({c:r.c||r}));
+    y=emailDrawTable(g,margin,y,W-2*margin,'Site issues',['Issue','Severity','Floor','Location','Notes','Photo'],irows.length?irows:[],scale);
+  }
+  pages.push(await canvasToJpegU8(c));
+  return pages;
+}
+function emailFileNames(){
+  const s=slug();
+  return {pdf:s+'-home-map.pdf', zone:s+'-zone-schedule.csv', cam:s+'-camera-schedule.csv'};
+}
+async function buildEmailFiles(){
+  const names=emailFileNames();
+  const pageImgs=await buildEmailPages();
+  const pdfBlob=buildPdfFromJpegs(pageImgs);
+  const zoneBlob=new Blob([csv(ZCOLS,zoneRows())],{type:'text/csv;charset=utf-8'});
+  const camBlob=new Blob([csv(CCOLS,camRows())],{type:'text/csv;charset=utf-8'});
+  const files=[
+    new File([pdfBlob],names.pdf,{type:'application/pdf'}),
+    new File([zoneBlob],names.zone,{type:'text/csv'}),
+    new File([camBlob],names.cam,{type:'text/csv'})
+  ];
+  window.__emailExport={pages:pageImgs.length, files:files.map(f=>f.name), shared:false, mailed:false, downloaded:false, aborted:false};
+  return {files,names,pages:pageImgs.length};
+}
+function emailMailto(to,names){
+  const sub=encodeURIComponent('Vyanet Home Map — '+(P.name||'project'));
+  const body=encodeURIComponent('Please find my Home Map plan files:\n\n- '+names.pdf+'\n- '+names.zone+'\n- '+names.cam+'\n\n(Generated offline in Vyanet Home Map; attach the downloaded files if your mail client did not include them.)');
+  const a=document.createElement('a');
+  a.href=`mailto:${encodeURIComponent(to||'').replace(/%40/g,'@')}?subject=${sub}&body=${body}`;
+  // empty To is allowed
+  if(!to)a.href=`mailto:?subject=${sub}&body=${body}`;
+  a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+}
+async function emailShareOrFallback(to, bundle){
+  const {files,names}=bundle;
+  const title='Vyanet Home Map — '+(P.name||'project');
+  const text='Home Map plan files: '+files.map(f=>f.name).join(', ')+(to?'\nTo: '+to:'');
+  const can=typeof navigator.canShare==='function' && (()=>{try{return navigator.canShare({files})}catch(e){return false}})();
+  if(can){
+    try{
+      await navigator.share({files,title,text});
+      window.__emailExport.shared=true;
+      showToast('Plan shared.');
+      return;
+    }catch(e){
+      if(e && e.name==='AbortError'){window.__emailExport.aborted=true;return}
+      // fall through to download+mailto
+    }
+  }
+  files.forEach(f=>dlBlob(f.name,f));
+  window.__emailExport.downloaded=true;
+  emailMailto(to,names);
+  window.__emailExport.mailed=true;
+  showToast('Files downloaded. A mail draft was opened — attach the three files if needed.');
+}
+function openEmailDialog(){
+  const html=`<h2 style="margin:0 0 8px;font-size:18px">Email plan</h2>
+    <p style="margin:0 0 14px;color:#5e5758;font-size:13px;line-height:1.45">Builds a PDF of the floor maps and schedules plus zone and camera CSVs. Nothing is sent from this page — your device shares the files or downloads them and opens a mail draft.</p>
+    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">To <span style="font-weight:400;color:#8a8484">(optional)</span>
+      <input id="emailTo" type="email" placeholder="customer@example.com" style="display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid #d0cbcb;border-radius:6px;font:inherit">
+    </label>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
+      <button type="button" class="btn ghost sm" id="emailCancel">Cancel</button>
+      <button type="button" class="btn soft sm" id="emailGo">Share / download</button>
+    </div>`;
+  modal(html,'Email plan');
+  const go=()=>{const to=(document.getElementById('emailTo').value||'').trim();closeModal();emailPlanRun(to)};
+  document.getElementById('emailCancel').onclick=()=>closeModal();
+  document.getElementById('emailGo').onclick=go;
+  document.getElementById('emailTo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
+}
+async function emailPlanRun(to){
+  try{
+    showToast('Building plan files…');
+    const bundle=await buildEmailFiles();
+    await emailShareOrFallback(to,bundle);
+  }catch(e){
+    console.error(e);
+    alert('Email plan failed: '+(e&&e.message||e));
+  }
+}
+bEmail.onclick=()=>openEmailDialog();
+window.__emailBuild=buildEmailFiles; // tests: build without UI
+window.__emailShare=emailShareOrFallback;
+
 
 
 // ---- floor plan underlay ----
@@ -1519,12 +1743,15 @@ function buildSuggestions(){
     if(ex.some(i=>i.kind==='outlet'&&Math.hypot(i.x-s.x,i.y-s.y)<=OUTLET_FT))continue;
     const r=inRoomAt(s.x,s.y);let x=s.x+1.6,y=s.y;if(r)[x,y]=clampIn(r,s.x+(s.x<rCx(r)?1.8:-1.8),s.y,.6);
     const o=add({cat:'Power',kind:'outlet',x,y,name:'Confirm outlet for '+s.name,reason:`${s.model} needs an outlet within ${OUTLET_FT} ft — confirm one exists here.`,parent:s.sid});(s.deps=s.deps||[]).push(o.sid)}
-  // N85
+  // N85 — always recommend when missing; reason cites cameras when they need it
   const nN=m=>CAMS[m]&&(CAMS[m].poe||NVR_CAMS.includes(m)),nCams=P.items.filter(i=>i.kind==='cam'&&nN(i.model)),nSug=S.filter(s=>s.kind==='cam'&&nN(s.model)),needN=nCams.length>0||nSug.length>0;
-  if(needN&&!P.items.some(i=>i.kind==='nvr')){const g=garages[0]||rooms.find(r=>RX.laundry.test(r.name)||/closet|utility|server|it\b|mechanical/i.test(r.name));let x,y,where;
+  if(!P.items.some(i=>i.kind==='nvr')){const g=garages[0]||rooms.find(r=>RX.laundry.test(r.name)||/closet|utility|server|it\b|mechanical/i.test(r.name));let x,y,where;
     if(g){[x,y]=LW(g,g.x+2,g.y+2);where=g.name.toLowerCase()}else if(panel){const r=inRoomAt(panel.x,panel.y)||rooms[0];[x,y]=clampIn(r,panel.x+3,panel.y,1);where='near the panel'}else{[x,y]=[rCx(rooms[0]),rCy(rooms[0])];where=rooms[0].name}
-    const forL=[...nCams.map(i=>'C'+i.num+' '+camModelLabel(i)),...nSug.map(s=>s.name+' ('+s.model+')')],why=nCams.some(i=>CAMS[i.model].poe)||nSug.some(s=>CAMS[s.model].poe)?'PoE cameras get power and recording from it':'these cameras record to it';
-    const n=add({cat:'Recorder',kind:'nvr',x,y,name:'Add N85 NVR ('+where+')',reason:`For ${forL.slice(0,6).join(', ')}${forL.length>6?` and ${forL.length-6} more`:''}: ${why} (F1/T1 are PoE; D1/R5 record to the N85). 8 channels.`});
+    let reason;
+    if(needN){const forL=[...nCams.map(i=>'C'+i.num+' '+camModelLabel(i)),...nSug.map(s=>s.name+' ('+s.model+')')],why=nCams.some(i=>CAMS[i.model].poe)||nSug.some(s=>CAMS[s.model].poe)?'PoE cameras get power and recording from it':'these cameras record to it';
+      reason=`For ${forL.slice(0,6).join(', ')}${forL.length>6?` and ${forL.length-6} more`:''}: ${why} (F1/T1 are PoE; D1/R5 record to the N85). 8 channels.`}
+    else reason='Recommended on every plan for local recording. 8 channels.';
+    const n=add({cat:'Recorder',kind:'nvr',x,y,name:'Add N85 NVR ('+where+')',reason});
     S.filter(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model))).forEach(s=>(s.deps=s.deps||[]).push(n.sid))}
   // dedupe + de-clutter: drop same-type within 2.5 ft; nudge others apart
   const out=[];for(const s of S){const key=s.kind+(s.type||s.model||'');if(out.some(o=>o.kind+(o.type||o.model||'')===key&&Math.hypot(o.x-s.x,o.y-s.y)<2.5))continue;out.push(s)}
