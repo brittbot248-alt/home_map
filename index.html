@@ -120,7 +120,7 @@ tbody tr{cursor:pointer}
 @media (max-width:1100px){main{grid-template-columns:1fr}}
 @media print{
   body{background:#fff}
-  header.app .btn, .tools, .pal, #props, #checksCard, .no-print, .tabs, .edit-only, .jobbar{display:none!important}
+  header.app .btn, .tools, .pal, #props, #checksCard, .no-print, .tabs, .stepBar, .stepNav, .stepHint, .stepCallout, .edit-only, .jobbar{display:none!important}
   .jobsum,.cust-only{display:block!important}
   main{display:block}
   #planStage{break-inside:avoid}
@@ -331,6 +331,47 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
 .rotRow{display:flex;gap:6px;align-items:center}.rotRow input{width:80px;flex:0 0 80px;text-align:center}
 .ssBox{display:grid;gap:4px;margin-top:4px}.ssRow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.ssRow label{display:inline-flex;gap:6px;align-items:center}.ssMain{font-size:11.5px;color:var(--vy-muted)}
 @media (pointer:coarse) and (max-width:1366px),(max-width:900px){.ssRow{min-height:40px}.ssRow input{width:22px;height:22px}}
+
+
+.walkDetails{margin-top:4px;border-top:1px dashed var(--vy-line);padding-top:6px}
+.walkDetails>summary::-webkit-details-marker{display:none}
+.walkDetails>summary::before{content:'▸';color:var(--vy-red);font-size:11px}
+.walkDetails[open]>summary::before{content:'▾'}
+
+/* ---- guided steps ---- */
+.stepBar{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 10px;margin-bottom:4px;border-bottom:1px solid var(--vy-line);max-width:100%;min-width:0}
+.stepPill{display:inline-flex;align-items:center;gap:6px;font:500 11px Poppins,sans-serif;letter-spacing:.4px;background:#fff;color:var(--vy-btn-outline);border:1.5px solid var(--vy-btn-outline);border-radius:999px;padding:5px 11px;cursor:pointer;line-height:1.2;white-space:nowrap}
+.stepPill:hover,.stepPill:focus-visible{border-color:var(--vy-red);color:var(--vy-red);background:#fff5f6;outline:none}
+.stepPill.on{background:var(--vy-red);border-color:var(--vy-red);color:#fff}
+.stepPill.done:not(.on){border-color:var(--vy-red);color:var(--vy-red)}
+.stepPill .sn{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.08);font-size:10px;font-weight:600}
+.stepPill.on .sn{background:rgba(255,255,255,.25)}
+.stepPill.done:not(.on) .sn{background:var(--vy-red);color:#fff}
+.stepHint{font-size:12px;color:var(--vy-muted);margin:0 0 8px;line-height:1.35}
+.stepCallout{background:#fff5f6;border:1px solid #f0c9d0;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:12px;line-height:1.35}
+.stepCallout b{color:var(--vy-red);font-weight:600}
+.stepCallout ul{margin:6px 0 0;padding:0 0 0 0;list-style:none}
+.stepCallout li{margin:3px 0}
+.stepCallout button.roomJump{font:inherit;font-size:12px;background:none;border:0;color:var(--vy-red);text-decoration:underline;cursor:pointer;padding:0;text-align:left}
+.stepNav{display:flex;gap:8px;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--vy-line);flex-wrap:nowrap}
+.stepNav .btn{flex:1 1 0;min-width:0;text-align:center}
+.stepSummary{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.stepSummary .si{background:#fafafa;border:1px solid var(--vy-line);border-radius:8px;padding:8px;font-size:12px}
+.stepSummary .si b{display:block;font-size:18px;color:var(--vy-near);line-height:1.1}
+.stepSummary .si.warn b{color:var(--vy-red)}
+.stepActions{display:grid;gap:6px;margin:8px 0}
+.stepPane[hidden]{display:none!important}
+.stepMore{margin:6px 0 0;font-size:11.5px}
+.stepMore button{font:inherit;font-size:11.5px;background:none;border:0;color:var(--vy-red);text-decoration:underline;cursor:pointer;padding:0}
+.tabs.legacyTabs{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;padding:0;margin:-1px}
+@media (pointer:coarse) and (max-width:1366px),(max-width:900px){
+  .stepPill{padding:9px 12px;font-size:12px}
+  .stepPill .sn{min-width:22px;height:22px;font-size:11px}
+  .stepBar{gap:8px;flex-wrap:wrap;max-width:100%;padding-bottom:8px}
+  aside.card{max-width:100%;min-width:0;overflow-x:hidden}
+  .stepNav{max-width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -363,18 +404,20 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
 <section id="printFloors" class="pf-only printFloors" aria-label="Floor maps for print"></section>
 <main>
   <aside class="card no-print edit-only" aria-label="Palette">
-    <div class="tabs" id="leftTabs">
+    <div class="tabs legacyTabs" id="leftTabs" aria-hidden="true">
       <button type="button" class="on" data-tab="devices">Devices</button>
       <button type="button" data-tab="walk" title="Interior walkthrough video">Video</button>
       <button type="button" data-tab="exterior">Exterior</button>
       <button type="button" data-tab="guide" title="Common placement recommendations">Guidelines</button>
     </div>
+    <nav class="stepBar no-print" id="stepBar" aria-label="Plan steps"></nav>
+    <p class="stepHint no-print edit-only" id="stepHint"></p>
     <div id="trayDockLeft"><div class="tray" id="tray"></div></div>
     <div id="tabDevices">
-      <div class="sub">Floor plan</div>
-      <div class="pal"><button id="bRoom" type="button"><span class="ic"><span class="ib lg" style="background:#94a3b8;border-radius:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14"/></svg></span></span><span>Room<small>Drag to move · corner to resize</small></span></button></div>
-      <div class="pal" id="palOpen"></div>
-      <div class="sub">Floor plan underlay</div>
+      <div class="stepPane" data-step="1" id="stepFloor">
+        <div class="sub">Floor plan</div>
+        <div class="pal"><button id="bRoom" type="button"><span class="ic"><span class="ib lg" style="background:#94a3b8;border-radius:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14"/></svg></span></span><span>Room<small>Drag to move · corner to resize</small></span></button></div>
+        <div class="sub">Floor plan underlay</div>
       <input type="file" id="ulFile" accept="image/png,image/jpeg,image/webp" hidden>
       <button class="btn soft sm" id="bUlLoad" type="button" style="width:100%">Load floor plan image</button>
       <div class="legend">PNG or JPG, e.g. a scan-app floor plan export. For a PDF, export page 1 as PNG first.</div>
@@ -390,18 +433,10 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
         <div class="legend" id="ulInfo"></div>
         <button class="btn ghost sm" id="bUlDel" type="button" style="margin-top:6px">Remove underlay</button>
       </div>
-      <div class="sub">Alarm devices</div><div class="pal" id="palAlarm"></div>
-      <div class="sub">Power</div><div class="pal" id="palPower"></div>
-      <div class="sub">Vyanet cameras</div><div class="pal" id="palCam"></div>
-      <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
-      <div class="sub">Site issues</div>
-      <label class="f" for="issueType">Walkthrough note</label>
-      <select id="issueType" class="issueSel"></select>
-      <button class="btn soft sm" id="bIssueAdd" type="button" style="width:100%;margin-top:6px">Add site issue</button>
-      <div class="legend">Marks a condition found on the walkthrough. Metal and concrete walls are drawn as a line you can fit along the wall.</div>
-    </div>
-    <div id="tabWalk" hidden>
-      <div class="sub">Interior walkthrough video</div>
+        <div class="legend" style="margin-top:8px">Use the floor tabs on the map to add, rename or delete floors.</div>
+        <div id="tabWalk">
+      <details class="walkDetails">
+      <summary class="sub" style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px">Interior walkthrough video <small style="color:var(--vy-muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</small></summary>
       <input type="file" id="walkFile" accept="video/*" hidden>
       <div class="row2" style="margin-bottom:6px">
         <button class="btn soft sm" id="bWalkLoad" type="button">Load video</button>
@@ -411,8 +446,36 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <div class="legend" id="walkName">Load a local walkthrough video, play or scrub to a spot, then take a snapshot. Trace rooms and devices on the plan beside it. The video stays on this computer and isn't saved in the project; snapshots are.</div>
       <div class="sub">Snapshots</div>
       <div class="walkStrip" id="walkStrip"></div>
+      </details>
     </div>
-    <div id="tabExterior" hidden>
+      </div>
+      <div class="stepPane" data-step="2" id="stepOpen" hidden>
+        <div class="sub">Doors &amp; windows</div>
+        <div class="pal" id="palOpen"></div>
+        <div class="stepCallout" id="openCallout">
+          <b>Why openings matter</b>
+          <div>Doors and windows drive contact suggestions and help confirm camera coverage of every entry.</div>
+          <div id="openMissing" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="stepPane" data-step="3" id="stepDev" hidden>
+        <div class="sub">Alarm devices</div>
+        <button class="btn sm" id="bSuggestStepDev" type="button" style="width:100%;margin-bottom:8px" title="Propose alarm devices from the rooms, doors and windows">Suggest devices</button>
+        <div class="pal" id="palAlarm"></div>
+        <div class="sub">Power</div><div class="pal" id="palPower"></div>
+        <div class="sub">Site issues</div>
+      <label class="f" for="issueType">Walkthrough note</label>
+      <select id="issueType" class="issueSel"></select>
+      <button class="btn soft sm" id="bIssueAdd" type="button" style="width:100%;margin-top:6px">Add site issue</button>
+      <div class="legend">Marks a condition found on the walkthrough. Metal and concrete walls are drawn as a line you can fit along the wall.</div>
+        <div class="stepMore"><button type="button" id="bOpenGuideDev">Placement guidelines</button></div>
+      </div>
+      <div class="stepPane" data-step="4" id="stepCam" hidden>
+        <div class="sub">Vyanet cameras</div>
+        <button class="btn sm" id="bSuggestStepCam" type="button" style="width:100%;margin-bottom:8px" title="Propose cameras and an N85 from the plan">Suggest cameras</button>
+        <div class="pal" id="palCam"></div>
+        <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
+        <div id="tabExterior">
       <div class="sub">Street side</div>
       <div class="compass">
         <label class="f" style="margin:0">Which sides face a street</label>
@@ -440,7 +503,27 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <div class="extList" id="extList"></div>
       <canvas id="vidCanvas" style="display:none"></canvas>
     </div>
+      </div>
+      <div class="stepPane" data-step="5" id="stepReview" hidden>
+        <div class="sub">Review &amp; send</div>
+        <div class="stepSummary" id="stepSummary"></div>
+        <div class="stepActions">
+          <button class="btn soft sm" id="bStepCust" type="button">Customer view</button>
+          <button class="btn soft sm" id="bStepPng" type="button">Export PNG</button>
+          <button class="btn soft sm" id="bStepEmail" type="button">Email plan</button>
+          <button class="btn soft sm" id="bStepPrint" type="button">Print</button>
+          <button class="btn ghost sm" id="bStepZoneCsv" type="button">Export Zone list CSV</button>
+          <button class="btn ghost sm" id="bStepCamCsv" type="button">Export Camera list CSV</button>
+        </div>
+        <div class="legend">Zone list and Camera list tables are below the map. Warnings never block saving or exporting.</div>
+        <div class="stepMore"><button type="button" id="bOpenGuideRev">Placement guidelines</button></div>
+      </div>
+    </div>
     <div id="tabGuide" hidden></div>
+    <div class="stepNav no-print edit-only" id="stepNav">
+      <button class="btn ghost sm" id="bStepBack" type="button">← Back</button>
+      <button class="btn sm" id="bStepNext" type="button">Next →</button>
+    </div>
   </aside>
 
   <div class="card" id="planwrap">
@@ -583,7 +666,7 @@ const camModelLabel=it=>it.model==='R5'?(it.variant==='B'?'R5B':'R5W'):it.model;
 const nightFt=m=>ftR(CAMS[m].nightM);
 
 let P=blank(), sel=null, uid=1, selExt=null;
-function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],walk:[],streetSide:'front',job:{customer:'',address:'',account:'',date:'',tech:''}}}
+function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],walk:[],streetSide:'front',step:1,job:{customer:'',address:'',account:'',date:'',tech:''}}}
 const nid=p=>p+(uid++);
 function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.walk||[]),...(P.floors||[]),...(P.issues||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
 function store(){if(QUIET)return;clearTimeout(asT);asT=setTimeout(autosave,700);scheduleHist()}
@@ -628,13 +711,15 @@ palBtn(palRec,photoTag('N85'),'#2e2f2a',N85.name,`${N85_CH} channels · no cone`
 bRoom.onclick=()=>{const r={id:nid('r'),name:'Room '+(FR().length+1),x:FOOT.x+4,y:FOOT.y+4,w:14,h:10,floor:FID()};P.rooms.push(r);sel={t:'room',id:r.id};render()};
 
 document.querySelectorAll('#leftTabs button').forEach(b=>b.onclick=()=>{
+  // Legacy tab clicks map into the guided steps (tests + old bookmarks).
+  const t=b.dataset.tab;
   document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x===b));
-  tabDevices.hidden=b.dataset.tab!=='devices';
-  tabExterior.hidden=b.dataset.tab!=='exterior';
-  tabWalk.hidden=b.dataset.tab!=='walk';
-  tabGuide.hidden=b.dataset.tab!=='guide';trayDockLeft.hidden=b.dataset.tab!=='devices';
-  document.querySelector('main').classList.toggle('wide-left',b.dataset.tab==='walk'||b.dataset.tab==='guide');if(b.dataset.tab==='guide')renderGuidelines();
-  render();
+  if(t==='guide'){showGuidePanel();return}
+  tabGuide.hidden=true;tabDevices.hidden=false;
+  if(t==='devices')goStep(3,{fromTab:1});
+  else if(t==='walk')goStep(1,{fromTab:1,focusWalk:1});
+  else if(t==='exterior')goStep(4,{fromTab:1,focusExt:1});
+  else goStep(1,{fromTab:1});
 });
 
 logoImg.src=window.VY_LOGO||'';
@@ -827,7 +912,7 @@ function render(){
   bDel.disabled=bDup.disabled=!sel;
   bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
   renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();
-  renderFloors();renderModeUI();renderMapKey();schedulePF();store();
+  renderFloors();renderModeUI();renderMapKey();renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();schedulePF();store();
 }
 function drawPlan(opt={}){
   const PR=!!opt.print;
@@ -1123,7 +1208,7 @@ bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(CCOLS,camRows()),'text/csv'
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];normalizeP();lastMode=null;floorKey='';pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render()}
+function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];normalizeP();if(!(P.step>=1&&P.step<=5))P.step=defaultStepFor(P);lastMode=null;floorKey='';pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render();goStep(curStep())}
 bNew.onclick=()=>{if(confirm('Start a new empty project? The current plan stays under Recent.')){autosave();load(blank());askMode()}};
 bDemo.onclick=()=>{if(!P.items.length||confirm('Replace the current plan with the demo project? The current plan stays under Recent.')){autosave();load(demo())}};
 bSave.onclick=()=>dl(slug()+'.vyplan.json',JSON.stringify(P,null,1),'application/json');
@@ -2167,6 +2252,112 @@ function applyFix(code,id){const it=P.items.find(i=>i.id===id);if(!it)return;con
   else if(code==='wired')it.wiring='Wired';
   render()}
 
+
+// ---- guided steps ----
+const STEPS=[
+  {id:1,label:'Floor plan',hint:'Draw rooms or upload a floor plan image, then set the scale.'},
+  {id:2,label:'Doors & windows',hint:'Add every door and window so contacts and coverage can be checked.'},
+  {id:3,label:'Devices',hint:'Tap Suggest devices or drag your own from the list.'},
+  {id:4,label:'Cameras',hint:'Tap Suggest cameras or drag Vyanet cameras, and tag exterior photos by side.'},
+  {id:5,label:'Review & send',hint:'Check the summary, then share the customer view, PDF, or lists.'}
+];
+function curStep(){const n=+P.step||0;return (n>=1&&n<=5)?n:1}
+function stepDone(n){
+  if(n===1)return P.rooms.length>0;
+  if(n===2){const opens=P.items.filter(i=>i.kind==='opening');if(opens.some(i=>i.type==='door'))return true;if(!P.rooms.length)return false;return roomsMissingOpenings().length===0}
+  if(n===3)return P.items.some(i=>i.kind==='alarm');
+  if(n===4)return P.items.some(i=>i.kind==='cam'||i.kind==='nvr');
+  if(n===5)return stepDone(1)&&stepDone(2)&&(stepDone(3)||stepDone(4));
+  return false;
+}
+function roomsMissingOpenings(){
+  // Skip open-air spots (porch/patio/deck) — they rarely get contacts.
+  return P.rooms.filter(r=>!/porch|patio|deck|balcony|carport/i.test(r.name||'')&&!wallOps(r).length);
+}
+function defaultStepFor(p){
+  // Old project files have no step. Always start on Floor plan so the drawing
+  // tools are right there; Review is one click away. (Persisted P.step wins.)
+  if(p&&p.step>=1&&p.step<=5)return +p.step;
+  return 1;
+}
+function goStep(n,opt={}){
+  n=Math.max(1,Math.min(5,+n||1));P.step=n;
+  if(!opt.fromTab){document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='devices'))}
+  tabGuide.hidden=true;tabDevices.hidden=false;
+  document.querySelector('main').classList.toggle('wide-left',false);
+  document.querySelectorAll('.stepPane').forEach(p=>{p.hidden=+p.dataset.step!==n});
+  const walk=document.getElementById('tabWalk'),ext=document.getElementById('tabExterior');
+  if(walk)walk.hidden=n!==1;if(ext)ext.hidden=n!==4;
+  trayDockLeft.hidden=false;
+  renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();
+  if(typeof renderTray==='function')renderTray();
+  if(opt.focusWalk&&walk)walk.scrollIntoView({block:'nearest'});
+  if(opt.focusExt&&ext)ext.scrollIntoView({block:'nearest'});
+  store();
+}
+function renderStepBar(){
+  const host=document.getElementById('stepBar');if(!host)return;
+  const cur=curStep();
+  host.innerHTML=STEPS.map(s=>{
+    const done=stepDone(s.id),on=s.id===cur;
+    const mark=done&&!on?'✓':String(s.id);
+    return `<button type="button" class="stepPill${on?' on':''}${done?' done':''}" data-step="${s.id}" aria-current="${on?'step':'false'}" title="${esc(s.label)}"><span class="sn" aria-hidden="true">${mark}</span><span>${esc(s.label)}</span></button>`;
+  }).join('');
+  host.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>goStep(+b.dataset.step));
+  const back=document.getElementById('bStepBack'),next=document.getElementById('bStepNext');
+  if(back){back.disabled=cur<=1;back.onclick=()=>goStep(cur-1)}
+  if(next){next.disabled=cur>=5;next.textContent=cur>=5?'Done':'Next →';next.onclick=()=>{if(cur<5)goStep(cur+1)}}
+}
+function renderStepHint(){
+  const h=document.getElementById('stepHint');if(!h)return;
+  const s=STEPS.find(x=>x.id===curStep());h.textContent=s?s.hint:'';
+}
+function renderOpenMissing(){
+  const host=document.getElementById('openMissing');if(!host)return;
+  if(curStep()!==2){host.innerHTML='';return}
+  const miss=roomsMissingOpenings();
+  if(!P.rooms.length){host.innerHTML='<div class="legend">Add rooms in Floor plan first.</div>';return}
+  if(!miss.length){host.innerHTML='<div>✓ Every room has at least one door or window.</div>';return}
+  host.innerHTML=`<div><b>${miss.length} room${miss.length>1?'s still need':' still needs'} a door or window</b></div><ul>${miss.map(r=>`<li><button type="button" class="roomJump" data-rid="${r.id}">${esc(r.name||'Room')}</button></li>`).join('')}</ul>`;
+  host.querySelectorAll('[data-rid]').forEach(b=>b.onclick=()=>{const r=P.rooms.find(x=>x.id===b.dataset.rid);if(!r)return;if(flOf(r)!==FID())switchFloorRaw(flOf(r));sel={t:'room',id:r.id};focusHouse();render()});
+}
+function renderStepSummary(){
+  const host=document.getElementById('stepSummary');if(!host||curStep()!==5)return;
+  const rooms=P.rooms.length,opens=P.items.filter(i=>i.kind==='opening').length;
+  const zones=P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type]&&ALARM[i.type].zone).length;
+  const cams=P.items.filter(i=>i.kind==='cam').length;
+  const warns=(typeof checks==='function'?checks():[]).filter(w=>w.w).length;
+  const miss=roomsMissingOpenings().length;
+  host.innerHTML=`
+    <div class="si"><b>${rooms}</b>Rooms</div>
+    <div class="si"><b>${opens}</b>Doors &amp; windows</div>
+    <div class="si"><b>${zones}</b>Zones</div>
+    <div class="si"><b>${cams}</b>Cameras</div>
+    <div class="si${warns?' warn':''}"><b>${warns}</b>Placement warnings</div>
+    <div class="si${miss?' warn':''}"><b>${miss}</b>Rooms w/o openings</div>`;
+}
+function showGuidePanel(){
+  tabDevices.hidden=true;tabGuide.hidden=false;trayDockLeft.hidden=true;
+  document.querySelector('main').classList.toggle('wide-left',true);
+  document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='guide'));
+  // Keep step panes visually out of the way
+  document.querySelectorAll('.stepPane').forEach(p=>p.hidden=true);
+  renderGuidelines();
+}
+function wireStepActions(){
+  const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.onclick=fn};
+  bind('bSuggestStepDev',()=>runSuggest());
+  bind('bSuggestStepCam',()=>runSuggest());
+  bind('bStepCust',()=>bCust.click());
+  bind('bStepPng',()=>bPng.click());
+  bind('bStepEmail',()=>bEmail.click());
+  bind('bStepPrint',()=>window.print());
+  bind('bStepZoneCsv',()=>bZoneCsv.click());
+  bind('bStepCamCsv',()=>bCamCsv.click());
+  bind('bOpenGuideDev',()=>showGuidePanel());
+  bind('bOpenGuideRev',()=>showGuidePanel());
+}
+
 // ---- device tray + room templates ----
 const TPL={residential:[['Bedroom',11,12],['Primary bedroom',14,16],['Bathroom',5,8],['Kitchen',12,14],['Dining Room',12,14],['Living room',15,20],['Garage (1 car)',12,22],['Garage (2 car)',22,22],['Office',10,11],['Hallway',4,12]],
   commercial:[['Office',10,12],['Open office',30,40],['Conference',14,20],['Lobby / reception',15,20],['Storage',10,12],['Warehouse',40,60],['Break room',12,15],['Server / IT room',8,10],['Restroom',8,10],['Retail floor',30,40],['Loading dock',12,20]]};
@@ -2187,13 +2378,21 @@ function freeRoomSpot(w,h){const rs=FR().map(rBox),hit=(x,y)=>rs.some(b=>x<b[2]&
 function addTpl(t,p){const [name,w,h]=t;let x,y;if(p){x=Math.round((p.x-w/2)*2)/2;y=Math.round((p.y-h/2)*2)/2}else[x,y]=freeRoomSpot(w,h);
   let nm=name,k=2;while(FR().some(r=>r.name===nm))nm=name+' '+k++;
   const r={id:nid('r'),name:nm,x,y,w,h,floor:FID(),est:1};P.rooms.push(r);sel={t:'room',id:r.id};render()}
-function renderTray(){const D=[['opening','door',ibadge('door','#8a8780','lg'),'Door'],['opening','window',ibadge('window','#0089f7','lg'),'Window']];
-  for(const [k,a] of Object.entries(ALARM))if(k!=='panic'||COMM())D.push(['alarm',k,ibadge(k,a.c,'lg'),a.label,FIRE.includes(k)]);
-  D.push(['outlet','outlet',ibadge('outlet',OUTLET.c,'lg'),'Outlet']);for(const [k,c] of Object.entries(CAMS))D.push(['cam',k,photoTag(k),'Vyanet '+c.name]);D.push(['nvr','N85',photoTag('N85'),'Vyanet N85 5MP PoE NVR']);
+function renderTray(){const st=curStep();
+  const all=[];
+  all.push(['opening','door',ibadge('door','#8a8780','lg'),'Door','open',false]);
+  all.push(['opening','window',ibadge('window','#0089f7','lg'),'Window','open',false]);
+  for(const [k,a] of Object.entries(ALARM))if(k!=='panic'||COMM())all.push(['alarm',k,ibadge(k,a.c,'lg'),a.label,'dev',FIRE.includes(k)]);
+  all.push(['outlet','outlet',ibadge('outlet',OUTLET.c,'lg'),'Outlet','dev',false]);
+  for(const [k,c] of Object.entries(CAMS))all.push(['cam',k,photoTag(k),'Vyanet '+c.name,'cam',false]);
+  all.push(['nvr','N85',photoTag('N85'),'Vyanet N85 5MP PoE NVR','cam',false]);
+  const grp=st===2?'open':st===3?'dev':st===4?'cam':null;
+  const DD=all.filter(d=>!(d[5]&&COMM())&&grp!=null&&d[4]===grp);
   const T=TPL[COMM()?'commercial':'residential'];
-  tray.innerHTML=`<div class="sub trayH">Drag onto the map <small>or click to add</small></div><div class="trayGrid">${D.filter(d=>!(d[4]&&COMM())).map((d,i)=>`<button type="button" class="trayIt${d[4]?' fireDev':''}" data-i="${i}" title="${esc(d[3])}: drag onto the map, or click to add" aria-label="Add ${esc(d[3])}">${d[2]}</button>`).join('')}</div>`+
-    `<div class="sub trayH">Room templates <small>${COMM()?'commercial':'residential'} · typical sizes (estimates), resize to fit</small></div><div class="trayTpls">${T.map((t,i)=>`<button type="button" class="trayTpl" data-t="${i}" title="${esc(t[0])}: typical ${t[1]} × ${t[2]} ft estimate. Drag onto the map or click.">${esc(t[0])}<small>${t[1]}×${t[2]}′</small></button>`).join('')}</div>`;
-  const DD=D.filter(d=>!(d[4]&&COMM()));tray.querySelectorAll('.trayIt').forEach(b=>{const d=DD[+b.dataset.i];trayBind(b,p=>placeAt(d[0],d[1],p))});
+  const showTpl=st===1,showDev=DD.length>0;
+  tray.innerHTML=(showDev?`<div class="sub trayH">Drag onto the map <small>or click to add</small></div><div class="trayGrid">${DD.map((d,i)=>`<button type="button" class="trayIt${d[5]?' fireDev':''}" data-i="${i}" title="${esc(d[3])}: drag onto the map, or click to add" aria-label="Add ${esc(d[3])}">${d[2]}</button>`).join('')}</div>`:'')+
+    (showTpl?`<div class="sub trayH">Room templates <small>${COMM()?'commercial':'residential'} · typical sizes (estimates), resize to fit</small></div><div class="trayTpls">${T.map((t,i)=>`<button type="button" class="trayTpl" data-t="${i}" title="${esc(t[0])}: typical ${t[1]} × ${t[2]} ft estimate. Drag onto the map or click.">${esc(t[0])}<small>${t[1]}×${t[2]}′</small></button>`).join('')}</div>`:'');
+  tray.querySelectorAll('.trayIt').forEach(b=>{const d=DD[+b.dataset.i];trayBind(b,p=>placeAt(d[0],d[1],p))});
   tray.querySelectorAll('.trayTpl').forEach(b=>{const t=T[+b.dataset.t];trayBind(b,p=>addTpl(t,p))})}
 function placeTray(){const narrow=matchMedia('(pointer:coarse) and (max-width:1366px), (max-width:1100px)').matches;tray.classList.toggle('h',narrow);(narrow?trayDockPlan:trayDockLeft).appendChild(tray)}
 try{matchMedia('(pointer:coarse) and (max-width:1366px), (max-width:1100px)').addEventListener('change',placeTray)}catch(e){}
@@ -2214,7 +2413,7 @@ function closeModal(){ovl.hidden=true;ovl.innerHTML='';ovl.dataset.kind=''}
 document.addEventListener('keydown',e=>{if(ovl.hidden)return;if(e.key==='Escape'){if(ovl.dataset.kind==='guide')localStorage.setItem('vyGuideSeen','1');closeModal();e.stopImmediatePropagation();return}
   if(e.key==='Delete'||e.key==='Backspace'||((e.ctrlKey||e.metaKey)&&/^[zy]$/i.test(e.key)))e.stopImmediatePropagation()},true);
 const GSTEPS=[
-  {t:'Draw rooms',b:'Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it; drag a red edge to move one wall, or the corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
+  {t:'Draw rooms',b:'Use the <b>Floor plan</b> step. Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it; drag a red edge to move one wall, or the corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
   {t:'Add doors and windows',b:'Drag <b>Door</b> or <b>Window</b> from the tray onto a wall, or click it in the list. It snaps to the nearest room wall.'},
   {t:'Place devices',b:'Drag sensors, outlets, Vyanet cameras and the N85 onto the map, or press <b>Suggest devices</b> for a starting layout. A yellow <b>!</b> marks a placement warning with a one-click fix. A small <b>W</b> means wireless.'},
   {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone list, camera list and site-issue list. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
@@ -2259,7 +2458,7 @@ function offerRestore(p){const at=+localStorage.getItem('vyAutosaveAt')||0;const
 function normalizeP(){if(!Array.isArray(P.floors)||!P.floors.length)P.floors=[{id:'f0',name:'Main Floor'}];const f0=P.floors[0].id;
   for(const o of [...P.rooms,...P.items])if(!o.floor||!P.floors.some(f=>f.id===o.floor))o.floor=f0;
   if(!Array.isArray(P.issues))P.issues=[];for(const s of P.issues){if(!s.floor||!P.floors.some(f=>f.id===s.floor))s.floor=f0;if(!SEV[s.severity])s.severity='caution';if(!ISSUE[s.type])s.type='other'}
-  if(!P.curFloor||!P.floors.some(f=>f.id===P.curFloor))P.curFloor=f0;if(P.mode!=='commercial')P.mode='residential';if(!P.pid)P.pid=newPid()}
+  if(!P.curFloor||!P.floors.some(f=>f.id===P.curFloor))P.curFloor=f0;if(P.mode!=='commercial')P.mode='residential';if(!P.pid)P.pid=newPid();if(!(P.step>=1&&P.step<=5))P.step=defaultStepFor(P)}
 
 // ---- Guidelines tab ----
 const SRC={
@@ -2360,7 +2559,7 @@ function renderGuidePrint(){const on=localStorage.getItem('vyGuidePrint')==='1';
   guidePrint.innerHTML=`<h2>Placement guidelines (${COMM()?'Commercial':'Residential'})</h2><div class="glBanner"><b>General guidance.</b> Always follow local code, the AHJ, and manufacturer instructions.</div>${COMM()?`<div class="glFire">${FIRENOTE}</div>`:''}<ul class="gpList">${vis.map(it=>`<li><b>${esc(it.cat)}: ${esc(it.title)}.</b> ${esc(it.text)} <span class="glS">(${(it.src||[]).map(s=>esc(s[0])).join('; ')})</span></li>`).join('')}</ul>`}
 
 // ---- boot ----
-function boot(){let saved=null;try{saved=JSON.parse(localStorage.getItem(AS_KEY)||'null')}catch(e){}
+function boot(){wireStepActions();let saved=null;try{saved=JSON.parse(localStorage.getItem(AS_KEY)||'null')}catch(e){}
   const ok=saved&&Array.isArray(saved.items)&&Array.isArray(saved.rooms),isDemo=p=>p.pid==='demo'||(p.job&&p.job.account==='DEMO-00214');
   placeTray();
   if(ok&&hasContent(saved)&&!isDemo(saved)){if(!saved.pid)saved.pid=newPid();upsertRecent(saved,JSON.stringify(saved));if(AUTO)load(saved);else{load(demo());offerRestore(saved)}}
