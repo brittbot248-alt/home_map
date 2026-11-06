@@ -176,8 +176,14 @@ main.wide-left{grid-template-columns:420px minmax(0,1fr) 300px}
 .tools .grp{display:flex;gap:4px;align-items:center;padding-right:8px;margin-right:2px;border-right:1px solid var(--vy-line)}
 .tools .grp:last-of-type{border-right:0}
 .iconbtn{min-width:30px;padding:5px 8px}
-.legendList{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:12.5px}
-.legendList li{display:flex;align-items:center;gap:8px}
+.legendList{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:3px 8px;font-size:10.5px;line-height:1.15}
+.legendList li{display:flex;align-items:center;gap:5px;min-width:0}
+.legendList li>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.legendCompact .ib{width:15px;height:15px}
+.legendCompact .ib svg{width:10px;height:10px}
+.legendCompact .ph{width:15px;height:15px}
+.legendCompact .sw{flex:0 0 15px;height:15px;font-size:8px}
+.legendCard h2{font-size:14px;margin:0 0 6px}
 .legendList .sw{flex:0 0 30px;height:20px;border-radius:3px;display:grid;place-items:center;color:#fff;font-size:9.5px;font-weight:600}
 .legendList .sw.round{flex-basis:20px;border-radius:50%}
 .legendList li>.ib,.legendList li>.ph{margin-left:4px;margin-right:4px}
@@ -279,7 +285,18 @@ body.commercial .fireDev,body:not(.commercial) .commDev{display:none!important}
 .fpTitle{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;font-weight:700;color:#2e2f2a;margin:4px 0 4px;line-height:1.1}
 .fpTitle small{font:500 13px Poppins,sans-serif;color:#da0029;letter-spacing:1.5px;text-transform:uppercase;margin-left:12px}
 .fpPage svg[role=img]{display:block;width:100%;height:auto;max-height:6.5in;border:1px solid #e1dfdf}
-.fpKey{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:10.5px;color:#5e5758;margin-top:4px}
+.fpStage{position:relative;margin:0 0 4px}
+.fpMainWrap{position:relative}
+.fpMainWrap>svg.fpMain{display:block;width:100%;height:auto;max-height:6.2in;border:1px solid #e1dfdf;background:#fff}
+.fpInset{position:absolute;width:28%;background:#fff;border:1px solid #2e2f2a;border-radius:3px;padding:3px 3px 2px;box-shadow:0 1px 4px rgba(0,0,0,.18);z-index:2}
+.fpInset.tl{top:6px;left:6px}.fpInset.tr{top:6px;right:6px}.fpInset.bl{bottom:6px;left:6px}.fpInset.br{bottom:6px;right:6px}
+.fpInset.below{position:relative;width:28%;margin:6px 0 0;display:inline-block;vertical-align:top}
+.fpInsetCap{font-size:8.5px;font-weight:600;color:#5e5758;margin:0 0 2px;letter-spacing:.02em}
+.fpInset svg{display:block;width:100%;height:auto;background:#fafafa}
+.fpKey{margin-top:4px;color:#5e5758}
+.fpKey .legendList{font-size:9.5px;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:2px 6px}
+.fpKeyBelow{display:flex;gap:10px;align-items:flex-start;margin-top:4px}
+.fpKeyBelow .fpKey{flex:1;min-width:0}
 @media (pointer:coarse) and (max-width:1366px),(max-width:900px){
   .btn{padding:10px 18px;min-height:42px;font-size:12.5px}
   .btn.sm{padding:9px 14px;min-height:40px;font-size:11.5px}
@@ -463,7 +480,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   </div>
 
   <aside style="display:grid;gap:12px">
-    <div class="card cust-only" id="legendCard"><h2>Legend</h2><ul class="legendList" id="legendList"></ul></div>
+    <div class="card cust-only" id="legendCard" class="legendCard"><h2>Legend</h2><ul class="legendList" id="legendList"></ul></div>
     <div class="card edit-only no-print" id="sugCard" hidden><div class="thead"><h2>Suggestions</h2><span class="sp"></span><button class="btn ghost sm" id="bSugClear" type="button" title="Close without adding">Close</button></div>
       <div class="legend" id="sugCount"></div>
       <div class="sugAct"><button class="btn sm" id="bSugAll" type="button">Accept all</button><button class="btn soft sm" id="bSugSel" type="button">Accept selected</button><button class="btn ghost sm" id="bSugRej" type="button">Reject selected</button></div>
@@ -480,8 +497,8 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
     <h2>Exterior photos &amp; suggestions</h2>
     <div class="print-ext" id="printExt"></div>
   </div>
-  <div class="card"><div class="thead"><h2>Zone schedule</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bZoneCsv">Export CSV</button></div><div id="zoneTbl"></div></div>
-  <div class="card"><div class="thead"><h2>Camera schedule</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bCamCsv">Export CSV</button></div><div id="camTbl"></div></div>
+  <div class="card"><div class="thead"><h2>Zone list</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bZoneCsv">Export CSV</button></div><div id="zoneTbl"></div></div>
+  <div class="card"><div class="thead"><h2>Camera list</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bCamCsv">Export CSV</button></div><div id="camTbl"></div></div>
   <div class="card team-only" id="issueCard"><div class="thead"><h2>Site issues</h2><span class="sp"></span><button class="btn ghost sm no-print edit-only" id="bIssueCsv">Export CSV</button></div><div id="issueTbl"></div></div>
   <div class="card no-print edit-only"><div class="thead"><h2>Exterior suggestions</h2><span class="sp"></span></div><div id="extTbl"></div></div>
   <div class="card pf-only optional" id="guidePrint"></div>
@@ -1077,7 +1094,7 @@ function renderChecks(){const l=CHK.slice();const w=l.filter(x=>x.w).length;
   bindFix(checksEl)}
 const checksEl=document.getElementById('checks');
 
-// ---- schedules + CSV ----
+// ---- zone/camera lists + CSV ----
 function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[i.zone,ALARM[i.type].label,i.name,floorName(flOf(i)),roomName(i),i.wiring,i.notes],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
 const ZCOLS=['Zone #','Device','Name / Location','Floor','Room','Wired / Wireless','Notes'];
 function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
@@ -1101,8 +1118,8 @@ const csvCell=v=>{v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'
 function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 const slug=()=>(P.name||'project').replace(/[^\w-]+/g,'-').replace(/^-|-$/g,'')||'project';
 function csv(cols,rows){return '\ufeff'+[cols,...rows.map(r=>r.c)].map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n'}
-bZoneCsv.onclick=()=>dl(slug()+'-zone-schedule.csv',csv(ZCOLS,zoneRows()),'text/csv');
-bCamCsv.onclick=()=>dl(slug()+'-camera-schedule.csv',csv(CCOLS,camRows()),'text/csv');
+bZoneCsv.onclick=()=>dl(slug()+'-zone-list.csv',csv(ZCOLS,zoneRows()),'text/csv');
+bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(CCOLS,camRows()),'text/csv');
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
@@ -1240,22 +1257,39 @@ function renderWalk(){const h=walkStrip;if(!(P.walk||[]).length){h.innerHTML='<d
 // ---- customer view ----
 const CUST=()=>document.body.classList.contains('customer');
 bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;pname.readOnly=on;focusHouse();render()};
-function renderLegend(){const L=[],has=f=>P.items.some(f);
-  for(const [k,a] of Object.entries(ALARM))if(has(i=>i.kind==='alarm'&&i.type===k))L.push(`<li>${ibadge(k,a.c)}${a.label}${a.zone?'':' (not a zone)'}</li>`);
-  for(const [k,c] of Object.entries(CAMS))if(has(i=>i.kind==='cam'&&i.model===k))L.push(`<li>${photoTag(k==='R5'?(P.items.find(i=>i.model==='R5')||{model:'R5'}):k,'ph sm')}${ibadge(camIconKey(k),camColor[c.env])}Vyanet ${c.name}</li>`);
-  if(has(i=>i.kind==='nvr'))L.push(`<li>${photoTag('N85','ph sm')}${ibadge('nvr','#2e2f2a')}Vyanet N85 5MP PoE NVR (recorder)</li>`);
-  if(has(i=>i.kind==='outlet'))L.push(`<li>${ibadge('outlet',OUTLET.c)}Outlet</li>`);
-  if(has(i=>i.kind==='opening'&&i.type==='door'))L.push(`<li>${ibadge('door','#8a8780')}Door (arc shows swing)</li>`);
-  if(has(i=>i.kind==='opening'&&i.type==='window'))L.push(`<li>${ibadge('window','#0089f7')}Window</li>`);
-  if(has(i=>i.kind==='cam'))L.push(`<li><span class="sw cone">◢</span>Camera view at night range</li>`);
-  if(has(i=>i.kind==='alarm'&&i.wiring==='Wireless'))L.push(`<li>${WB}Wireless device (no badge = wired)</li>`);
-  {const a=streetSides();L.push(`<li><span class="sw" style="background:#c5c2bb;color:#2e2f2a">ST</span>${a.length>1?`Street sides: ${a.map(k=>SSN[k]+(k===P.mainStreetSide?' (main entrance)':'')).join(', ')}`:'Street side'}</li>`)}
-  legendList.innerHTML=L.join('')}
+function legendShortAlarm(k){return ({contact:'Contact',motion:'Motion',glass:'Glass',smoke:'Smoke',co:'CO',heat:'Heat',water:'Water',siren:'Siren',panic:'Panic',panel:'Keypad'})[k]||((ALARM[k]||{}).label||k)}
+const SUG_LEGEND_ICON=`<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="#da0029" stroke-width="1.4" stroke-dasharray="2.5 2"/><circle cx="8" cy="8" r="2" fill="#da0029" opacity=".35"/></svg>`;
+function legendEntries(floorId){
+  const items=P.items.filter(i=>floorId==null||flOf(i)===floorId);
+  const has=f=>items.some(f);
+  const out=[];
+  for(const [k,a] of Object.entries(ALARM))if(has(i=>i.kind==='alarm'&&i.type===k))out.push({html:ibadge(k,a.c),label:legendShortAlarm(k)});
+  for(const [k,c] of Object.entries(CAMS))if(has(i=>i.kind==='cam'&&i.model===k))out.push({html:ibadge(camIconKey(k),camColor[c.env]),label:k});
+  if(has(i=>i.kind==='nvr'))out.push({html:ibadge('nvr','#2e2f2a'),label:'N85'});
+  if(has(i=>i.kind==='outlet'))out.push({html:ibadge('outlet',OUTLET.c),label:'Outlet'});
+  if(has(i=>i.kind==='opening'&&i.type==='door'))out.push({html:ibadge('door','#8a8780'),label:'Door'});
+  if(has(i=>i.kind==='opening'&&i.type==='window'))out.push({html:ibadge('window','#0089f7'),label:'Window'});
+  if(has(i=>i.kind==='cam'))out.push({html:`<span class="sw cone">◢</span>`,label:'Cam view'});
+  if(has(i=>i.kind==='alarm'&&i.wiring==='Wireless'))out.push({html:WB,label:'Wireless'});
+  if(floorId==null&&typeof SUG!=='undefined'&&SUG.list&&SUG.list.length&&!CUST())out.push({html:SUG_LEGEND_ICON,label:'Suggestion'});
+  const iss=(P.issues||[]).filter(s=>floorId==null||flOf(s)===floorId);
+  if(iss.length)out.push({html:issueBadge({type:'other',severity:'caution'},14),label:'Site issue'});
+  if(iss.some(s=>s.type==='metal'))out.push({html:`<svg width="18" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#334155"/></svg>`,label:'Metal wall'});
+  if(iss.some(s=>s.type==='concrete'))out.push({html:`<svg width="18" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#78716c"/></svg>`,label:'Concrete'});
+  if(streetSides().length)out.push({html:`<span class="sw" style="background:#c5c2bb;color:#2e2f2a;font-size:7px">ST</span>`,label:'Street'});
+  return out;
+}
+function legendHtml(floorId){
+  const L=legendEntries(floorId);
+  if(!L.length)return '';
+  return `<ul class="legendList legendCompact">${L.map(e=>`<li>${e.html}<span>${esc(e.label)}</span></li>`).join('')}</ul>`;
+}
+function renderLegend(){const wrap=document.createElement('div');wrap.innerHTML=legendHtml(null);legendList.innerHTML=wrap.firstChild?wrap.firstChild.innerHTML:''}
 
 // ---- PNG export ----
 function dlBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800)}
 function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src})}
-// draws one schedule as a table on the export canvas (every row, text wrapped); returns its height. draw=false only measures
+// draws one list as a table on the export canvas (every row, text wrapped); returns its height. draw=false only measures
 function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
   const L=40,TW=PX-2*L,ws=fr.map(f=>f*TW),pad=12,lh=30;let y=y0+20;
   const wrap=(t,w)=>{const out=[];for(const para of String(t??'').split('\n')){let cur='';for(const wd of para.split(/\s+/).filter(Boolean)){const tt=cur?cur+' '+wd:wd;if(!cur||g.measureText(tt).width<=w)cur=tt;else{out.push(cur);cur=wd}}out.push(cur)}return out.length?out:['']};
@@ -1276,14 +1310,38 @@ function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
   return y+16-y0}
 async function exportPNG(){
   const snaps=floorSnaps(),n=snaps.length,PX=2400,FH=124,maps=[];
-  for(const s of snaps){const B=s.B,ph=Math.round(B.h*PX/B.w),cl=s.clone;
-    cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);cl.setAttribute('width',PX);cl.setAttribute('height',ph);cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
-    const xml=new XMLSerializer().serializeToString(cl);maps.push({img:await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml)),ph,f:s.f,i:s.i})}
+  const svgImg=async(cl,B,w,h)=>{
+    cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
+    cl.setAttribute('width',Math.round(w));cl.setAttribute('height',Math.round(h));
+    cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
+    return loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(cl)));
+  };
+  for(const s of snaps){
+    const B=s.mainB, ph=Math.round(B.h*PX/B.w), legH=56;
+    const mainImg=await svgImg(s.main.cloneNode(true),s.mainB,PX,ph);
+    const cc=document.createElement('canvas');cc.width=PX;cc.height=ph+legH;const cg=cc.getContext('2d');
+    cg.fillStyle='#fff';cg.fillRect(0,0,cc.width,cc.height);cg.drawImage(mainImg,0,0,PX,ph);
+    // Full coverage inset
+    const corner=pickInsetCorner(s.mainB,s.f.id);
+    const iw=Math.round(PX*0.28), ih=Math.round(iw*(s.insetB.h/Math.max(s.insetB.w,.01)));
+    let ix,iy; if(corner==='tl'){ix=16;iy=16}else if(corner==='tr'){ix=PX-iw-16;iy=16}else if(corner==='bl'){ix=16;iy=ph-ih-40}else if(corner==='br'){ix=PX-iw-16;iy=ph-ih-40}else{ix=16;iy=ph-ih-8}
+    const cap=22; cg.fillStyle='#fff';cg.fillRect(ix-2,iy-2,iw+4,ih+cap+4);cg.strokeStyle='#2e2f2a';cg.lineWidth=2;cg.strokeRect(ix-2,iy-2,iw+4,ih+cap+4);
+    cg.fillStyle='#5e5758';cg.font='600 18px Poppins,Arial,sans-serif';cg.fillText('Full coverage',ix+4,iy+16);
+    const iimg=await svgImg(s.inset.cloneNode(true),s.insetB,iw,ih);cg.drawImage(iimg,ix,iy+cap,iw,ih);
+    const sx=iw/s.insetB.w,sy=ih/s.insetB.h; cg.strokeStyle='#da0029';cg.setLineDash([8,6]);cg.lineWidth=3;
+    cg.strokeRect(ix+(s.mainB.x-s.insetB.x)*sx,iy+cap+(s.mainB.y-s.insetB.y)*sy,s.mainB.w*sx,s.mainB.h*sy);cg.setLineDash([]);
+    // compact legend strip
+    const specs=legendEntries(s.f.id).filter(e=>e.label!=='Suggestion').map(e=>{const m=String(e.html).match(/--ibc:([^;"'\s]+)/)||String(e.html).match(/fill="(#[0-9a-fA-F]+)"/);return {label:e.label,color:m?m[1]:'#5e5758'}});
+    const colN=Math.min(5,Math.max(3,Math.ceil(specs.length/2))), colW=PX/colN;
+    cg.font='600 20px Poppins,Arial,sans-serif';specs.forEach((sp,ii)=>{const cx=(ii%colN)*colW+20,cy=ph+12+Math.floor(ii/colN)*26;cg.fillStyle=sp.color;cg.beginPath();cg.arc(cx+8,cy+8,8,0,Math.PI*2);cg.fill();cg.fillStyle='#2e2f2a';cg.fillText(sp.label,cx+22,cy+14)});
+    const blobImg=await new Promise((res,rej)=>cc.toBlob(b=>{if(!b)return rej(new Error('png floor composite failed'));const u=URL.createObjectURL(b);loadImg(u).then(img=>{URL.revokeObjectURL(u);res(img)},rej)},'image/png'));
+    maps.push({img:blobImg,ph:ph+legH,f:s.f,i:s.i});
+  }
   const head=140,c=document.createElement('canvas');c.width=PX;let g=c.getContext('2d');
   const zr=zoneRows(),cr=camRows(),ir=CUST()?[]:issueRows();
   const grp=rows=>{const o=[];P.floors.forEach((f,i)=>{const rs=rows.filter(r=>r.f===f.id);if(rs.length){o.push({fh:`${f.name}  ·  Floor ${i+1} of ${n}`});o.push(...rs)}});return o};
   const zcol=r=>{const it=P.items.find(i=>i.id===r.id);return it&&ALARM[it.type]?ALARM[it.type].c:'#8a8780'},ccol=r=>{const it=P.items.find(i=>i.id===r.id);return it?camColor[CAMS[it.model].env]:'#8a8780'},icol=r=>(SEV[r.sev]||SEV.caution).c;
-  const TB=[['Zone schedule',ZCOLS,[.07,.16,.19,.11,.13,.12,.22],grp(zr),zcol,'No zones yet.'],['Camera schedule',CCOLS,[.07,.14,.17,.1,.1,.11,.09,.22],grp(cr),ccol,'No cameras yet.']];
+  const TB=[['Zone list',ZCOLS,[.07,.16,.19,.11,.13,.12,.22],grp(zr),zcol,'No zones yet.'],['Camera list',CCOLS,[.07,.14,.17,.1,.1,.11,.09,.22],grp(cr),ccol,'No cameras yet.']];
   if(!CUST())TB.push(['Site issues',ICOLS,[.2,.12,.12,.14,.34,.08],grp(ir),icol,'No site issues noted.']);
   const icImg={};for(const r of [...zr,...cr]){const it=P.items.find(i=>i.id===r.id);if(!it)continue;const k=it.kind==='cam'?camIconKey(it.model):it.type,col=it.kind==='cam'?camColor[CAMS[it.model].env]:ALARM[it.type].c,key=k+col;
     if(!icImg[key])icImg[key]=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(badgeSvg(k,col).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" ')));r._ic=icImg[key]}
@@ -1385,119 +1443,216 @@ function emailDrawHeader(g,W,scale,pageLabel){
   g.strokeStyle='#e1dfdf';g.beginPath();g.moveTo(24*scale,78*scale);g.lineTo(W-24*scale,78*scale);g.stroke();
   return 88*scale;
 }
-function emailDrawTable(g,x,y,W,title,cols,rows,scale){
-  const pad=10*scale, lh=16*scale;
-  g.fillStyle='#2e2f2a';g.font=`600 ${12*scale}px Poppins,Arial,sans-serif`;
-  g.fillText(title,x,y);y+=18*scale;
-  if(!rows.length){g.fillStyle='#8a8484';g.font=`${10*scale}px Poppins,Arial,sans-serif`;g.fillText('None',x,y);return y+14*scale}
-  const n=cols.length, colW=cols.map((_,i)=> (i===0?0.07:i===1?0.26:(0.67/(n-2)))*W);
-  // normalize
-  const tw=colW.reduce((a,b)=>a+b,0);for(let i=0;i<n;i++)colW[i]=colW[i]/tw*W;
-  g.fillStyle='#f4f2f2';g.fillRect(x,y-12*scale,W,16*scale);
-  g.fillStyle='#5e5758';g.font=`600 ${9*scale}px Poppins,Arial,sans-serif`;
-  let cx=x;cols.forEach((c,i)=>{g.fillText(c,cx+2*scale,y);cx+=colW[i]});y+=8*scale;
-  g.font=`${9.5*scale}px Poppins,Arial,sans-serif`;
-  rows.forEach(r=>{
-    y+=lh;cx=x;g.fillStyle='#2e2f2a';
-    (r.c||r).forEach((cell,i)=>{const t=String(cell??'');g.fillText(t.length>42?t.slice(0,40)+'…':t,cx+2*scale,y);cx+=colW[i]});
-  });
-  return y+10*scale;
+function emailWrap(g,text,maxW){
+  const raw=String(text??''); if(!raw)return [''];
+  const out=[];
+  for(const para of raw.split('\n')){
+    const words=para.split(/\s+/).filter(Boolean);
+    if(!words.length){out.push('');continue}
+    let cur='';
+    for(const w of words){
+      const t=cur?cur+' '+w:w;
+      if(!cur||g.measureText(t).width<=maxW)cur=t;
+      else{out.push(cur);cur=w}
+    }
+    if(cur)out.push(cur);
+  }
+  return out.length?out:[''];
 }
+function emailColWidths(cols,W){
+  // Narrow ID/meta cols; give room to Device / Name / Model so common labels stay one line
+  const pref={'Zone #':.065,'Camera #':.06,'Device':.22,'Model':.25,'Name / Location':.22,'Location / Room':.12,'Floor':.085,'Room':.075,'Wired / Wireless':.1,'Indoor / Outdoor':.1,'Power':.11,'Records to':.085,'Notes':.07};
+  let ws=cols.map(c=>pref[c]||(1/cols.length)); const s=ws.reduce((a,b)=>a+b,0); return ws.map(w=>w/s*W);
+}
+function emailHeadLabel(c){
+  return ({'Zone #':'Zone #','Camera #':'Cam #','Wired / Wireless':'Wired /\nWireless','Indoor / Outdoor':'Indoor /\nOutdoor','Name / Location':'Name /\nLocation','Location / Room':'Loc. /\nRoom'})[c]||c;
+}
+function emailStampPages(canvases,scale){
+  const n=canvases.length, W=canvases[0].width;
+  canvases.forEach((c,i)=>{const g=c.getContext('2d');
+    g.fillStyle='#fff'; g.fillRect(W-170*scale,10*scale,155*scale,24*scale);
+    g.fillStyle='#5e5758'; g.font=`${10*scale}px Poppins,Arial,sans-serif`; g.textAlign='right';
+    g.fillText(`Page ${i+1} of ${n}`,W-24*scale,28*scale); g.textAlign='left';
+    g.fillStyle='#fff'; g.fillRect(20*scale,c.height-22*scale,200*scale,18*scale);
+    g.fillStyle='#8a8484'; g.font=`${9*scale}px Poppins,Arial,sans-serif`;
+    g.fillText(`Page ${i+1} of ${n}`,24*scale,c.height-12*scale)});
+}
+function emailNewPage(W,H,scale){
+  const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d');
+  const y=emailDrawHeader(g,W,scale,''); return {c,g,y};
+}
+function emailAppendSchedule(canvases,title,cols,rows,scale,W,H,margin){
+  const colW=emailColWidths(cols,W-2*margin), padX=3*scale, bottom=H-28*scale;
+  // Body: ~1.4× font line + ~6px total pad → ~34 canvas units/row at scale=2 (~38 rows/page)
+  const fontPx=9*scale, lineH=Math.round(fontPx*1.15), padTop=3*scale, padBot=3*scale;
+  // Header: tighter leading for slash wraps
+  const headFont=8*scale, headLine=Math.round(headFont*1.1), headPadT=3*scale, headPadB=3*scale, afterHead=3*scale;
+  const textBaseline=(rowTop,li,lh,pt)=>rowTop+pt+(li+0.78)*lh;
+  const drawLines=(g,lines,x,rowTop,colWidth,blockH,lh,pt)=>{
+    g.save(); g.beginPath(); g.rect(x+0.5,rowTop+0.5,Math.max(1,colWidth-1),Math.max(1,blockH-1)); g.clip();
+    lines.forEach((ln,li)=>g.fillText(ln,x+padX,textBaseline(rowTop,li,lh,pt)));
+    g.restore();
+  };
+  const drawHead=(g,y,cont)=>{
+    g.fillStyle='#2e2f2a'; g.font=`600 ${12*scale}px Poppins,Arial,sans-serif`;
+    g.fillText(cont?title+' (continued)':title,margin,y+11*scale); y+=18*scale;
+    g.font=`600 ${headFont}px Poppins,Arial,sans-serif`;
+    const heads=cols.map((c,i)=>emailWrap(g,emailHeadLabel(c),Math.max(10,colW[i]-2*padX)));
+    const nLines=Math.max(1,...heads.map(L=>L.length));
+    const headH=headPadT+nLines*headLine+headPadB;
+    g.fillStyle='#eceaea'; g.fillRect(margin,y,W-2*margin,headH);
+    g.fillStyle='#5e5758';
+    let cx=margin;
+    heads.forEach((lines,i)=>{drawLines(g,lines,cx,y,colW[i],headH,headLine,headPadT); cx+=colW[i]});
+    // thin rule under header, then tiny gap before data
+    g.strokeStyle='#cfcaca'; g.beginPath(); g.moveTo(margin,y+headH); g.lineTo(W-margin,y+headH); g.stroke();
+    return y+headH+afterHead;
+  };
+  let page=emailNewPage(W,H,scale), y=drawHead(page.g,page.y,false);
+  const flush=()=>{canvases.push(page.c); page=emailNewPage(W,H,scale); y=drawHead(page.g,page.y,true)};
+  if(!rows.length){
+    page.g.fillStyle='#8a8484'; page.g.font=`${10*scale}px Poppins,Arial,sans-serif`;
+    page.g.fillText('None',margin,y+12*scale); canvases.push(page.c); return;
+  }
+  for(const r of rows){
+    page.g.font=`${fontPx}px Poppins,Arial,sans-serif`;
+    const cells=(r.c||r).map((cell,i)=>emailWrap(page.g,cell,Math.max(10,colW[i]-2*padX)));
+    const nLines=Math.max(1,...cells.map(L=>L.length));
+    const rh=padTop+nLines*lineH+padBot;
+    if(y+rh>bottom){flush(); page.g.font=`${fontPx}px Poppins,Arial,sans-serif`}
+    page.g.strokeStyle='#ebe7e7'; page.g.beginPath(); page.g.moveTo(margin,y); page.g.lineTo(W-margin,y); page.g.stroke();
+    let cx=margin; page.g.fillStyle='#2e2f2a';
+    cells.forEach((lines,i)=>{drawLines(page.g,lines,cx,y,colW[i],rh,lineH,padTop); cx+=colW[i]});
+    y+=rh;
+  }
+  canvases.push(page.c);
+}
+
 async function buildEmailPages(){
-  const scale=2; // 150 dpi-ish on Letter (612*2 × 792*2)
-  const W=612*scale, H=792*scale, margin=24*scale;
-  const snaps=floorSnaps();
-  const pages=[];
-  const totalGuess=snaps.length+1;
-  // Floor map pages
-  for(let i=0;i<snaps.length;i++){
-    const s=snaps[i], c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
-    let y=emailDrawHeader(g,W,scale,`Page ${i+1}`);
-    g.fillStyle='#2e2f2a';g.font=`600 ${14*scale}px Poppins,Arial,sans-serif`;
-    g.fillText(`${s.f.name}  ·  Floor ${i+1} of ${snaps.length}`,margin,y);y+=16*scale;
-    const B=s.B, cl=s.clone;
-    cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
-    const mapW=W-2*margin, mapH=H-y-36*scale;
-    const aspect=B.w/B.h; let dw=mapW, dh=dw/aspect; if(dh>mapH){dh=mapH;dw=dh*aspect}
-    cl.setAttribute('width',Math.round(dw));cl.setAttribute('height',Math.round(dh));
+  const scale=2, W=612*scale, H=792*scale, margin=24*scale;
+  const snaps=floorSnaps(), canvases=[];
+  const meta={floors:snaps.length, zonePages:0, camPages:0};
+  const legendPaintSpecs=(floorId)=>{
+    return legendEntries(floorId).filter(e=>e.label!=='Suggestion').map(e=>{
+      let color='#5e5758';
+      const m=String(e.html).match(/--ibc:([^;"'\s]+)/)||String(e.html).match(/fill="(#[0-9a-fA-F]+)"/);
+      if(m)color=m[1];
+      return {label:e.label,color};
+    });
+  };
+  const drawLegendStrip=(g,floorId,x,y,maxW)=>{
+    const specs=legendPaintSpecs(floorId); if(!specs.length)return 0;
+    const colN=Math.min(5,Math.max(3,Math.ceil(specs.length/2)));
+    const colW=maxW/colN, rowH=13*scale, icon=9*scale;
+    g.font=`600 ${7.5*scale}px Poppins,Arial,sans-serif`;
+    specs.forEach((s,i)=>{
+      const cx=x+(i%colN)*colW, cy=y+Math.floor(i/colN)*rowH;
+      g.fillStyle=s.color; g.beginPath(); g.arc(cx+icon/2,cy+icon/2,icon/2,0,Math.PI*2); g.fill();
+      g.fillStyle='#2e2f2a'; g.fillText(s.label,cx+icon+3*scale,cy+icon*0.82);
+    });
+    return Math.ceil(specs.length/colN)*rowH+4*scale;
+  };
+  const svgToImg=async(cl,B,w,h)=>{
+    cl.setAttribute('xmlns',NS); cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
+    cl.setAttribute('width',Math.round(w)); cl.setAttribute('height',Math.round(h));
     cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');
     const xml=new XMLSerializer().serializeToString(cl);
-    const img=await loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml));
-    g.drawImage(img,margin,y,dw,dh);
-    g.fillStyle='#8a8484';g.font=`${9*scale}px Poppins,Arial,sans-serif`;
+    return loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml));
+  };
+  for(let i=0;i<snaps.length;i++){
+    const s=snaps[i], page=emailNewPage(W,H,scale); let y=page.y; const g=page.g;
+    g.fillStyle='#2e2f2a'; g.font=`600 ${14*scale}px Poppins,Arial,sans-serif`;
+    g.fillText(`${s.f.name}  ·  Floor ${i+1} of ${snaps.length}`,margin,y); y+=14*scale;
+    const legH=Math.max(36*scale, 16*scale+Math.ceil(Math.max(1,legendPaintSpecs(s.f.id).length)/4)*13*scale);
+    const mapW=W-2*margin, mapH=H-y-legH-22*scale;
+    const B=s.mainB; const aspect=B.w/Math.max(B.h,.01);
+    let dw=mapW, dh=dw/aspect; if(dh>mapH){dh=mapH;dw=dh*aspect}
+    const mx=margin+(mapW-dw)/2, my=y;
+    const mainCl=s.main.cloneNode(true);
+    const img=await svgToImg(mainCl,s.mainB,dw,dh);
+    g.drawImage(img,mx,my,dw,dh);
+    g.strokeStyle='#e1dfdf'; g.strokeRect(mx+.5,my+.5,dw-1,dh-1);
+    // inset ~28% width in emptiest corner
+    const corner=pickInsetCorner(s.mainB,s.f.id);
+    const iw=dw*0.28, ih=iw*(s.insetB.h/Math.max(s.insetB.w,.01));
+    let ix,iy;
+    if(corner==='tl'){ix=mx+6*scale;iy=my+6*scale}
+    else if(corner==='tr'){ix=mx+dw-iw-6*scale;iy=my+6*scale}
+    else if(corner==='bl'){ix=mx+6*scale;iy=my+dh-ih-6*scale}
+    else if(corner==='br'){ix=mx+dw-iw-6*scale;iy=my+dh-ih-6*scale}
+    else {ix=mx; iy=my+dh+4*scale} // below — may eat legend room; still ok
+    g.fillStyle='#fff'; g.fillRect(ix,iy,iw,ih+12*scale);
+    g.strokeStyle='#2e2f2a'; g.lineWidth=1*scale; g.strokeRect(ix+.5,iy+.5,iw-1,ih+12*scale-1);
+    g.fillStyle='#5e5758'; g.font=`600 ${7*scale}px Poppins,Arial,sans-serif`;
+    g.fillText('Full coverage',ix+4*scale,iy+9*scale);
+    const insetCl=s.inset.cloneNode(true);
+    const iimg=await svgToImg(insetCl,s.insetB,iw-4*scale,ih-2*scale);
+    g.drawImage(iimg,ix+2*scale,iy+11*scale,iw-4*scale,ih-2*scale);
+    // viewport rect on inset
+    const sx=(iw-4*scale)/s.insetB.w, sy=(ih-2*scale)/s.insetB.h;
+    const vx=ix+2*scale+(s.mainB.x-s.insetB.x)*sx, vy=iy+11*scale+(s.mainB.y-s.insetB.y)*sy;
+    g.strokeStyle='#da0029'; g.setLineDash([4*scale,3*scale]); g.lineWidth=1.2*scale;
+    g.strokeRect(vx,vy,s.mainB.w*sx,s.mainB.h*sy); g.setLineDash([]); g.lineWidth=1;
+    // compact legend
+    const ly=(corner==='below')?iy+ih+16*scale: my+dh+8*scale;
+    drawLegendStrip(g,s.f.id,margin,Math.min(ly,H-legH-10*scale),W-2*margin);
+    g.fillStyle='#8a8484'; g.font=`${9*scale}px Poppins,Arial,sans-serif`;
     g.fillText(`${s.f.name} · Floor ${i+1} of ${snaps.length}`,margin,H-14*scale);
-    pages.push(await canvasToJpegU8(c));
+    canvases.push(page.c);
   }
-  // Schedules page(s)
-  const zr=zoneRows(), cr=camRows(), ir=CUST()?[]:issueRows();
-  let c=document.createElement('canvas');c.width=W;c.height=H;let g=c.getContext('2d');
-  let y=emailDrawHeader(g,W,scale,`Page ${pages.length+1}`);
-  const flush=async()=>{pages.push(await canvasToJpegU8(c));c=document.createElement('canvas');c.width=W;c.height=H;g=c.getContext('2d');y=emailDrawHeader(g,W,scale,`Page ${pages.length+1}`)};
-  const need=()=>y>H-80*scale;
-  // Zone schedule grouped lightly
-  y=emailDrawTable(g,margin,y,W-2*margin,'Zone schedule',ZCOLS,zr,scale);
-  if(need())await flush();
-  y=emailDrawTable(g,margin,y,W-2*margin,'Camera schedule',CCOLS,cr,scale);
-  if(!CUST()){
-    if(need())await flush();
-    const irows=ir.map(r=>({c:r.c||r}));
-    y=emailDrawTable(g,margin,y,W-2*margin,'Site issues',['Issue','Severity','Floor','Location','Notes','Photo'],irows.length?irows:[],scale);
-  }
-  pages.push(await canvasToJpegU8(c));
+  // Zone list on its own page(s), then camera list — same columns as CSV exports
+  const beforeZ=canvases.length;
+  emailAppendSchedule(canvases,'Zone list',ZCOLS,zoneRows(),scale,W,H,margin);
+  meta.zonePages=canvases.length-beforeZ;
+  const beforeC=canvases.length;
+  emailAppendSchedule(canvases,'Camera list',CCOLS,camRows(),scale,W,H,margin);
+  meta.camPages=canvases.length-beforeC;
+  emailStampPages(canvases,scale);
+  const pages=[]; for(const c of canvases) pages.push(await canvasToJpegU8(c));
+  pages._meta=meta;
   return pages;
 }
-function emailFileNames(){
-  const s=slug();
-  return {pdf:s+'-home-map.pdf', zone:s+'-zone-schedule.csv', cam:s+'-camera-schedule.csv'};
-}
+function emailFileNames(){return {pdf:slug()+'-home-map.pdf'}}
 async function buildEmailFiles(){
   const names=emailFileNames();
   const pageImgs=await buildEmailPages();
+  const meta=pageImgs._meta||{floors:(P.floors||[]).length, zonePages:0, camPages:0};
   const pdfBlob=buildPdfFromJpegs(pageImgs);
-  const zoneBlob=new Blob([csv(ZCOLS,zoneRows())],{type:'text/csv;charset=utf-8'});
-  const camBlob=new Blob([csv(CCOLS,camRows())],{type:'text/csv;charset=utf-8'});
-  const files=[
-    new File([pdfBlob],names.pdf,{type:'application/pdf'}),
-    new File([zoneBlob],names.zone,{type:'text/csv'}),
-    new File([camBlob],names.cam,{type:'text/csv'})
-  ];
-  window.__emailExport={pages:pageImgs.length, files:files.map(f=>f.name), shared:false, mailed:false, downloaded:false, aborted:false};
-  return {files,names,pages:pageImgs.length};
+  const files=[new File([pdfBlob],names.pdf,{type:'application/pdf'})];
+  window.__emailExport={pages:pageImgs.length, floors:meta.floors, zonePages:meta.zonePages, camPages:meta.camPages, files:files.map(f=>f.name), shared:false, mailed:false, downloaded:false, aborted:false};
+  return {files,names,pages:pageImgs.length,floors:meta.floors,zonePages:meta.zonePages,camPages:meta.camPages};
 }
 function emailMailto(to,names){
   const sub=encodeURIComponent('Vyanet Home Map — '+(P.name||'project'));
-  const body=encodeURIComponent('Please find my Home Map plan files:\n\n- '+names.pdf+'\n- '+names.zone+'\n- '+names.cam+'\n\n(Generated offline in Vyanet Home Map; attach the downloaded files if your mail client did not include them.)');
+  const body=encodeURIComponent('Please find my Vyanet Home Map plan PDF:\n\n- '+names.pdf+'\n\nAttach the PDF that just downloaded if your mail client did not include it.\n\n(Generated offline in Vyanet Home Map.)');
   const a=document.createElement('a');
-  a.href=`mailto:${encodeURIComponent(to||'').replace(/%40/g,'@')}?subject=${sub}&body=${body}`;
-  // empty To is allowed
-  if(!to)a.href=`mailto:?subject=${sub}&body=${body}`;
+  a.href=to?`mailto:${to}?subject=${sub}&body=${body}`:`mailto:?subject=${sub}&body=${body}`;
   a.style.display='none';document.body.appendChild(a);a.click();a.remove();
 }
 async function emailShareOrFallback(to, bundle){
   const {files,names}=bundle;
   const title='Vyanet Home Map — '+(P.name||'project');
-  const text='Home Map plan files: '+files.map(f=>f.name).join(', ')+(to?'\nTo: '+to:'');
+  const text='Home Map plan PDF: '+names.pdf+(to?'\nTo: '+to:'');
   const can=typeof navigator.canShare==='function' && (()=>{try{return navigator.canShare({files})}catch(e){return false}})();
   if(can){
     try{
       await navigator.share({files,title,text});
       window.__emailExport.shared=true;
-      showToast('Plan shared.');
+      showToast('Plan PDF shared.');
       return;
     }catch(e){
       if(e && e.name==='AbortError'){window.__emailExport.aborted=true;return}
-      // fall through to download+mailto
     }
   }
   files.forEach(f=>dlBlob(f.name,f));
   window.__emailExport.downloaded=true;
   emailMailto(to,names);
   window.__emailExport.mailed=true;
-  showToast('Files downloaded. A mail draft was opened — attach the three files if needed.');
+  showToast('PDF downloaded. A mail draft was opened — attach the PDF that just downloaded.');
 }
 function openEmailDialog(){
   const html=`<h2 style="margin:0 0 8px;font-size:18px">Email plan</h2>
-    <p style="margin:0 0 14px;color:#5e5758;font-size:13px;line-height:1.45">Builds a PDF of the floor maps and schedules plus zone and camera CSVs. Nothing is sent from this page — your device shares the files or downloads them and opens a mail draft.</p>
+    <p style="margin:0 0 14px;color:#5e5758;font-size:13px;line-height:1.45">Builds one PDF with every floor map plus the zone and camera lists. Nothing is sent from this page — your device shares the PDF or downloads it and opens a mail draft.</p>
     <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">To <span style="font-weight:400;color:#8a8484">(optional)</span>
       <input id="emailTo" type="email" placeholder="customer@example.com" style="display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid #d0cbcb;border-radius:6px;font:inherit">
     </label>
@@ -1513,7 +1668,7 @@ function openEmailDialog(){
 }
 async function emailPlanRun(to){
   try{
-    showToast('Building plan files…');
+    showToast('Building plan PDF…');
     const bundle=await buildEmailFiles();
     await emailShareOrFallback(to,bundle);
   }catch(e){
@@ -1524,6 +1679,7 @@ async function emailPlanRun(to){
 bEmail.onclick=()=>openEmailDialog();
 window.__emailBuild=buildEmailFiles; // tests: build without UI
 window.__emailShare=emailShareOrFallback;
+
 
 
 
@@ -1899,16 +2055,83 @@ function renderFloors(){const n=P.floors.length,cust=CUST(),key=JSON.stringify([
 function floorSel(o){if(P.floors.length<2)return '';return `<label class="f">Floor</label><select data-floor-move>${P.floors.map(f=>`<option value="${f.id}" ${f.id===flOf(o)?'selected':''}>${esc(f.name)}</option>`).join('')}</select>`}
 function bindFloorSel(b,o){const s=b.querySelector('[data-floor-move]');if(!s)return;s.onchange=()=>{const v=s.value;if(v===flOf(o))return;
   if(sel&&sel.t==='room'){for(const k of roomKids(o).list)k.it.floor=v}o.floor=v;const keep=sel;switchFloorRaw(v);focusHouse();sel=keep;render()}}
-function floorSnaps(){const st={cf:P.curFloor,sel,ZV:{...ZV},drag};QUIET=true;drag=null;sel=null;const out=[];
-  try{P.floors.forEach((f,i)=>{switchFloorRaw(f.id);ZV={k:1,cx:null,cy:null};drawPlan({print:true});const c=svg.cloneNode(true);c.removeAttribute('id');c.removeAttribute('aria-label');c.setAttribute('role','img');c.setAttribute('aria-label',f.name+' floor map');
-    c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend]').forEach(n=>n.remove());
-    c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
-    out.push({f,i,clone:c,B:{...VB0}})})}
-  finally{switchFloorRaw(st.cf);sel=st.sel;ZV=st.ZV;drag=st.drag;drawPlan();QUIET=false}return out}
+function clonePlanSvg(i){
+  const c=svg.cloneNode(true);c.removeAttribute('id');c.removeAttribute('aria-label');c.setAttribute('role','img');
+  c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend]').forEach(n=>n.remove());
+  c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);
+  c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
+  return c;
+}
+function snapFloorViews(f,i){
+  // Print/PDF/PNG ignore on-screen View setting: always house close-up + full-coverage inset
+  const prev=cView.value, prevZ={...ZV};
+  cView.value='full';ZV={k:1,cx:null,cy:null};drawPlan({print:true});
+  const inset=clonePlanSvg(i+'i'); inset.setAttribute('aria-label',f.name+' full coverage');
+  const insetB={...VB0};
+  cView.value='house';ZV={k:1,cx:null,cy:null};drawPlan({print:true});
+  const main=clonePlanSvg(i+'m'); main.setAttribute('aria-label',f.name+' floor map');
+  const mainB={...VB0};
+  cView.value=prev;ZV=prevZ;
+  return {f,i,main,mainB,inset,insetB};
+}
+function pickInsetCorner(mainB,floorId){
+  const rooms=P.rooms.filter(r=>flOf(r)===floorId), items=P.items.filter(i=>flOf(i)===floorId&&i.kind!=='opening');
+  const iw=mainB.w*.32, ih=mainB.h*.32;
+  const corners={tl:[mainB.x,mainB.y],tr:[mainB.x+mainB.w-iw,mainB.y],bl:[mainB.x,mainB.y+mainB.h-ih],br:[mainB.x+mainB.w-iw,mainB.y+mainB.h-ih]};
+  const overlap=(ax0,ay0,ax1,ay1,bx0,by0,bx1,by1)=>Math.max(0,Math.min(ax1,bx1)-Math.max(ax0,bx0))*Math.max(0,Math.min(ay1,by1)-Math.max(ay0,by0));
+  let best='tr',bestScore=1e18;
+  for(const [k,[x,y]] of Object.entries(corners)){
+    let score=0;
+    for(const r of rooms){const b=rBox(r);score+=overlap(x,y,x+iw,y+ih,b[0],b[1],b[2],b[3])}
+    for(const it of items){if(it.x>=x&&it.x<=x+iw&&it.y>=y&&it.y<=y+ih)score+=8}
+    if(score<bestScore){bestScore=score;best=k}
+  }
+  // if inset heavily covers rooms, park it below next to the legend
+  if(bestScore>Math.max(40, FOOT.w*FOOT.h*.12))return 'below';
+  return best;
+}
+function insetViewportRect(mainB,insetB){
+  // rect in inset viewBox coords marking the main close-up
+  const x=mainB.x,y=mainB.y,w=mainB.w,h=mainB.h;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#da0029" stroke-width="${Math.max(insetB.w,insetB.h)*.01}" stroke-dasharray="${Math.max(insetB.w,insetB.h)*.025} ${Math.max(insetB.w,insetB.h)*.015}" pointer-events="none"/>`;
+}
+function prepareSnapSvg(c,B){
+  c.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
+  c.removeAttribute('width');c.removeAttribute('height');
+  return c;
+}
+function floorSnaps(){const st={cf:P.curFloor,sel,ZV:{...ZV},drag,view:cView.value};QUIET=true;drag=null;sel=null;const out=[];
+  try{P.floors.forEach((f,i)=>{switchFloorRaw(f.id);out.push(snapFloorViews(f,i))})}
+  finally{cView.value=st.view;switchFloorRaw(st.cf);sel=st.sel;ZV=st.ZV;drag=st.drag;drawPlan();QUIET=false}return out}
 function buildPrintFloors(){if(drag)return;const snaps=floorSnaps(),n=snaps.length,j=P.job||{},who=[j.customer,j.address,j.date].filter(Boolean).join(' · ');
   printFloors.innerHTML='';for(const s of snaps){const sec=document.createElement('section');sec.className='fpPage'+(s.i?' fpBreak':'');sec.dataset.floor=s.f.id;
+    const corner=pickInsetCorner(s.mainB,s.f.id);
+    const main=prepareSnapSvg(s.main,s.mainB); main.classList.add('fpMain');
+    const inset=prepareSnapSvg(s.inset,s.insetB);
+    // mark main viewport on inset
+    {const sw=Math.max(s.insetB.w,s.insetB.h)*.01, dash=Math.max(s.insetB.w,s.insetB.h)*.025, gap=Math.max(s.insetB.w,s.insetB.h)*.015;
+      const rect=document.createElementNS(NS,'rect');
+      rect.setAttribute('x',s.mainB.x);rect.setAttribute('y',s.mainB.y);rect.setAttribute('width',s.mainB.w);rect.setAttribute('height',s.mainB.h);
+      rect.setAttribute('fill','none');rect.setAttribute('stroke','#da0029');rect.setAttribute('stroke-width',sw);
+      rect.setAttribute('stroke-dasharray',dash+' '+gap);rect.setAttribute('pointer-events','none');rect.setAttribute('data-viewport','1');
+      inset.appendChild(rect);}
     sec.innerHTML=`<div class="fpHead"><b>${esc(s.f.name)} · Floor ${s.i+1} of ${n}</b><span>${esc(who||P.name||'')}</span></div><h2 class="fpTitle">${esc(s.f.name)}<small>Floor ${s.i+1} of ${n}</small></h2>`;
-    sec.appendChild(s.clone);sec.insertAdjacentHTML('beforeend',`<div class="fpKey">${mapKeyHtml(true)}</div><div class="fpFoot"><span>${esc(s.f.name)} · Floor ${s.i+1} of ${n}</span><span>${esc(P.name||'')}</span></div>`);printFloors.appendChild(sec)}}
+    const stage=document.createElement('div');stage.className='fpStage';
+    const wrap=document.createElement('div');wrap.className='fpMainWrap';wrap.appendChild(main);
+    const insetBox=document.createElement('div');insetBox.className='fpInset '+corner;
+    insetBox.innerHTML=`<div class="fpInsetCap">Full coverage</div>`;insetBox.appendChild(inset);
+    if(corner==='below'){
+      const row=document.createElement('div');row.className='fpKeyBelow';
+      row.appendChild(insetBox);
+      const key=document.createElement('div');key.className='fpKey';key.innerHTML=mapKeyHtml(true,s.f.id);row.appendChild(key);
+      stage.appendChild(wrap);stage.appendChild(row);
+    }else{
+      wrap.appendChild(insetBox);stage.appendChild(wrap);
+      stage.insertAdjacentHTML('beforeend',`<div class="fpKey">${mapKeyHtml(true,s.f.id)}</div>`);
+    }
+    sec.appendChild(stage);
+    sec.insertAdjacentHTML('beforeend',`<div class="fpFoot"><span>${esc(s.f.name)} · Floor ${s.i+1} of ${n}</span><span>${esc(P.name||'')}</span></div>`);
+    printFloors.appendChild(sec)}}
 let pfT=null;function schedulePF(){clearTimeout(pfT);pfT=setTimeout(()=>{if(drag||PINCH){schedulePF();return}buildPrintFloors()},400)}
 addEventListener('beforeprint',buildPrintFloors);
 try{matchMedia('print').addEventListener('change',e=>{if(e.matches)buildPrintFloors()})}catch(e){}
@@ -1916,12 +2139,13 @@ try{matchMedia('print').addEventListener('change',e=>{if(e.matches)buildPrintFlo
 // ---- map key / W badge ----
 const WB=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="#fff" stroke="#0089f7" stroke-width="1.6"/><text x="8" y="11.3" font-size="9" font-weight="700" text-anchor="middle" fill="#0089f7" font-family="Poppins,Arial,sans-serif">W</text></svg>`;
 const WARNSVG=`<svg width="16" height="15" viewBox="0 0 16 15" aria-hidden="true"><path d="M8 1 15 14H1Z" fill="#facc15" stroke="#92400e" stroke-width="1.2" stroke-linejoin="round"/><text x="8" y="12.6" font-size="9" font-weight="700" text-anchor="middle" fill="#78350f" font-family="Poppins,Arial,sans-serif">!</text></svg>`;
-function mapKeyHtml(pr){return `<span>${WB} Wireless device (no badge = wired)</span>`+
-  `<span class="team-only">${issueBadge({type:'other',severity:'caution'},16)} Site issue: <b style="color:#1e40af">info</b> · <b style="color:#b45309">caution</b> · <b style="color:#da0029">problem</b></span>`+
-  `<span class="team-only"><svg width="30" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#334155"/><path d="M3 9 7 1M9 9l4-8M15 9l4-8M21 9l4-8" stroke="#fff" stroke-width="1"/></svg> Metal wall</span>`+
-  `<span class="team-only"><svg width="30" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#78716c"/><circle cx="5" cy="5" r="1" fill="#fff"/><circle cx="11" cy="5" r="1" fill="#fff"/><circle cx="17" cy="5" r="1" fill="#fff"/><circle cx="23" cy="5" r="1" fill="#fff"/></svg> Concrete / thick wall</span>`+
-  (pr?'':`<span class="edit-only">${WARNSVG} Placement warning: click it for the fix</span>`)}
-let mkDone=false;function renderMapKey(){if(mkDone)return;mkDone=true;mapKey.innerHTML=mapKeyHtml(false)}
+function mapKeyHtml(pr,floorId){
+  const id=floorId!=null?floorId:(typeof FID==='function'?FID():null);
+  const L=legendEntries(id).filter(e=>!(pr&&e.label==='Suggestion'));
+  if(!L.length)return '';
+  return `<ul class="legendList legendCompact">${L.map(e=>`<li>${e.html}<span>${esc(e.label)}</span></li>`).join('')}</ul>`;
+}
+function renderMapKey(){mapKey.innerHTML=mapKeyHtml(false,FID())}
 
 // ---- plain-language warnings with one-click fixes ----
 const FIXL={outlet:'Add outlet',n85:'Add N85',s2local:'Set to Local',aimgarage:'Aim into garage',zone:'Use next free zone',camnum:'Use next free number',wired:'Mark as wired'};
@@ -1993,7 +2217,7 @@ const GSTEPS=[
   {t:'Draw rooms',b:'Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it; drag a red edge to move one wall, or the corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
   {t:'Add doors and windows',b:'Drag <b>Door</b> or <b>Window</b> from the tray onto a wall, or click it in the list. It snaps to the nearest room wall.'},
   {t:'Place devices',b:'Drag sensors, outlets, Vyanet cameras and the N85 onto the map, or press <b>Suggest devices</b> for a starting layout. A yellow <b>!</b> marks a placement warning with a one-click fix. A small <b>W</b> means wireless.'},
-  {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone, camera and site-issue schedules. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
+  {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone list, camera list and site-issue list. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
 function showGuide(i){const s=GSTEPS[i],n=GSTEPS.length;const box=modal(`<div class="gStep"><div class="gNum">${i+1}</div><div><div class="sub" style="margin-top:0">Getting started · Step ${i+1} of ${n}</div><h2>${s.t}</h2><p>${s.b}</p></div></div><div class="gDots">${GSTEPS.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div><div class="mAct"><button class="btn ghost sm" data-g="skip" type="button">Skip guide</button>${i?'<button class="btn ghost sm" data-g="back" type="button">Back</button>':''}<button class="btn sm" data-g="next" type="button">${i<n-1?'Next':'Done'}</button></div><div class="legend">Reopen it any time with Show guide, just above the map.</div>`,'Getting started guide');
   ovl.dataset.kind='guide';const done=()=>{localStorage.setItem('vyGuideSeen','1');closeModal()};
   box.querySelector('[data-g=skip]').onclick=done;const bk=box.querySelector('[data-g=back]');if(bk)bk.onclick=()=>showGuide(i-1);box.querySelector('[data-g=next]').onclick=()=>i<n-1?showGuide(i+1):done()}
