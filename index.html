@@ -40,6 +40,12 @@ header.app input[type=text]{font:inherit;padding:6px 10px;border:1px solid var(-
 .btn.soft{background:var(--vy-soft);color:#323131;border-color:var(--vy-red)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.sm{padding:5px 12px;font-size:11px;letter-spacing:1px}
+.btn.is-gated,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;background:#9a9595;border-color:#9a9595;color:#fff;filter:none}
+.btn.is-gated:hover,.btn[aria-disabled="true"]:hover{filter:none;background:#8f8a8a;border-color:#8f8a8a;color:#fff}
+.sugGateWrap{position:relative;display:inline-block;vertical-align:middle;max-width:100%}
+.sugGateWrap.block{display:block;width:100%}
+#sugGateTip{position:fixed;z-index:90;max-width:280px;background:#fff;color:var(--vy-ink);border:1px solid var(--vy-line);border-left:4px solid var(--vy-red);border-radius:6px;padding:8px 11px;font:12.5px/1.35 Poppins,sans-serif;box-shadow:0 8px 22px rgba(46,47,42,.18);pointer-events:none}
+#sugGateTip[hidden]{display:none!important}
 main{display:grid;grid-template-columns:240px minmax(0,1fr) 310px;gap:12px;padding:12px;align-items:start}
 .card{background:var(--vy-white);border:1px solid var(--vy-line);border-radius:4px;padding:12px}
 .card h2{font-size:18px;font-weight:600;color:var(--vy-near);margin:0 0 8px;letter-spacing:.3px}
@@ -460,7 +466,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       </div>
       <div class="stepPane" data-step="3" id="stepDev" hidden>
         <div class="sub">Alarm devices</div>
-        <button class="btn sm" id="bSuggestStepDev" type="button" style="width:100%;margin-bottom:8px" title="Propose alarm devices from the rooms, doors and windows">Suggest devices</button>
+        <span class="sugGateWrap block" id="wrapSuggestStepDev"><button class="btn sm" id="bSuggestStepDev" type="button" style="width:100%;margin-bottom:8px" title="Propose alarm devices from the rooms, doors and windows" aria-describedby="sugGateTip">Suggest devices</button></span>
         <div class="pal" id="palAlarm"></div>
         <div class="sub">Power</div><div class="pal" id="palPower"></div>
         <div class="sub">Site issues</div>
@@ -472,7 +478,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       </div>
       <div class="stepPane" data-step="4" id="stepCam" hidden>
         <div class="sub">Vyanet cameras</div>
-        <button class="btn sm" id="bSuggestStepCam" type="button" style="width:100%;margin-bottom:8px" title="Propose cameras and an N85 from the plan">Suggest cameras</button>
+        <span class="sugGateWrap block" id="wrapSuggestStepCam"><button class="btn sm" id="bSuggestStepCam" type="button" style="width:100%;margin-bottom:8px" title="Propose cameras and an N85 from the plan" aria-describedby="sugGateTip">Suggest cameras</button></span>
         <div class="pal" id="palCam"></div>
         <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
         <div id="tabExterior">
@@ -533,7 +539,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
         <button class="btn ghost sm iconbtn" id="bRedo" type="button" title="Redo (Ctrl+Y / Ctrl+Shift+Z)" disabled>↷ Redo</button>
         <button class="btn ghost sm" id="bDel" disabled>Delete</button>
         <button class="btn ghost sm" id="bDup" disabled>Duplicate</button>
-        <button class="btn sm" id="bSuggest" type="button" title="Propose devices and cameras from the rooms, doors and windows">Suggest devices</button>
+        <span class="sugGateWrap" id="wrapSuggest"><button class="btn sm" id="bSuggest" type="button" title="Propose devices and cameras from the rooms, doors and windows" aria-describedby="sugGateTip">Suggest devices</button></span>
       </span>
       <span class="grp">
         <button class="btn ghost sm iconbtn" id="bZin" type="button" title="Zoom in">＋</button>
@@ -547,6 +553,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <a href="#" id="bGuide" class="guideLink edit-only no-print" title="Show the getting-started guide">Show guide</a><span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim · click again to pick what's underneath · Delete key removes</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
     </div>
     <div class="sugBanner edit-only no-print" id="sugBanner" hidden><span>This plan has rooms but no devices yet. Want a suggested device + camera layout to start from?</span><button class="btn sm" id="bSugBanner" type="button">Suggest devices</button><button class="btn ghost sm" id="bSugDismiss" type="button">Dismiss</button></div>
+    <div id="sugGateTip" role="tooltip" hidden></div>
     <div id="trayDockPlan" class="edit-only no-print"></div>
     <div id="planStage">
       <div class="floorBar no-print" id="floorBar"></div>
@@ -2008,7 +2015,7 @@ function buildSuggestions(){
   return out}
 
 const sugIcon=s=>s.kind==='alarm'?[s.type,ALARM[s.type].c,ALARM[s.type].label]:s.kind==='outlet'?['outlet',OUTLET.c,'Outlet']:s.kind==='cam'?[camIconKey(s.model),camColor[CAMS[s.model].env],'Vyanet '+s.model]:['nvr','#2e2f2a','Vyanet N85 NVR'];
-function runSuggest(){SUG.list=buildSuggestions();SUG.focus=null;SUG.bannerOff=true;if(!SUG.list.length)alert('No suggestions: add rooms (and doors/windows) first, or the plan already covers the rules.');render();const c=document.getElementById('sugCard');if(c&&SUG.list.length)c.scrollIntoView({block:'nearest'})}
+function runSuggest(ev){if(!suggestReady()){const a=(ev&&ev.currentTarget)||document.getElementById('bSuggest')||document.getElementById('bSuggestStepDev');showSugGateTip(a);return}hideSugGateTip();SUG.list=buildSuggestions();SUG.focus=null;SUG.bannerOff=true;if(!SUG.list.length)alert('No suggestions: add rooms (and doors/windows) first, or the plan already covers the rules.');render();const c=document.getElementById('sugCard');if(c&&SUG.list.length)c.scrollIntoView({block:'nearest'})}
 function acceptSug(ids){const set=new Set(ids);let grew=true;while(grew){grew=false;for(const s of SUG.list)if(set.has(s.sid))for(const d of (s.deps||[]))if(!set.has(d)&&SUG.list.some(x=>x.sid===d)){set.add(d);grew=true}}
   const order=SUG.list.filter(s=>set.has(s.sid));const map={};
   for(const s of order){let it;
@@ -2028,8 +2035,72 @@ function drawSugGhosts(){if(CUST()||!SUG.list.length)return;const g=el('g',{'dat
     el('circle',{cx:s.x,cy:s.y,r:rr+.25,fill:'#fff','fill-opacity':.85,stroke:f?'#f59e0b':c,'stroke-width':f?.3:.16,'stroke-dasharray':'.35 .25'},gg);
     const isz=rr*1.2,ic=el('svg',{x:s.x-isz/2,y:s.y-isz/2,width:isz,height:isz,viewBox:'0 0 24 24',fill:'none',stroke:c,'stroke-width':2.2,'stroke-linecap':'round','stroke-linejoin':'round',style:'pointer-events:none'},gg);ic.innerHTML=ICON[ik];
     if(f){const tt=el('text',{x:s.x,y:s.y-rr-.5,'font-size':.75,'text-anchor':'middle',fill:'#b45309','font-weight':600,style:'pointer-events:none'},gg);tt.textContent=s.name}}}
+const hasFloorPlan=()=>(P.rooms||[]).length>0||!!(P.underlay&&P.underlay.src);
+const hasDoor=()=>(P.items||[]).some(i=>i.kind==='opening'&&i.type==='door');
+const hasWindow=()=>(P.items||[]).some(i=>i.kind==='opening'&&i.type==='window');
+const hasDoorWin=()=>hasDoor()||hasWindow();
+const suggestReady=()=>hasFloorPlan()&&hasDoor()&&hasWindow();
+function suggestGateMsg(){
+  const miss=[];
+  if(!hasFloorPlan()) miss.push('floor');
+  if(!hasDoor()) miss.push('door');
+  if(!hasWindow()) miss.push('window');
+  if(!miss.length) return '';
+  if(miss.length===3) return 'Add the floor plan, doors, and windows first';
+  if(miss.length===1){
+    if(miss[0]==='floor') return 'Add a floor plan first (draw a room or upload an image)';
+    if(miss[0]==='door') return 'Add at least one door first';
+    return 'Add at least one window first';
+  }
+  const nice={floor:'a floor plan',door:'at least one door',window:'at least one window'};
+  return 'Add '+nice[miss[0]]+' and '+nice[miss[1]]+' first';
+}
+function showSugGateTip(anchor){
+  const tip=document.getElementById('sugGateTip'); if(!tip) return;
+  const msg=suggestGateMsg(); if(!msg){tip.hidden=true;return}
+  tip.textContent=msg; tip.hidden=false;
+  const node=(anchor&&anchor.nodeType===1)?anchor:(document.getElementById('wrapSuggest')||document.getElementById('bSuggest'));
+  const r=(node||document.body).getBoundingClientRect();
+  tip.style.left='0px'; tip.style.top='0px';
+  const tw=tip.offsetWidth||240, th=tip.offsetHeight||40;
+  let left=Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth-tw-8));
+  let top=r.bottom+6; if(top+th>window.innerHeight-8) top=Math.max(8, r.top-th-6);
+  tip.style.left=left+'px'; tip.style.top=top+'px';
+}
+function hideSugGateTip(){const tip=document.getElementById('sugGateTip'); if(tip) tip.hidden=true}
+function wireSugGate(el){
+  if(!el||el._sugGateWired) return; el._sugGateWired=true;
+  const wrap=(el.parentElement&&el.parentElement.classList.contains('sugGateWrap'))?el.parentElement:el;
+  const show=()=>{if(el.getAttribute('aria-disabled')==='true') showSugGateTip(wrap)};
+  wrap.addEventListener('mouseenter',show);
+  wrap.addEventListener('mouseleave',()=>hideSugGateTip());
+  wrap.addEventListener('focusin',show);
+  wrap.addEventListener('focusout',()=>hideSugGateTip());
+  el.addEventListener('click',e=>{
+    if(el.getAttribute('aria-disabled')==='true'){e.preventDefault();e.stopImmediatePropagation();showSugGateTip(wrap)}
+  },true);
+  el.addEventListener('keydown',e=>{
+    if(el.getAttribute('aria-disabled')==='true'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopImmediatePropagation();showSugGateTip(wrap)}
+  },true);
+}
+function syncSuggestGate(){
+  const ok=suggestReady();
+  const titles={bSuggest:'Propose devices and cameras from the rooms, doors and windows',bSuggestStepDev:'Propose alarm devices from the rooms, doors and windows',bSuggestStepCam:'Propose cameras and an N85 from the plan'};
+  for(const id of ['bSuggest','bSuggestStepDev','bSuggestStepCam']){
+    const el=document.getElementById(id); if(!el) continue;
+    el.hidden=false;
+    el.disabled=false;
+    el.classList.toggle('is-gated',!ok);
+    el.setAttribute('aria-disabled', ok?'false':'true');
+    if(ok){el.removeAttribute('aria-describedby'); el.title=titles[id]||'Suggest devices'}
+    else {el.setAttribute('aria-describedby','sugGateTip'); el.title=suggestGateMsg()}
+    wireSugGate(el);
+  }
+  if(ok) hideSugGateTip();
+}
 function renderSug(){const c=document.getElementById('sugCard');if(!c)return;
-  const showB=!SUG.bannerOff&&!SUG.list.length&&FR().some(isIn)&&!FI().some(i=>i.kind!=='opening');sugBanner.hidden=!showB;
+  syncSuggestGate();
+  const showB=suggestReady()&&!SUG.bannerOff&&!SUG.list.length&&FR().some(isIn)&&!FI().some(i=>i.kind!=='opening');sugBanner.hidden=!showB;
   c.hidden=!SUG.list.length;if(!SUG.list.length){sugList.innerHTML='';return}
   const n=SUG.list.length,on=SUG.list.filter(s=>s.on).length;sugCount.textContent=`${n} suggested · ${on} selected`+(COMM()?' · Commercial: no fire devices are suggested (designed separately to code by qualified staff).':'');
   let last='';sugList.innerHTML=SUG.list.map(s=>{const [ik,c2]=sugIcon(s);const h=s.cat!==last?`<li class="sugCat">${esc(last=s.cat)}</li>`:'';
