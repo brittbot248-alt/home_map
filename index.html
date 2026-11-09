@@ -566,7 +566,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <label>View <select id="cView" style="font:inherit;font-size:12px;padding:2px 4px;border:1px solid var(--vy-line);border-radius:3px"><option value="full">Whole property (full cone range)</option><option value="house">House close-up</option></select></label>
       <a href="#" id="bGuide" class="guideLink edit-only no-print" title="Show the getting-started guide">Show guide</a><span class="hint edit-only">1 ft grid · scroll to zoom · drag empty space to pan · drag the amber handle to aim · click again to pick what's underneath · Delete key removes</span><span class="hint cust-only" style="margin-left:auto">Read-only · scroll to zoom · drag to pan · click a photo to enlarge</span>
     </div>
-    <div class="sugBanner edit-only no-print" id="sugBanner" hidden><span>This plan has rooms but no devices yet. Want a suggested device + camera layout to start from?</span><button class="btn sm" id="bSugBanner" type="button">Suggest devices</button><button class="btn ghost sm" id="bSugDismiss" type="button">Dismiss</button></div>
+    <div class="sugBanner edit-only no-print" id="sugBanner" hidden><span>This plan has rooms but no devices yet. Want a suggested device + camera layout to start from?</span><span class="sugGateWrap" id="wrapSugBanner"><button class="btn sm" id="bSugBanner" type="button">Suggest devices</button></span><button class="btn ghost sm" id="bSugDismiss" type="button">Dismiss</button></div>
     <div id="sugGateTip" role="tooltip" hidden></div>
     <div id="trayDockPlan" class="edit-only no-print"></div>
     <div id="planStage">
@@ -2056,8 +2056,19 @@ function drawSugGhosts(){if(CUST()||!SUG.list.length)return;const g=el('g',{'dat
     const isz=rr*1.2,ic=el('svg',{x:s.x-isz/2,y:s.y-isz/2,width:isz,height:isz,viewBox:'0 0 24 24',fill:'none',stroke:c,'stroke-width':2.2,'stroke-linecap':'round','stroke-linejoin':'round',style:'pointer-events:none'},gg);ic.innerHTML=ICON[ik];
     if(f){const tt=el('text',{x:s.x,y:s.y-rr-.5,'font-size':.75,'text-anchor':'middle',fill:'#b45309','font-weight':600,style:'pointer-events:none'},gg);tt.textContent=s.name}}}
 const hasFloorPlan=()=>(P.rooms||[]).length>0||!!(P.underlay&&P.underlay.src);
-const hasDoor=()=>(P.items||[]).some(i=>i.kind==='opening'&&i.type==='door');
-const hasWindow=()=>(P.items||[]).some(i=>i.kind==='opening'&&i.type==='window');
+// Only count doors/windows that belong to a real room (or sit on an underlay-only floor).
+// Orphan openings left after rooms were deleted must NOT unlock Suggest.
+function openingCounts(o){
+  if(!o||o.kind!=='opening')return false;
+  if(openingRoom(o))return true;
+  const fid=flOf(o), roomsHere=(P.rooms||[]).filter(r=>flOf(r)===fid);
+  if(roomsHere.some(r=>wallOps(r).some(w=>w.it===o)))return true;
+  // underlay-only floor (image loaded, no rooms drawn yet): any opening on that floor counts
+  if(!roomsHere.length&&P.underlay&&P.underlay.src&&fid===FID())return true;
+  return false;
+}
+const hasDoor=()=>(P.items||[]).some(i=>i.type==='door'&&openingCounts(i));
+const hasWindow=()=>(P.items||[]).some(i=>i.type==='window'&&openingCounts(i));
 const hasDoorWin=()=>hasDoor()||hasWindow();
 const suggestReady=()=>hasFloorPlan()&&hasDoor()&&hasWindow();
 function suggestGateMsg(){
@@ -2106,13 +2117,13 @@ function wireSugGate(el){
 function syncSuggestGate(){
   const ok=suggestReady();
   const titles={bSuggest:'Propose devices and cameras from the rooms, doors and windows',bSuggestStepDev:'Propose alarm devices from the rooms, doors and windows',bSuggestStepCam:'Propose cameras and an N85 from the plan'};
-  for(const id of ['bSuggest','bSuggestStepDev','bSuggestStepCam']){
+  for(const id of ['bSuggest','bSuggestStepDev','bSuggestStepCam','bSugBanner']){
     const el=document.getElementById(id); if(!el) continue;
     el.hidden=false;
     el.disabled=false;
     el.classList.toggle('is-gated',!ok);
     el.setAttribute('aria-disabled', ok?'false':'true');
-    if(ok){el.removeAttribute('aria-describedby'); el.title=titles[id]||'Suggest devices'}
+    if(ok){el.removeAttribute('aria-describedby'); el.title=titles[id]||titles.bSuggest||'Suggest devices'}
     else {el.setAttribute('aria-describedby','sugGateTip'); el.title=suggestGateMsg()}
     wireSugGate(el);
   }
@@ -2382,6 +2393,7 @@ function goStep(n,opt={}){
   trayDockLeft.hidden=false;
   renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();
   if(typeof renderTray==='function')renderTray();
+  if(typeof syncSuggestGate==='function')syncSuggestGate();
   if(opt.focusWalk&&walk)walk.scrollIntoView({block:'nearest'});
   if(opt.focusExt&&ext)ext.scrollIntoView({block:'nearest'});
   store();
