@@ -825,10 +825,11 @@ document.querySelectorAll('#leftTabs button').forEach(b=>b.onclick=()=>{
 
 logoImg.src=window.VY_LOGO||'';
 streetSide.value='';
-streetSide.onchange=()=>{const v=streetSide.value;if(SSIDES.includes(v)){let a=streetSides().slice();if(!a.includes(v))a=SSIDES.filter(x=>x===v||a.includes(x));P.streetSides=a;P.mainStreetSide=v;P.streetSideSet=true;render()}};
+streetSide.onchange=()=>{const v=streetSide.value;if(SSIDES.includes(v)){let a=streetSides().slice();if(!a.includes(v)){delete streetOffs()[v]};if(!a.includes(v))a=SSIDES.filter(x=>x===v||a.includes(x));P.streetSides=a;P.mainStreetSide=v;P.streetSideSet=true;render()}};
 // ---- street sides (corner lots): P.streetSides = selected edges; empty allowed. Main is optional among selected. ----
 const SSIDES=['front','right','back','left'],SSL={front:'Front (bottom)',right:'Right',back:'Back (top)',left:'Left'},SSN={front:'Front',right:'Right',back:'Back',left:'Left'};
 function streetSides(){let a=Array.isArray(P.streetSides)?P.streetSides.filter(x=>SSIDES.includes(x)):[];a=SSIDES.filter(x=>a.includes(x));P.streetSides=a;
+  if(P.streetOff!=null&&(typeof P.streetOff!=='object'||Array.isArray(P.streetOff)))P.streetOff={};if(P.streetOff)for(const k of Object.keys(P.streetOff)){const o=P.streetOff[k];if(!a.includes(k)||!o||!isFinite(o.dx)||!isFinite(o.dy))delete P.streetOff[k]}
   if(P.mainStreetSide&&!a.includes(P.mainStreetSide))P.mainStreetSide=undefined;
   // yards / orientation: Main if set, else first selected street, else bottom (front)
   P.streetSide=(P.mainStreetSide&&a.includes(P.mainStreetSide))?P.mainStreetSide:(a[0]||'front');
@@ -836,7 +837,7 @@ function streetSides(){let a=Array.isArray(P.streetSides)?P.streetSides.filter(x
 streetBox.innerHTML=`<div class="ssPills" role="group" aria-label="Street sides">${SSIDES.map(k=>`<button type="button" class="ssPill" data-ss="${k}" aria-pressed="false">${SSL[k]}</button>`).join('')}</div>
   <div class="legend" style="margin-top:4px">Tap a side to mark a street (tap again to clear). Use Main on a selected side for the front entrance (Front yard faces it).</div>
   <div class="ssPills" id="ssMainRow">${SSIDES.map(k=>`<button type="button" class="ssPill" data-ssm="${k}" title="Set as main / front entrance">Main: ${SSL[k].split(" ")[0]}</button>`).join('')}</div>`;
-streetBox.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const k=b.dataset.ss;let a=streetSides().slice();
+streetBox.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const k=b.dataset.ss;let a=streetSides().slice();delete streetOffs()[k];
   if(a.includes(k))a=a.filter(x=>x!==k);else a=SSIDES.filter(x=>x===k||a.includes(x));
   P.streetSides=a;if(P.mainStreetSide&&!a.includes(P.mainStreetSide))P.mainStreetSide=undefined;P.streetSideSet=true;render()});
 streetBox.querySelectorAll('[data-ssm]').forEach(b=>b.onclick=()=>{const k=b.dataset.ssm,a=streetSides();
@@ -872,6 +873,7 @@ function addYardsAuto(){
   const physOrder=['front','right','back','left'], labels=['Front yard','Right side yard','Back yard','Left side yard'];
   for(let i=0;i<4;i++){const phys=physOrder[(i+rotN)%4];addYard(phys,labels[i])}
   addYard('driveway','Driveway');
+  if(ZV.k>1)focusHouse(); // keep the pushed-out streets in the house view
   render();
 }
 function yardAt(x,y){let best=null;for(const z of (P.yards||[])){if(x>=z.x&&x<=z.x+z.w&&y>=z.y&&y<=z.y+z.h){if(!best||z.w*z.h<best.w*best.h)best=z}}return best}
@@ -1047,14 +1049,31 @@ function conePath(it){const a=it.rot*Math.PI/180,h=it.fov/2*Math.PI/180,r=it.ran
 let VB={x:0,y:0,w:W,h:H};
 function computeVB(){
   let x0=0,y0=0,x1=W,y1=H;
-  if(cView.value==='house'){VB={x:FOOT.x-12,y:FOOT.y-12,w:FOOT.w+24,h:FOOT.h+24};return}
+  if(cView.value==='house'){let a=FOOT.x-12,b=FOOT.y-12,c=FOOT.x+FOOT.w+12,d=FOOT.y+FOOT.h+12;for(const k of streetSides()){const q=streetRect(k);a=Math.min(a,q.x-1);b=Math.min(b,q.y-1);c=Math.max(c,q.x+q.w+1);d=Math.max(d,q.y+q.h+1)}VB={x:a,y:b,w:c-a,h:d-b};return}
   if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam'&&isOutdoorCam(i))){
     const a=it.rot*Math.PI/180,h=it.fov/2*Math.PI/180;for(let k=0;k<=12;k++){const t=a-h+2*h*k/12,px=it.x+it.range*Math.cos(t),py=it.y+it.range*Math.sin(t);x0=Math.min(x0,px);y0=Math.min(y0,py);x1=Math.max(x1,px);y1=Math.max(y1,py)}}
   for(const r of FR()){const b=rBox(r);x0=Math.min(x0,b[0]-6);y0=Math.min(y0,b[1]-6);x1=Math.max(x1,b[2]+6);y1=Math.max(y1,b[3]+10)}
   for(const z of (P.yards||[])){x0=Math.min(x0,z.x-2);y0=Math.min(y0,z.y-2);x1=Math.max(x1,z.x+z.w+2);y1=Math.max(y1,z.y+z.h+2)}
+  for(const k of streetSides()){const q=streetRect(k);x0=Math.min(x0,q.x-1);y0=Math.min(y0,q.y-1);x1=Math.max(x1,q.x+q.w+1);y1=Math.max(y1,q.y+q.h+1)}
   const U=P.underlay;if(U&&U.src&&(!CUST()||U.showCustomer)){const cx=U.x+U.w/2,cy=U.y+U.h/2,r=(U.rot||0)%180?[U.h/2,U.w/2]:[U.w/2,U.h/2];x0=Math.min(x0,cx-r[0]);x1=Math.max(x1,cx+r[0]);y0=Math.min(y0,cy-r[1]);y1=Math.max(y1,cy+r[1])}
   const pad=2;VB={x:Math.floor(x0-pad*(x0<0)),y:Math.floor(y0-pad*(y0<0)),w:0,h:0};VB.w=Math.ceil(x1+pad*(x1>W))-VB.x;VB.h=Math.ceil(y1+pad*(y1>H))-VB.y;
 }
+// ---- street markers: auto-placed outside the footprint AND any yard on that side; per-side manual offset when dragged ----
+const ST_STRIP=6,ST_GAP=.5;
+function streetOffs(){if(!P.streetOff||typeof P.streetOff!=='object'||Array.isArray(P.streetOff))P.streetOff={};return P.streetOff}
+function streetBase(k){const F=FOOT,s=ST_STRIP;return ({front:{x:F.x-2,y:F.y+F.h,w:F.w+4,h:s},back:{x:F.x-2,y:F.y-s,w:F.w+4,h:s},left:{x:F.x-s,y:F.y-2,w:s,h:F.h+4},right:{x:F.x+F.w,y:F.y-2,w:s,h:F.h+4}})[k]}
+function streetAuto(k){const F=FOOT,b={...streetBase(k)},ys=(P.yards||[]).filter(z=>z.w>0&&z.h>0),E=1e-6,ov=(a0,a1,b0,b1)=>a0<b1-E&&b0<a1-E;
+  if(k==='front'||k==='back'){const L=ys.filter(z=>ov(z.x,z.x+z.w,b.x,b.x+b.w)&&(k==='front'?z.y+z.h>F.y+F.h+E:z.y<F.y-E));
+    if(L.length){if(k==='front')b.y=Math.max(...L.map(z=>z.y+z.h))+ST_GAP;else b.y=Math.min(...L.map(z=>z.y))-ST_GAP-b.h}}
+  else{const L=ys.filter(z=>ov(z.y,z.y+z.h,b.y,b.y+b.h)&&(k==='right'?z.x+z.w>F.x+F.w+E:z.x<F.x-E));
+    if(L.length){if(k==='right')b.x=Math.max(...L.map(z=>z.x+z.w))+ST_GAP;else b.x=Math.min(...L.map(z=>z.x))-ST_GAP-b.w}}
+  b.x=r2(b.x);b.y=r2(b.y);return b}
+function streetRect(k){const o=streetOffs()[k];if(o&&isFinite(o.dx)&&isFinite(o.dy)){const b=streetBase(k);return {x:r2(b.x+o.dx),y:r2(b.y+o.dy),w:b.w,h:b.h,manual:true}}return streetAuto(k)}
+function drawStreetHits(){if(!yardEditable())return;const a=streetSides();if(!a.length)return;const g=el('g',{'data-streethits':1},svg);
+  for(const k of a){const q=streetRect(k),on=sel&&sel.t==='street'&&sel.id===k;
+    const r=el('rect',{x:q.x,y:q.y,width:q.w,height:q.h,fill:on?'rgba(218,0,41,.08)':'transparent',stroke:on?'#da0029':'transparent','stroke-width':on?.3:.1,'stroke-dasharray':on?'.8 .5':'','data-streethit':k,style:'cursor:move'},g);
+    el('title',{},r).textContent=SSN[k]+' street: drag to move'}
+  /* keep the selected yard's resize handles above the street hit areas */const hs=[...svg.querySelectorAll('[data-yedge],[data-ysize]')];if(hs.length){const hg=el('g',{'data-yhandles':1},svg);hs.forEach(n=>hg.appendChild(n))}}
 function drawYard(){
   const street=P.streetSide||'front';const VB=VB0;
   const g=el('g',{},svg);
@@ -1069,6 +1088,7 @@ function drawYard(){
     left:[F.x-strip,F.y-2,strip,F.h+4],
     right:[F.x+F.w,F.y-2,strip,F.h+4]
   }:{front:[X0,Y1-strip,VB.w,strip],back:[X0,Y0,VB.w,strip],left:[X0,Y0,strip,VB.h],right:[X1-strip,Y0,strip,VB.h]};
+  if(useF)for(const k of SSs){const q=streetRect(k);sR[k]=[q.x,q.y,q.w,q.h]}
   for(const k of SSs){const q=sR[k];el('rect',{x:q[0],y:q[1],width:q[2],height:q[3],fill:'#c5c2bb','data-street':k,style:'pointer-events:none'},g)}
   // driveway (toward street from front of footprint)
   const map=orientMap(street); const d=map.driveway;
@@ -1083,6 +1103,7 @@ function drawYard(){
     left:[F.x-strip*.35,F.y+F.h/2],
     right:[F.x+F.w+strip*.65,F.y+F.h/2]
   }:{front:[VB.x+VB.w/2,VB.y+VB.h-2.5],back:[VB.x+VB.w/2,VB.y+3.5],left:[VB.x+3,VB.y+VB.h/2],right:[VB.x+VB.w-3,VB.y+VB.h/2]};
+  if(useF)for(const k of SSs){const q=sR[k];lpS[k]=(k==='left'||k==='right')?[q[0]+q[2]*.65,q[1]+q[3]/2]:[q[0]+q[2]/2,q[1]+q[3]*.65]}
   for(const k of SSs){const lp=lpS[k],v=k==='left'||k==='right',lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15,'data-streetlabel':k,...(v?{transform:`rotate(${k==='left'?-90:90} ${lp[0]} ${lp[1]})`}:{})},g);lt.textContent=SSs.length>1&&k===street?'STREET · MAIN ENTRANCE':'STREET'}
 }
 function render(){
@@ -1091,7 +1112,7 @@ function render(){
   if(typeof syncSiteNotesUI==='function')syncSiteNotesUI();
   CHK=checks();
   drawPlan();
-  bDel.disabled=!sel;bDup.disabled=!sel||sel.t==='yard'||sel.t==='issue';
+  bDel.disabled=!sel||sel.t==='street';bDup.disabled=!sel||sel.t==='yard'||sel.t==='issue'||sel.t==='street';
   bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
   renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();
   renderFloors();renderModeUI();renderMapKey();renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();schedulePF();store();
@@ -1155,6 +1176,7 @@ function drawPlan(opt={}){
   drawIssueMarks(PR);
   // Exterior step: yards above rooms/grid so they can be selected, moved and resized
   if(!PR&&yardEditable())drawYardZones(PR,true);
+  if(!PR&&yardEditable())drawStreetHits();
   if(!PR&&!CUST())drawRotHandle();
   if(!PR)drawSugGhosts();
   if(!PR)drawMeasure();
@@ -1210,6 +1232,7 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   const ie=t.getAttribute('data-iend'),isg=t.closest('[data-issue]');
   if(ie||isg){if(ie){const [id,k]=ie.split(':');drag={m:'iend',o:P.issues.find(i=>i.id===id),k}}else{const o=P.issues.find(i=>i.id===isg.dataset.issue);sel={t:'issue',id:o.id};drag={m:'imove',o,dx:p.x-o.x,dy:p.y-o.y,x0:o.x,y0:o.y,x2:o.x2,y2:o.y2,sx:e.clientX,sy:e.clientY,moved:0}}
     svg.setPointerCapture(e.pointerId);drag.vb0={...VB0};render();return}
+  const sh_=t.getAttribute('data-streethit');if(sh_&&yardEditable()&&streetSides().includes(sh_)){const q=streetRect(sh_),b0=streetBase(sh_);sel={t:'street',id:sh_};drag={m:'street',k:sh_,p0:{x:p.x,y:p.y},o0:{dx:q.x-b0.x,dy:q.y-b0.y},sx:e.clientX,sy:e.clientY,moved:0,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}
   const ye_=t.getAttribute('data-yedge');if(ye_&&yardEditable()){const [id,side]=ye_.split(':'),o=(P.yards||[]).find(z=>z.id===id);if(o){sel={t:'yard',id:o.id};drag={m:'yedge',o,side,x0:o.x,y0:o.y,w0:o.w,h0:o.h,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}}
   const ys_=t.getAttribute('data-ysize');if(ys_&&yardEditable()){const [id,corner]=ys_.split(':'),o=(P.yards||[]).find(z=>z.id===id);if(o){sel={t:'yard',id:o.id};drag={m:'ysize',o,corner,x0:o.x,y0:o.y,w0:o.w,h0:o.h,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}}
   const yg=t.closest('[data-yard]');if(yg&&yardEditable()&&!t.closest('[data-item],[data-room]')){const o=(P.yards||[]).find(z=>z.id===yg.dataset.yard);if(o){sel={t:'yard',id:o.id};drag={m:'ymove',o,dx:p.x-o.x,dy:p.y-o.y,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}}
@@ -1238,6 +1261,7 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   else {drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0,desel:true}}
   svg.setPointerCapture(e.pointerId);if(drag.m!=='pan'){drag.vb0={...VB0};render()}});
 svg.addEventListener('pointermove',e=>{if(!drag)return;
+  if(drag.m==='street'){drag.moved=Math.max(drag.moved,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return;const p=pt(e),sn=v=>Math.round(v*2)/2;streetOffs()[drag.k]={dx:r2(drag.o0.dx+sn(p.x-drag.p0.x)),dy:r2(drag.o0.dy+sn(p.y-drag.p0.y))};render();return}
   if(drag.m==='ymove'){const p=pt(e),snap=v=>Math.round(v*2)/2;drag.o.x=snap(p.x-drag.dx);drag.o.y=snap(p.y-drag.dy);render();return}
   if(drag.m==='yedge'){const p=pt(e),o=drag.o,side=drag.side,snap=v=>Math.round(v*2)/2;let x=drag.x0,y=drag.y0,w=drag.w0,h=drag.h0;
     if(side==='right')w=Math.max(4,snap(p.x-drag.x0));
@@ -1283,6 +1307,7 @@ svg.addEventListener('pointermove',e=>{if(!drag)return;
   render()});
 function endDrag(){const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;render()}return}
   if(d&&d.m==='move'&&d.cycle&&(d.moved||0)<3){const i=d.cycle.findIndex(k=>sel&&k.id===sel.id),n=d.cycle[(i+1)%d.cycle.length];sel={t:n.t,id:n.id};render()}
+  if(d&&d.m==='street'&&d.moved&&ZV.k>1)focusHouse();
   if(d&&d.vb0)render();else scheduleHist()}
 svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
 svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.2:1/1.2,pt(e))},{passive:false});
@@ -1293,9 +1318,9 @@ document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.te
   if(CUST())return;
   const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
-function delSel(){if(!sel)return;if(sel.t==='yard'){P.yards=(P.yards||[]).filter(y=>y.id!==sel.id);sel=null;render();return}if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
+function delSel(){if(!sel||sel.t==='street')return;if(sel.t==='yard'){P.yards=(P.yards||[]).filter(y=>y.id!==sel.id);sel=null;render();return}if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
 bDel.onclick=delSel;
-bDup.onclick=()=>{if(!sel)return;if(sel.t==='yard')return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
+bDup.onclick=()=>{if(!sel)return;if(sel.t==='yard'||sel.t==='street')return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
 cCones.onchange=cGrid.onchange=cView.onchange=render;
 
 // ---- properties ----
@@ -1327,6 +1352,11 @@ function renderProps(){
   if(!sel){b.className='empty';b.innerHTML='Select something on the plan.';return}
   b.className='';let h='';
   if(sel.t==='issue'){renderIssueProps(b);return}
+  if(sel.t==='street'){const k=sel.id;if(!streetSides().includes(k)){sel=null;return renderProps()}const man=!!streetOffs()[k];
+    b.className='';b.innerHTML=`<div class="propHead"><span class="ib lg" style="--ibc:#8a8780">${badgeSvg('door','#8a8780')}</span><b>${SSN[k]} street${k===P.mainStreetSide?' · main entrance':''}</b></div>
+      <div class="legend" id="streetPosNote">${man?'Placed by hand. It stays where you put it when yards change.':'Placed automatically outside the building and any yard on this side.'} Drag it on the map to move it.</div>
+      <div class="propAct"><button class="btn ghost sm" type="button" id="bStreetReset" ${man?'':'disabled'} title="Go back to automatic placement">Reset position</button></div>`;
+    b.querySelector('#bStreetReset').onclick=()=>{delete streetOffs()[k];render()};return}
     if(sel.t==='yard'){const z=(P.yards||[]).find(y=>y.id===sel.id);if(!z){sel=null;return renderProps()}
     b.className='';b.innerHTML=`<div class="propHead"><span class="ib lg" style="--ibc:#7a9e82">${badgeSvg('window','#7a9e82')}</span><b>${esc(z.name||'Yard')}</b></div>
       ${fld('Name','name',z,'text','placeholder="e.g. Back yard"')}
@@ -1545,7 +1575,7 @@ function applyZoom(){const B=VB0;if(ZV.cx==null){ZV.cx=B.x+B.w/2;ZV.cy=B.y+B.h/2
   ZV.cx=Math.max(B.x+w/2,Math.min(B.x+B.w-w/2,ZV.cx));ZV.cy=Math.max(B.y+h/2,Math.min(B.y+B.h-h/2,ZV.cy));
   VB={x:ZV.cx-w/2,y:ZV.cy-h/2,w,h}}
 function zoomAt(f,p){const k2=Math.max(1,Math.min(10,ZV.k*f));if(k2===ZV.k)return;p=p||{x:ZV.cx,y:ZV.cy};ZV.cx=p.x-(p.x-ZV.cx)*(ZV.k/k2);ZV.cy=p.y-(p.y-ZV.cy)*(ZV.k/k2);ZV.k=k2;render()}
-function focusHouse(){computeVB();VB0={...VB};const k=Math.min(VB0.w/(FOOT.w+26),VB0.h/(FOOT.h+26));ZV={k:Math.max(1,k),cx:FOOT.x+FOOT.w/2,cy:FOOT.y+FOOT.h/2}}
+function focusHouse(){computeVB();VB0={...VB};let a=FOOT.x-13,b=FOOT.y-13,c=FOOT.x+FOOT.w+13,d=FOOT.y+FOOT.h+13;for(const s of streetSides()){const q=streetRect(s);a=Math.min(a,q.x-1);b=Math.min(b,q.y-1);c=Math.max(c,q.x+q.w+1);d=Math.max(d,q.y+q.h+1)}const k=Math.min(VB0.w/(c-a),VB0.h/(d-b));ZV={k:Math.max(1,k),cx:(a+c)/2,cy:(b+d)/2}}
 bZhouse.onclick=()=>{focusHouse();render()};
 bZin.onclick=()=>zoomAt(1.4);bZout.onclick=()=>zoomAt(1/1.4);bZfit.onclick=()=>{ZV={k:1,cx:null,cy:null};render()};
 
@@ -2082,6 +2112,14 @@ function opInfo(o){ // inward normal, both side rooms
   const perim=!!room&&(!other||(RX.garage.test(other.name)!==RX.garage.test(room.name)));
   return {n,t:{x:-n.y,y:n.x},room,other,perim,garageEdge:!!(other&&RX.garage.test(other.name)!==RX.garage.test(room?room.name:'')),side,unsure:/\?/.test(o.name||'')}}
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI;
+// perimeter walls of a box, clockwise; each with direction d, outward normal o, physical side
+function perimWalls(X0,Y0,X1,Y1){const W_=(phys,label,a,b,o)=>{const len=Math.hypot(b.x-a.x,b.y-a.y);return {phys,label,a,b,o,len,d:{x:(b.x-a.x)/len,y:(b.y-a.y)/len}}};
+  if(!(X1-X0>0&&Y1-Y0>0))return [];
+  return [W_('back','Back (top)',{x:X0,y:Y0},{x:X1,y:Y0},{x:0,y:-1}),W_('right','Right',{x:X1,y:Y0},{x:X1,y:Y1},{x:1,y:0}),
+    W_('front','Front (bottom)',{x:X1,y:Y1},{x:X0,y:Y1},{x:0,y:1}),W_('left','Left',{x:X0,y:Y1},{x:X0,y:Y0},{x:-1,y:0})]}
+function inCone(c,x,y){const dx=x-c.x,dy=y-c.y,dd=Math.hypot(dx,dy);if(dd<1e-6)return true;if(dd>c.range+1e-6)return false;let a=Math.atan2(dy,dx)*180/Math.PI-c.rot;a=((a%360)+540)%360-180;return Math.abs(a)<=c.fov/2+.01}
+// sample points (every 0.5 ft) on the wall that no cone covers
+function wallGaps(w,C){const V=C.filter(c=>(c.x-w.a.x)*w.o.x+(c.y-w.a.y)*w.o.y>.05),out=[];/* only cameras outside this wall can see its face */for(let s=0;s<=w.len+1e-6;s+=.5){const x=w.a.x+w.d.x*s,y=w.a.y+w.d.y*s;if(!V.some(c=>inCone(c,x,y)))out.push(s)}return out}
 function bestExt(side,re){const L=(P.exteriors||[]).filter(e=>{const k=sideKey(e.side);return (k==='driveway'?'front':k==='yard'?'back':k)===side});return L.find(e=>re.test((e.watch||'')+' '+e.side))||L[0]||null}
 
 function buildSuggestions(){
@@ -2206,6 +2244,21 @@ function buildSuggestions(){
      const exs=bestExt(lg,/street|drive|yard|wide|area|side/i),s2=exs?suggestCam(exs):null,model=s2&&s2.model&&s2.model!=='D1'?s2.model:'E1';
      const why=s2&&s2.model&&s2.model!=='D1'?`${s2.reason} (from ${exs.side} exterior spot)`:`Second street side → E1 pan/tilt first (${CAMS.E1.fov}° FOV, ${nightFt('E1')} ft night); needs an outlet within ${OUTLET_FT} ft.`;
      camAt(model,pos[0],pos[1],pos[2],`Street-side camera (${SSN[ph]})`,`Corner lot: the ${SSN[ph].toLowerCase()} side also faces a street. ${why}`,{side:lg})}}
+  // perimeter: every exterior wall of the house outline (bounding box of this floor's rooms) inside at least one outdoor cone
+  {const RB=rooms.map(rBox),X0=Math.min(...RB.map(b=>b[0])),Y0=Math.min(...RB.map(b=>b[1])),X1=Math.max(...RB.map(b=>b[2])),Y1=Math.max(...RB.map(b=>b[3]));
+   const mS=P.streetSide||'front',rN={front:0,right:1,back:2,left:3}[mS]||0;
+   const cams=()=>[...ex.filter(i=>i.kind==='cam'&&isOutdoorCam(i)).map(i=>({x:i.x,y:i.y,rot:+i.rot||0,fov:+i.fov||CAMS[i.model].fov,range:+i.range||ftR(CAMS[i.model].nightM)})),
+     ...S.filter(q=>q.kind==='cam'&&isOutdoorCam(q)).map(q=>({x:q.x,y:q.y,rot:+q.rot||0,fov:CAMS[q.model].fov,range:ftR(CAMS[q.model].nightM)}))];
+   const walls=perimWalls(X0,Y0,X1,Y1);
+   for(const w of walls){let C=cams(),miss=wallGaps(w,C);if(!miss.length)continue;
+     const lg=SSIDES[(SSIDES.indexOf(w.phys)-rN+4)%4],exs=bestExt(lg,/wall|side|yard|wide|area|drive|street/i),s2=exs?suggestCam(exs):null;
+     const model=s2&&s2.model&&s2.model!=='D1'&&CAMS[s2.model].env==='Outdoor'?s2.model:'V5P',c=CAMS[model],R=ftR(c.nightM);
+     const why=s2&&model===s2.model?`${s2.reason} (from ${exs.side} exterior spot)`:`V5P bullet (${c.fov}° FOV, ${nightFt(model)} ft night); needs an outlet within ${OUTLET_FT} ft + Wi-Fi.`;
+     const put=(rev,lab)=>{const a=rev?w.b:w.a,d=rev?{x:-w.d.x,y:-w.d.y}:w.d,x=r2(a.x-d.x*.8+w.o.x*.6),y=r2(a.y-d.y*.8+w.o.y*.6);
+       return camAt(model,x,y,Math.atan2(d.y,d.x)*180/Math.PI,`Perimeter camera (${w.label} wall${lab||''})`,`Perimeter: covers the ${w.label.toLowerCase()} wall (~${Math.round(w.len)} ft), corner mount aimed along the wall. ${why}`,{perim:1})};
+     const s1=put(false);C=cams();miss=wallGaps(w,C);
+     if(miss.length){const s3=put(true,', far end');C=cams();miss=wallGaps(w,C);
+       if(miss.length){const ft=Math.round(miss.length*.5);s3.reason+=` About ${ft} ft of this wall is still outside every camera's range (${R} ft at night); add another camera mid-wall or confirm on site.`}}}}
   // indoor: pick among P1 / M1 / R5 from CAMS specs (never F1/T1 indoors)
   const pickIndoor=(r,aim)=>{
     const area=rArea(r),diag=Math.hypot(r.w,r.h),dist=aim?Math.hypot((aim.x||0)-rCx(r),(aim.y||0)-rCy(r)):diag*.55;
@@ -2244,12 +2297,12 @@ function buildSuggestions(){
     const n=add({cat:'Recorder',kind:'nvr',x,y,name:'Add N85 NVR ('+where+')',reason});
     S.filter(s=>s.kind==='cam'&&(CAMS[s.model].poe||NVR_CAMS.includes(s.model))).forEach(s=>(s.deps=s.deps||[]).push(n.sid))}
   // dedupe + de-clutter: drop same-type within 2.5 ft; nudge others apart
-  const out=[];for(const s of S){const key=s.kind+(s.type||s.model||'');if(out.some(o=>o.kind+(o.type||o.model||'')===key&&Math.hypot(o.x-s.x,o.y-s.y)<2.5))continue;out.push(s)}
+  const out=[];for(const s of S){const key=s.kind+(s.type||s.model||'');if(!s.perim&&out.some(o=>o.kind+(o.type||o.model||'')===key&&Math.hypot(o.x-s.x,o.y-s.y)<2.5))continue;out.push(s)}
   const fixed=ex.filter(i=>i.kind!=='opening');
   for(const s of out){const r=inRoomAt(s.x,s.y),outside=s.kind==='cam'&&isOutdoorCam(s);
     const others=()=>[...fixed,...out.filter(o=>o!==s&&out.indexOf(o)<out.indexOf(s))];
     const ok=(x,y)=>others().every(o=>Math.hypot(o.x-x,o.y-y)>=2.1);
-    if(ok(s.x,s.y))continue;let done=false;
+    if(s.perim||ok(s.x,s.y))continue;let done=false;
     for(let rad=1;rad<=6&&!done;rad+=.7)for(let a=0;a<360&&!done;a+=30){let x=s.x+rad*Math.cos(a*Math.PI/180),y=s.y+rad*Math.sin(a*Math.PI/180);
       if(r&&!outside){const [lx,ly]=toL(r,x,y);if(!(lx>=r.x+.8&&lx<=r.x+r.w-.8&&ly>=r.y+.8&&ly<=r.y+r.h-.8))continue}
       if(ok(x,y)){s.x=x;s.y=y;done=true}}}
@@ -2482,7 +2535,7 @@ function bindFloorSel(b,o){const s=b.querySelector('[data-floor-move]');if(!s)re
   if(sel&&sel.t==='room'){for(const k of roomKids(o).list)k.it.floor=v}o.floor=v;const keep=sel;switchFloorRaw(v);focusHouse();sel=keep;render()}}
 function clonePlanSvg(i){
   const c=svg.cloneNode(true);c.removeAttribute('id');c.removeAttribute('aria-label');c.setAttribute('role','img');
-  c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend],[data-measure]').forEach(n=>n.remove());
+  c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend],[data-measure],[data-streethits]').forEach(n=>n.remove());
   c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);
   c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
   return c;
@@ -2639,7 +2692,7 @@ function goStep(n,opt={}){
   document.querySelectorAll('.stepPane').forEach(p=>{p.hidden=+p.dataset.step!==n});
   const walk=document.getElementById('tabWalk'),ext=document.getElementById('tabExterior');
   if(walk)walk.hidden=n!==1;if(ext)ext.hidden=n!==3;
-  if(n!==3&&sel&&sel.t==='yard')sel=null; // yards only editable on Exterior
+  if(n!==3&&sel&&(sel.t==='yard'||sel.t==='street'))sel=null; // yards only editable on Exterior
   trayDockLeft.hidden=false;
   renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();
   if(typeof renderTray==='function')renderTray();
