@@ -236,21 +236,41 @@ body.customer #plan{cursor:grab}
 .floorBar .flx:disabled{opacity:.4;cursor:not-allowed}
 .mapKey{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;padding:6px 10px;font-size:11.5px;color:var(--vy-muted);border-top:1px solid var(--vy-line)}
 /* TEMP: Create quote button (presentation) — remove this whole block later */
-#createQuoteBar{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--vy-line);background:#fafafa}
-#createQuoteBar .cqHint{font:12.5px/1.35 Poppins,sans-serif;color:var(--vy-muted);margin-right:auto}
-#bCreateQuote{font-family:Poppins,sans-serif;font-size:14px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;background:#da0029;color:#fff;border:2px solid #da0029;border-radius:28px;padding:12px 28px;cursor:pointer;line-height:1.1;box-shadow:0 2px 8px rgba(218,0,41,.22)}
-#bCreateQuote:hover{filter:brightness(.95)}
-#bCreateQuote:focus-visible{outline:2px solid #da0029;outline-offset:3px}
-body.customer #createQuoteBar{display:none!important}
-@media print{#createQuoteBar{display:none!important}}
-@media (max-width:900px){
-  #createQuoteBar{justify-content:center;padding:10px 12px}
-  #createQuoteBar .cqHint{width:100%;margin:0 0 2px;text-align:center}
-  #bCreateQuote{width:100%;max-width:420px;text-align:center}
+.stepPill.tempQuote,#bCreateQuote.stepPill{
+  border-color:var(--vy-red);
+  background:#fff5f6;
+  color:var(--vy-red);
+  font-weight:600;
+  cursor:default;
 }
+.stepPill.tempQuote:hover,#bCreateQuote.stepPill:hover{
+  border-color:var(--vy-red);
+  background:#ffecef;
+  color:var(--vy-red);
+}
+.stepPill.tempQuote .sn,#bCreateQuote.stepPill .sn{
+  background:var(--vy-red);
+  color:#fff;
+}
+.stepPill.tempQuote:focus-visible,#bCreateQuote.stepPill:focus-visible{
+  outline:2px solid #da0029;outline-offset:2px;
+}
+body.customer #bCreateQuote{display:none!important}
+@media print{#bCreateQuote{display:none!important}}
 /* /TEMP: Create quote button (presentation) */
 .mapKey span,.fpKey span{display:inline-flex;align-items:center;gap:5px}
 body.customer .team-only{display:none!important}
+
+/* Exterior yards */
+.yardZoneFill{fill:#cfe8d4;fill-opacity:.28;stroke:#7a9e82;stroke-width:.1;stroke-dasharray:.4 .25}
+.yardZoneFill.on{fill:#b7dcc0;fill-opacity:.5;stroke:#da0029;stroke-width:.2;stroke-dasharray:none}
+.yardPill{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}
+.yardPill .btn{margin:0}
+.ssPills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.ssPill{font:500 11px Poppins,sans-serif;letter-spacing:.8px;text-transform:uppercase;border:2px solid var(--vy-line);background:#fff;color:var(--vy-ink);border-radius:20px;padding:7px 12px;cursor:pointer}
+.ssPill.on{border-color:var(--vy-red);background:#fff5f6;color:var(--vy-red)}
+.ssPill.main{box-shadow:inset 0 0 0 1px var(--vy-red)}
+
 .warnBox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--warnbg);border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:3px;padding:7px 9px;margin:0 0 8px;font-size:12.5px;color:#78350f}
 .warnBox span{flex:1;min-width:150px}
 .warnBox.note{background:var(--notebg);border-color:#bfdbfe;border-left-color:var(--note);color:#1e3a8a}
@@ -359,8 +379,8 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
 .walkDetails[open]>summary::before{content:'▾'}
 
 /* ---- guided steps ---- */
-.stepBar{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 10px;margin-bottom:4px;border-bottom:1px solid var(--vy-line);max-width:100%;min-width:0}
-.stepPill{display:inline-flex;align-items:center;gap:6px;font:500 11px Poppins,sans-serif;letter-spacing:.4px;background:#fff;color:var(--vy-btn-outline);border:1.5px solid var(--vy-btn-outline);border-radius:999px;padding:5px 11px;cursor:pointer;line-height:1.2;white-space:nowrap}
+.stepBar{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:6px;padding:2px 0 10px;margin-bottom:4px;border-bottom:1px solid var(--vy-line);max-width:100%;min-width:0}
+.stepPill{display:flex;align-items:center;gap:6px;width:100%;box-sizing:border-box;font:500 11px Poppins,sans-serif;letter-spacing:.4px;background:#fff;color:var(--vy-btn-outline);border:1.5px solid var(--vy-btn-outline);border-radius:999px;padding:5px 11px;cursor:pointer;line-height:1.2;white-space:nowrap;justify-content:flex-start;text-align:left}
 .stepPill:hover,.stepPill:focus-visible{border-color:var(--vy-red);color:var(--vy-red);background:#fff5f6;outline:none}
 .stepPill.on{background:var(--vy-red);border-color:var(--vy-red);color:#fff}
 .stepPill.done:not(.on){border-color:var(--vy-red);color:var(--vy-red)}
@@ -387,7 +407,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
 @media (pointer:coarse) and (max-width:1366px),(max-width:900px){
   .stepPill{padding:9px 12px;font-size:12px}
   .stepPill .sn{min-width:22px;height:22px;font-size:11px}
-  .stepBar{gap:8px;flex-wrap:wrap;max-width:100%;padding-bottom:8px}
+  .stepBar{gap:8px;flex-direction:column;flex-wrap:nowrap;align-items:stretch;max-width:100%;padding-bottom:8px}
   aside.card{max-width:100%;min-width:0;overflow-x:hidden}
   .stepNav{max-width:100%}
 }
@@ -478,7 +498,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
           <div id="openMissing" style="margin-top:6px"></div>
         </div>
       </div>
-      <div class="stepPane" data-step="3" id="stepDev" hidden>
+      <div class="stepPane" data-step="4" id="stepDev" hidden>
         <div class="sub">Alarm devices</div>
         <span class="sugGateWrap block" id="wrapSuggestStepDev"><button class="btn sm" id="bSuggestStepDev" type="button" style="width:100%;margin-bottom:8px" title="Propose alarm devices from the rooms, doors and windows" aria-describedby="sugGateTip">Suggest devices</button></span>
         <div class="pal" id="palAlarm"></div>
@@ -490,25 +510,22 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <div class="legend">Marks a condition found on the walkthrough. Metal and concrete walls are drawn as a line you can fit along the wall.</div>
         <div class="stepMore"><button type="button" id="bOpenGuideDev">Placement guidelines</button></div>
       </div>
-      <div class="stepPane" data-step="4" id="stepCam" hidden>
-        <div class="sub">Vyanet cameras</div>
-        <span class="sugGateWrap block" id="wrapSuggestStepCam"><button class="btn sm" id="bSuggestStepCam" type="button" style="width:100%;margin-bottom:8px" title="Propose cameras and an N85 from the plan" aria-describedby="sugGateTip">Suggest cameras</button></span>
-        <div class="pal" id="palCam"></div>
-        <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
-        <div id="tabExterior">
-      <div class="sub">Street side</div>
-      <div class="compass">
-        <label class="f" style="margin:0">Which sides face a street</label>
+            <div class="stepPane" data-step="3" id="stepExt" hidden>
+        <div class="sub">Street side</div>
+        <div class="legend">Tap every side with a street (corner lots can have two). The main entrance side sets which way is Front.</div>
         <div class="ssBox" id="streetBox" role="group" aria-label="Street sides"></div>
-        <div class="legend" style="margin:4px 0 0">Tick every side with a street (corner lots). The main entrance side sets the front, the driveway and which way the map faces.</div>
         <select id="streetSide" hidden>
           <option value="front">Front (bottom)</option>
           <option value="back">Back (top)</option>
           <option value="left">Left</option>
           <option value="right">Right</option>
         </select>
-      </div>
-      <div class="sub">Add exterior photo / frame</div>
+        <div class="sub">Yards</div>
+        <div class="legend">Mark the front, back and side yards around the house. Front yard faces the street.</div>
+        <button class="btn sm" id="bYardsAdd" type="button" style="width:100%;margin-bottom:6px">Add yards</button>
+        <div class="pal" id="palYards"></div>
+        <div id="tabExterior">
+<div class="sub">Add exterior photo / frame</div>
       <input type="file" id="extFile" accept="image/*,video/*" hidden>
       <div class="row2" style="margin-bottom:6px">
         <button class="btn soft sm" id="bExtPhoto" type="button">Photo</button>
@@ -522,9 +539,17 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <div class="sub">Exterior spots</div>
       <div class="extList" id="extList"></div>
       <canvas id="vidCanvas" style="display:none"></canvas>
-    </div>
+    
+        </div>
       </div>
-      <div class="stepPane" data-step="5" id="stepReview" hidden>
+      <div class="stepPane" data-step="5" id="stepCam" hidden>
+        <div class="sub">Vyanet cameras</div>
+        <span class="sugGateWrap block" id="wrapSuggestStepCam"><button class="btn sm" id="bSuggestStepCam" type="button" style="width:100%;margin-bottom:8px" title="Propose cameras and an N85 from the plan" aria-describedby="sugGateTip">Suggest cameras</button></span>
+        <div class="pal" id="palCam"></div>
+        <div class="sub">Recorder</div><div class="pal" id="palRec"></div>
+        <div class="legend">Street side, yards and exterior photos are in the <b>Exterior</b> step.</div>
+      </div>
+<div class="stepPane" data-step="6" id="stepReview" hidden>
         <div class="sub">Review &amp; send</div>
         <div class="stepSummary" id="stepSummary"></div>
         <div class="stepActions">
@@ -581,12 +606,6 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       <div class="extDock yard" data-dock="yard"></div>
     </div>
     <div class="mapKey" id="mapKey"></div>
-    <!-- TEMP: Create quote button (presentation) — remove this whole block later -->
-    <div class="edit-only no-print" id="createQuoteBar" data-temp="create-quote">
-      <span class="cqHint">Ready for pricing?</span>
-      <button class="btn" id="bCreateQuote" type="button" title="Create quote (presentation)">Create quote</button>
-    </div>
-    <!-- /TEMP: Create quote button (presentation) -->
   </div>
 
   <aside style="display:grid;gap:12px">
@@ -693,9 +712,9 @@ const camModelLabel=it=>it.model==='R5'?(it.variant==='B'?'R5B':'R5W'):it.model;
 const nightFt=m=>ftR(CAMS[m].nightM);
 
 let P=blank(), sel=null, uid=1, selExt=null;
-function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],walk:[],streetSide:'front',step:1,job:{customer:'',address:'',account:'',date:'',tech:''}}}
+function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],yards:[],walk:[],streetSide:'front',step:1,stepVer:6,job:{customer:'',address:'',account:'',date:'',tech:''}}}
 const nid=p=>p+(uid++);
-function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.walk||[]),...(P.floors||[]),...(P.issues||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
+function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.yards||[]),...(P.walk||[]),...(P.floors||[]),...(P.issues||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
 function store(){if(QUIET)return;clearTimeout(asT);asT=setTimeout(autosave,700);scheduleHist()}
 
 function mkItem(kind,type,x,y){
@@ -743,9 +762,9 @@ document.querySelectorAll('#leftTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x===b));
   if(t==='guide'){showGuidePanel();return}
   tabGuide.hidden=true;tabDevices.hidden=false;
-  if(t==='devices')goStep(3,{fromTab:1});
+  if(t==='devices')goStep(4,{fromTab:1});
   else if(t==='walk')goStep(1,{fromTab:1,focusWalk:1});
-  else if(t==='exterior')goStep(4,{fromTab:1,focusExt:1});
+  else if(t==='exterior')goStep(3,{fromTab:1,focusExt:1});
   else goStep(1,{fromTab:1});
 });
 
@@ -757,11 +776,68 @@ const SSIDES=['front','right','back','left'],SSL={front:'Front (bottom)',right:'
 function streetSides(){const m=SSIDES.includes(P.mainStreetSide)?P.mainStreetSide:SSIDES.includes(P.streetSide)?P.streetSide:'front';
   let a=Array.isArray(P.streetSides)?P.streetSides.filter(x=>SSIDES.includes(x)):[];if(!a.includes(m))a.push(m);a=SSIDES.filter(x=>a.includes(x));
   P.streetSides=a;P.mainStreetSide=m;P.streetSide=m;return a}
-streetBox.innerHTML=SSIDES.map(k=>`<div class="ssRow"><label><input type="checkbox" data-ss="${k}"> ${SSL[k]}</label><label class="ssMain" title="Main / front entrance side"><input type="radio" name="ssMain" data-ssm="${k}"> Main entrance</label></div>`).join('');
-streetBox.querySelectorAll('[data-ss]').forEach(c=>c.onchange=()=>{const k=c.dataset.ss,a=streetSides();if(c.checked){if(!a.includes(k))P.streetSides=SSIDES.filter(x=>x===k||a.includes(x))}else if(k!==P.mainStreetSide)P.streetSides=a.filter(x=>x!==k);render()});
-streetBox.querySelectorAll('[data-ssm]').forEach(c=>c.onchange=()=>{if(!c.checked)return;const k=c.dataset.ssm,a=streetSides();P.mainStreetSide=P.streetSide=k;if(!a.includes(k))P.streetSides=SSIDES.filter(x=>x===k||a.includes(x));render()});
-function renderStreetBox(){const a=streetSides();streetBox.querySelectorAll('[data-ss]').forEach(c=>{c.checked=a.includes(c.dataset.ss);c.disabled=c.dataset.ss===P.mainStreetSide;c.title=c.disabled?'The main entrance side always faces a street':''});
-  streetBox.querySelectorAll('[data-ssm]').forEach(c=>c.checked=c.dataset.ssm===P.mainStreetSide)}
+streetBox.innerHTML=`<div class="ssPills" role="group" aria-label="Street sides">${SSIDES.map(k=>`<button type="button" class="ssPill" data-ss="${k}" aria-pressed="false">${SSL[k]}</button>`).join('')}</div>
+  <div class="legend" style="margin-top:4px">Tap a side to mark a street. Long-press or use Main to set the front entrance (Front yard faces it).</div>
+  <div class="ssPills" id="ssMainRow">${SSIDES.map(k=>`<button type="button" class="ssPill" data-ssm="${k}" title="Set as main / front entrance">Main: ${SSL[k].split(" ")[0]}</button>`).join('')}</div>`;
+streetBox.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const k=b.dataset.ss,a=streetSides();
+  if(a.includes(k)){if(k!==P.mainStreetSide)P.streetSides=a.filter(x=>x!==k)}
+  else P.streetSides=SSIDES.filter(x=>x===k||a.includes(x));
+  render()});
+streetBox.querySelectorAll('[data-ssm]').forEach(b=>b.onclick=()=>{const k=b.dataset.ssm,a=streetSides();P.mainStreetSide=P.streetSide=k;if(!a.includes(k))P.streetSides=SSIDES.filter(x=>x===k||a.includes(x));render()});
+function renderStreetBox(){const a=streetSides();streetBox.querySelectorAll('[data-ss]').forEach(b=>{const on=a.includes(b.dataset.ss),main=b.dataset.ss===P.mainStreetSide;
+  b.classList.toggle('on',on);b.classList.toggle('main',main);b.setAttribute('aria-pressed',on?'true':'false');
+  b.title=main?'Main entrance side (always a street)':'Toggle street on this side'});
+  streetBox.querySelectorAll('[data-ssm]').forEach(b=>{b.classList.toggle('on',b.dataset.ssm===P.mainStreetSide);b.classList.toggle('main',b.dataset.ssm===P.mainStreetSide)})}
+
+// ---- yards (labeled zones around the house) ----
+const YARD_LABEL={front:'Front yard',back:'Back yard',left:'Left side yard',right:'Right side yard',driveway:'Driveway'};
+function yardBand(phys,depth){
+  const F=FOOT,d=depth||10;
+  if(phys==='front')return {x:F.x-1,y:F.y+F.h,w:F.w+2,h:d};
+  if(phys==='back')return {x:F.x-1,y:F.y-d,w:F.w+2,h:d};
+  if(phys==='left')return {x:F.x-d,y:F.y,w:d,h:F.h};
+  if(phys==='right')return {x:F.x+F.w,y:F.y,w:d,h:F.h};
+  if(phys==='driveway'){const st=P.streetSide||'front';const b=yardBand(st,d+2);b.w=14;b.x=(st==='left'||st==='right')?b.x:F.x+F.w*.18;if(st==='left'||st==='right'){b.h=14;b.y=F.y+F.h*.2}return b}
+  return {x:F.x,y:F.y,w:10,h:10};
+}
+function addYard(phys,name){
+  if(!P.yards)P.yards=[];
+  const b=yardBand(phys), nm=name||YARD_LABEL[phys]||'Yard';
+  if(P.yards.some(y=>y.side===phys||y.name===nm))return null;
+  const y={id:nid('y'),name:nm,side:phys,x:r2(b.x),y:r2(b.y),w:r2(b.w),h:r2(b.h)};
+  P.yards.push(y);return y;
+}
+function addYardsAuto(){
+  if(!P.yards)P.yards=[];
+  const street=P.streetSide||'front', rotN={front:0,right:1,back:2,left:3}[street]||0;
+  const physOrder=['front','right','back','left'], labels=['Front yard','Right side yard','Back yard','Left side yard'];
+  for(let i=0;i<4;i++){const phys=physOrder[(i+rotN)%4];addYard(phys,labels[i])}
+  addYard('driveway','Driveway');
+  render();
+}
+function yardAt(x,y){let best=null;for(const z of (P.yards||[])){if(x>=z.x&&x<=z.x+z.w&&y>=z.y&&y<=z.y+z.h){if(!best||z.w*z.h<best.w*best.h)best=z}}return best}
+function yardCovering(it){return yardAt(it.x,it.y)}
+function drawYardZones(PR){
+  const ys=P.yards||[]; if(!ys.length)return;
+  const g=el('g',{'data-yards':1},svg);
+  for(const z of ys){
+    const on=sel&&sel.t==='yard'&&sel.id===z.id;
+    const gg=el('g',{'data-yard':z.id,style:CUST()||PR?'pointer-events:none':'cursor:move'},g);
+    el('rect',{x:z.x,y:z.y,width:z.w,height:z.h,class:on?'yardZoneFill on':'yardZoneFill','data-yardhit':z.id},gg);
+    const t=el('text',{x:z.x+z.w/2,y:z.y+Math.min(2.2,z.h*.35),'font-size':1.05,'text-anchor':'middle',fill:on?'#da0029':'#5a735f','font-weight':600,style:'pointer-events:none','paint-order':'stroke',stroke:'#fff','stroke-width':.35},gg);
+    t.textContent=z.name||'Yard';
+    if(on&&!PR&&!CUST()){const hs=Math.max(1.2,HS()*.7);
+      for(const [side,cx,cy] of [['nw',z.x,z.y],['ne',z.x+z.w,z.y],['sw',z.x,z.y+z.h],['se',z.x+z.w,z.y+z.h]])
+        el('rect',{x:cx-hs/2,y:cy-hs/2,width:hs,height:hs,fill:'#fff',stroke:'#da0029','stroke-width':.14,'data-ysize':z.id+':'+side,style:'cursor:nwse-resize'},gg);
+    }
+  }
+}
+function renderYardPal(){
+  const host=document.getElementById('palYards'); if(!host)return;
+  const sides=[['front','Front yard'],['back','Back yard'],['left','Left side'],['right','Right side'],['driveway','Driveway']];
+  host.innerHTML=sides.map(([k,l])=>`<button type="button" data-yardadd="${k}"><span class="ic"><span class="ib lg" style="background:#7a9e82;border-radius:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/></svg></span></span><span>${l}<small>Add if missing</small></span></button>`).join('');
+  host.querySelectorAll('[data-yardadd]').forEach(b=>b.onclick=()=>{const y=addYard(b.dataset.yardadd);if(y){sel={t:'yard',id:y.id};render()}else{const ex=(P.yards||[]).find(z=>z.side===b.dataset.yardadd);if(ex){sel={t:'yard',id:ex.id};render()}}});
+}
 
 // ---- exterior ----
 function newExt(side,dataUrl,name){
@@ -872,7 +948,7 @@ function renderExtList(){
   for(const ex of P.exteriors){
     const s=suggestCam(ex);
     const d=document.createElement('div'); d.className='extCard'+(selExt===ex.id?' on':'');
-    d.innerHTML=`<img src="${ex.dataUrl}" alt=""><div style="margin-top:4px"><b>${esc(ex.side)}</b> · ${esc(ex.name)}</div>
+    d.innerHTML=`${ex.dataUrl?`<img src="${ex.dataUrl}" alt="">`:`<div class="extPh" style="height:72px;background:#eef1ea;border-radius:6px;display:grid;place-items:center;color:#6a7568;font-size:12px">No photo</div>`}<div style="margin-top:4px"><b>${esc(ex.side)}</b> · ${esc(ex.name||"")}</div>
       <div class="legend">${esc(ex.watch)} · ${esc(ex.distance)} ft · ${esc(ex.power)}</div>
       <div class="suggest"><span class="chip">${esc(s.model||'?')}</span><div class="why">${esc(s.reason)}${s.warn?' '+esc(s.warn):''}</div>
       <button class="btn sm" data-place type="button">Place on plan</button>
@@ -911,6 +987,7 @@ function computeVB(){
   if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam'&&isOutdoorCam(i))){
     const a=it.rot*Math.PI/180,h=it.fov/2*Math.PI/180;for(let k=0;k<=12;k++){const t=a-h+2*h*k/12,px=it.x+it.range*Math.cos(t),py=it.y+it.range*Math.sin(t);x0=Math.min(x0,px);y0=Math.min(y0,py);x1=Math.max(x1,px);y1=Math.max(y1,py)}}
   for(const r of FR()){const b=rBox(r);x0=Math.min(x0,b[0]-6);y0=Math.min(y0,b[1]-6);x1=Math.max(x1,b[2]+6);y1=Math.max(y1,b[3]+10)}
+  for(const z of (P.yards||[])){x0=Math.min(x0,z.x-2);y0=Math.min(y0,z.y-2);x1=Math.max(x1,z.x+z.w+2);y1=Math.max(y1,z.y+z.h+2)}
   const U=P.underlay;if(U&&U.src&&(!CUST()||U.showCustomer)){const cx=U.x+U.w/2,cy=U.y+U.h/2,r=(U.rot||0)%180?[U.h/2,U.w/2]:[U.w/2,U.h/2];x0=Math.min(x0,cx-r[0]);x1=Math.max(x1,cx+r[0]);y0=Math.min(y0,cy-r[1]);y1=Math.max(y1,cy+r[1])}
   const pad=2;VB={x:Math.floor(x0-pad*(x0<0)),y:Math.floor(y0-pad*(y0<0)),w:0,h:0};VB.w=Math.ceil(x1+pad*(x1>W))-VB.x;VB.h=Math.ceil(y1+pad*(y1>H))-VB.y;
 }
@@ -932,11 +1009,11 @@ function drawYard(){
   for(const k of SSs){const lp=lpS[k],v=k==='left'||k==='right',lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15,...(v?{transform:`rotate(${k==='left'?-90:90} ${lp[0]} ${lp[1]})`}:{})},g);lt.textContent=SSs.length>1&&k===street?'STREET · MAIN ENTRANCE':'STREET'}
 }
 function render(){
-  if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];
+  if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];if(!P.yards)P.yards=[];
   streetSides();renderStreetBox();streetSide.value=P.streetSide||'front';
   CHK=checks();
   drawPlan();
-  bDel.disabled=bDup.disabled=!sel;
+  bDel.disabled=!sel;bDup.disabled=!sel||sel.t==='yard'||sel.t==='issue';
   bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
   renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();
   renderFloors();renderModeUI();renderMapKey();renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();schedulePF();store();
@@ -945,7 +1022,7 @@ function drawPlan(opt={}){
   const PR=!!opt.print;
   if(drag&&drag.vb0&&!PR){VB0={...drag.vb0}}else{computeVB();VB0={...VB}}applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   svg.innerHTML='';
-  drawYard();
+  drawYard();drawYardZones(PR);
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6'},g)}
   drawUnderlay();
   for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const cx=r.x+r.w/2,cy=r.y+r.h/2,A=RA(r),la=labelAng(r);
@@ -1037,6 +1114,8 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   const ie=t.getAttribute('data-iend'),isg=t.closest('[data-issue]');
   if(ie||isg){if(ie){const [id,k]=ie.split(':');drag={m:'iend',o:P.issues.find(i=>i.id===id),k}}else{const o=P.issues.find(i=>i.id===isg.dataset.issue);sel={t:'issue',id:o.id};drag={m:'imove',o,dx:p.x-o.x,dy:p.y-o.y,x0:o.x,y0:o.y,x2:o.x2,y2:o.y2,sx:e.clientX,sy:e.clientY,moved:0}}
     svg.setPointerCapture(e.pointerId);drag.vb0={...VB0};render();return}
+  const ys_=t.getAttribute('data-ysize');if(ys_){const [id,corner]=ys_.split(':'),o=(P.yards||[]).find(z=>z.id===id);if(o){sel={t:'yard',id:o.id};drag={m:'ysize',o,corner,x0:o.x,y0:o.y,w0:o.w,h0:o.h,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}}
+  const yg=t.closest('[data-yard]');if(yg&&!t.closest('[data-item],[data-room]')){const o=(P.yards||[]).find(z=>z.id===yg.dataset.yard);if(o){sel={t:'yard',id:o.id};drag={m:'ymove',o,dx:p.x-o.x,dy:p.y-o.y,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}}
   const rot_=t.getAttribute('data-rotate');if(rot_){const o=P.rooms.find(r=>r.id===rot_),cx=o.x+o.w/2,cy=o.y+o.h/2;drag={m:'rot',o,cx,cy,a0:Math.atan2(p.y-cy,p.x-cx)*180/Math.PI,r0:+o.rot||0,kids:e.altKey?null:roomKids(o),vb0:{...VB0}};svg.setPointerCapture(e.pointerId);render();return}
   const edge_=t.getAttribute('data-edge'),edgeHit=edge_?stackAt(e).find(k=>k.t==='item'):null;
   if(edge_&&!edgeHit){const [id,side]=edge_.split(':'),o=P.rooms.find(r=>r.id===id),A=RA(o);
@@ -1061,6 +1140,11 @@ svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   else {drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0,desel:true}}
   svg.setPointerCapture(e.pointerId);if(drag.m!=='pan'){drag.vb0={...VB0};render()}});
 svg.addEventListener('pointermove',e=>{if(!drag)return;
+  if(drag.m==='ymove'){const p=pt(e);drag.o.x=snap(p.x-drag.dx);drag.o.y=snap(p.y-drag.dy);render();return}
+  if(drag.m==='ysize'){const p=pt(e),o=drag.o,c=drag.corner;let x=drag.x0,y=drag.y0,w=drag.w0,h=drag.h0;
+    if(c.includes('e'))w=Math.max(4,snap(p.x-drag.x0)); if(c.includes('s'))h=Math.max(4,snap(p.y-drag.y0));
+    if(c.includes('w')){w=Math.max(4,snap(drag.x0+drag.w0-p.x));x=drag.x0+drag.w0-w} if(c.includes('n')){h=Math.max(4,snap(drag.y0+drag.h0-p.y));y=drag.y0+drag.h0-h}
+    o.x=x;o.y=y;o.w=w;o.h=h;render();return}
   if(drag.m==='pan'){const sc=VB.w/svg.clientWidth,dx=(e.clientX-drag.sx)*sc,dy=(e.clientY-drag.sy)*sc;drag.moved=Math.max(drag.moved,Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy));if(drag.moved<3)return;ZV.cx=drag.cx-dx;ZV.cy=drag.cy-dy;render();return}
   const p=pt(e),o=drag.o,snap=v=>Math.round(v*2)/2,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   if(drag.m==='ul'){o.x=Math.round((p.x-drag.dx)*4)/4;o.y=Math.round((p.y-drag.dy)*4)/4;render();return}
@@ -1104,9 +1188,9 @@ document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.te
   if(CUST())return;
   const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
-function delSel(){if(!sel)return;if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
+function delSel(){if(!sel)return;if(sel.t==='yard'){P.yards=(P.yards||[]).filter(y=>y.id!==sel.id);sel=null;render();return}if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
 bDel.onclick=delSel;
-bDup.onclick=()=>{if(!sel)return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
+bDup.onclick=()=>{if(!sel)return;if(sel.t==='yard')return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
 cCones.onchange=cGrid.onchange=cView.onchange=render;
 
 // ---- properties ----
@@ -1138,6 +1222,14 @@ function renderProps(){
   if(!sel){b.className='empty';b.innerHTML='Select something on the plan.';return}
   b.className='';let h='';
   if(sel.t==='issue'){renderIssueProps(b);return}
+    if(sel.t==='yard'){const z=(P.yards||[]).find(y=>y.id===sel.id);if(!z){sel=null;return renderProps()}
+    b.className='';b.innerHTML=`<div class="propHead"><span class="ib lg" style="--ibc:#7a9e82">${badgeSvg('window','#7a9e82')}</span><b>${esc(z.name||'Yard')}</b></div>
+      ${fld('Name','name',z,'text','placeholder="e.g. Back yard"')}
+      ${selFld('Side','side',z,[['front','Front'],['back','Back'],['left','Left'],['right','Right'],['driveway','Driveway']])}
+      <div class="row2"><div>${fld('Width (ft)','w',z,'number','min=4 step=0.5')}</div><div>${fld('Depth (ft)','h',z,'number','min=4 step=0.5')}</div></div>
+      <div class="legend">Drag the yard to move it, or the corners to resize. Front yard faces the street.</div>
+      <div class="propAct"><button class="btn sm" type="button" data-pdel>Delete yard</button></div>`;
+    bind(b,z);propActs(b);return}
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
     h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`+
       `<label class="f">Rotation (°)</label><div class="rotRow"><button class="btn ghost sm" type="button" data-rot="-90" title="Rotate 90° left (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees left">⟲ 90°</button><input type="number" data-rotdeg step="1" value="${r2(n360(+r.rot||0))}" aria-label="Room angle in degrees"><button class="btn ghost sm" type="button" data-rot="90" title="Rotate 90° right (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees right">⟳ 90°</button></div>`;
@@ -1157,7 +1249,7 @@ function renderProps(){
     h=`<div class="propHead">${photoTag(it,'ph lg')}<b>Vyanet ${esc(c.name.replace(/^R5W \/ R5B/,camModelLabel(it)))}</b></div><div class="legend">${c.env} · ${c.power}${c.pt?' · pan/tilt':''} · spec ${c.fov}° HFOV · ${c.nightM} m (${ftR(c.nightM)} ft) night range</div>`;
     h+=fld('Camera #','num',it,'number','min=1 step=1');
     if(c.variant)h+=selFld('Color','variant',it,[['W','White (R5W)'],['B','Black (R5B)']]);
-    h+=fld('Location','location',it,'text','placeholder="e.g. Over garage door"')+ro('Room (from plan)',room);
+    h+=fld('Location','location',it,'text','placeholder="e.g. Over garage door"')+ro('Room (from plan)',room)+(isOutdoorCam(it)?ro('Yard (from plan)',(yardCovering(it)||{}).name||'—'):'');
     h+=`<div class="row2"><div>${fld('Aim (°)','rot',it,'number','min=0 max=359 step=1')}</div><div>${fld('Cone angle (°)','fov',it,'number','min=10 max=180 step=0.1')}</div></div>`;
     h+=fld('Cone range (ft)','range',it,'number','min=1 step=0.1');
     h+=c.noNvr?ro('Records to','Local (the S2 doesn’t work with the N85)')+(it.rec==='N85'?selFld('Records to (fix)','rec',it,[['Local','Local'],['N85','N85 — not supported']]):''):selFld('Records to','rec',it,[['N85','N85 NVR'],['Local','Local']]);
@@ -1235,7 +1327,7 @@ bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(CCOLS,camRows()),'text/csv'
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];normalizeP();if(!(P.step>=1&&P.step<=5))P.step=defaultStepFor(P);lastMode=null;floorKey='';pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render();goStep(curStep())}
+function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const b=blank();P=Object.assign(b,p);P.job=Object.assign(blank().job,p.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];normalizeP();migrateStep(P);if(!(P.step>=1&&P.step<=STEP_MAX))P.step=defaultStepFor(P);lastMode=null;floorKey='';pname.value=P.name;sel=null;selExt=null;syncUid();fillJob();focusHouse();render();goStep(curStep())}
 bNew.onclick=()=>{if(confirm('Start a new empty project? The current plan stays under Recent.')){autosave();load(blank());askMode()}};
 bDemo.onclick=()=>{if(!P.items.length||confirm('Replace the current plan with the demo project? The current plan stays under Recent.')){autosave();load(demo())}};
 bSave.onclick=()=>dl(slug()+'.vyplan.json',JSON.stringify(P,null,1),'application/json');
@@ -1243,7 +1335,7 @@ bOpen.onclick=()=>fOpen.click();
 fOpen.onchange=()=>{const f=fOpen.files[0];if(!f)return;f.text().then(t=>{try{const p=JSON.parse(t);if(!Array.isArray(p.items)||!Array.isArray(p.rooms))throw 0;autosave();load(p)}catch(e){alert('That file is not a planner project.')}});fOpen.value=''};
 
 function demo(){
-  uid=1;const p={pid:'demo',name:'Demo — 214 Maple Ct',rooms:[],items:[],exteriors:[],streetSide:'front'};
+  uid=1;const p={pid:'demo',name:'Demo — 214 Maple Ct',rooms:[],items:[],exteriors:[],yards:[],streetSide:'front',stepVer:6};
   const R=(name,x,y,w,h)=>p.rooms.push({id:nid('r'),name,x,y,w,h});
   // rooms inside footprint (20,18)-(80,52)
   R('Garage',22,20,18,16);R('Kitchen',40,20,18,14);R('Primary Bedroom',58,20,20,14);
@@ -1339,7 +1431,7 @@ bZin.onclick=()=>zoomAt(1.4);bZout.onclick=()=>zoomAt(1/1.4);bZfit.onclick=()=>{
 const H_=[],R_=[];let hTimer=null,lastSnap=null,restoring=false;
 function scheduleHist(){if(restoring||drag)return;clearTimeout(hTimer);const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&!/^(checkbox|file|button)$/.test(ae.type))hTimer=setTimeout(pushHist,350);else pushHist()}
 function pushHist(){clearTimeout(hTimer);const s=JSON.stringify(P);if(s===lastSnap)return;if(lastSnap!==null){H_.push(lastSnap);if(H_.length>50)H_.shift();R_.length=0}lastSnap=s;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
-function restore(s){restoring=true;P=JSON.parse(s);pname.value=P.name;if(sel&&!(sel.t==='room'?P.rooms:sel.t==='issue'?(P.issues||[]):P.items).some(o=>o.id===sel.id))sel=null;if(selExt&&!P.exteriors.some(x=>x.id===selExt))selExt=null;syncUid();fillJob();render();restoring=false;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
+function restore(s){restoring=true;P=JSON.parse(s);pname.value=P.name;if(sel&&!(sel.t==='room'?P.rooms:sel.t==='yard'?(P.yards||[]):sel.t==='issue'?(P.issues||[]):P.items).some(o=>o.id===sel.id))sel=null;if(selExt&&!P.exteriors.some(x=>x.id===selExt))selExt=null;syncUid();fillJob();render();restoring=false;bUndo.disabled=!H_.length;bRedo.disabled=!R_.length}
 function undo(){pushHist();if(!H_.length)return;R_.push(lastSnap);lastSnap=H_.pop();restore(lastSnap)}
 function redo(){pushHist();if(!R_.length)return;H_.push(lastSnap);lastSnap=R_.pop();restore(lastSnap)}
 bUndo.onclick=undo;bRedo.onclick=redo;
@@ -1389,6 +1481,7 @@ function legendEntries(floorId){
   if(iss.some(s=>s.type==='metal'))out.push({html:`<svg width="18" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#334155"/></svg>`,label:'Metal wall'});
   if(iss.some(s=>s.type==='concrete'))out.push({html:`<svg width="18" height="10" viewBox="0 0 30 10" aria-hidden="true"><rect y="2" width="30" height="6" fill="#78716c"/></svg>`,label:'Concrete'});
   if(streetSides().length)out.push({html:`<span class="sw" style="background:#c5c2bb;color:#2e2f2a;font-size:7px">ST</span>`,label:'Street'});
+  if((P.yards||[]).length)out.push({html:`<span class="sw" style="background:#cfe8d4;border:1px solid #7a9e82;color:#5a735f;font-size:7px">Y</span>`,label:'Yard'});
   return out;
 }
 function legendHtml(floorId){
@@ -2359,17 +2452,26 @@ function applyFix(code,id){const it=P.items.find(i=>i.id===id);if(!it)return;con
 const STEPS=[
   {id:1,label:'Floor plan',hint:'Draw rooms or upload a floor plan image, then set the scale.'},
   {id:2,label:'Doors & windows',hint:'Add every door and window so contacts and coverage can be checked.'},
-  {id:3,label:'Devices',hint:'Tap Suggest devices or drag your own from the list.'},
-  {id:4,label:'Cameras',hint:'Tap Suggest cameras or drag Vyanet cameras, and tag exterior photos by side.'},
-  {id:5,label:'Review & send',hint:'Check the summary, then share the customer view, PDF, or lists.'}
+  {id:3,label:'Exterior',hint:'Choose the street side(s), mark yards, and tag exterior photos.'},
+  {id:4,label:'Devices',hint:'Tap Suggest devices or drag your own from the list.'},
+  {id:5,label:'Cameras',hint:'Tap Suggest cameras or drag Vyanet cameras onto the plan.'},
+  {id:6,label:'Review & send',hint:'Check the summary, then share the customer view, PDF, or lists.'}
 ];
-function curStep(){const n=+P.step||0;return (n>=1&&n<=5)?n:1}
+const STEP_MAX=6;
+function migrateStep(p){
+  // Old 5-step projects: Devices/Cameras/Review were 3/4/5 → now 4/5/6.
+  if(!p||p.stepVer>=6)return;
+  const n=+p.step||0; if(n>=3&&n<=5)p.step=n+1;
+  p.stepVer=6;
+}
+function curStep(){const n=+P.step||0;return (n>=1&&n<=STEP_MAX)?n:1}
 function stepDone(n){
-  if(n===1)return P.rooms.length>0;
+  if(n===1)return P.rooms.length>0||!!(P.underlay&&P.underlay.src);
   if(n===2){const opens=P.items.filter(i=>i.kind==='opening');if(opens.some(i=>i.type==='door'))return true;if(!P.rooms.length)return false;return roomsMissingOpenings().length===0}
-  if(n===3)return P.items.some(i=>i.kind==='alarm');
-  if(n===4)return P.items.some(i=>i.kind==='cam'||i.kind==='nvr');
-  if(n===5)return stepDone(1)&&stepDone(2)&&(stepDone(3)||stepDone(4));
+  if(n===3)return streetSides().length>0||(P.yards||[]).length>0||(P.exteriors||[]).length>0;
+  if(n===4)return P.items.some(i=>i.kind==='alarm');
+  if(n===5)return P.items.some(i=>i.kind==='cam'||i.kind==='nvr');
+  if(n===6)return stepDone(1)&&stepDone(2)&&(stepDone(4)||stepDone(5));
   return false;
 }
 function roomsMissingOpenings(){
@@ -2379,17 +2481,17 @@ function roomsMissingOpenings(){
 function defaultStepFor(p){
   // Old project files have no step. Always start on Floor plan so the drawing
   // tools are right there; Review is one click away. (Persisted P.step wins.)
-  if(p&&p.step>=1&&p.step<=5)return +p.step;
+  if(p&&p.step>=1&&p.step<=STEP_MAX)return +p.step;
   return 1;
 }
 function goStep(n,opt={}){
-  n=Math.max(1,Math.min(5,+n||1));P.step=n;
+  n=Math.max(1,Math.min(STEP_MAX,+n||1));P.step=n;
   if(!opt.fromTab){document.querySelectorAll('#leftTabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='devices'))}
   tabGuide.hidden=true;tabDevices.hidden=false;
   document.querySelector('main').classList.toggle('wide-left',false);
   document.querySelectorAll('.stepPane').forEach(p=>{p.hidden=+p.dataset.step!==n});
   const walk=document.getElementById('tabWalk'),ext=document.getElementById('tabExterior');
-  if(walk)walk.hidden=n!==1;if(ext)ext.hidden=n!==4;
+  if(walk)walk.hidden=n!==1;if(ext)ext.hidden=n!==3;
   trayDockLeft.hidden=false;
   renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();
   if(typeof renderTray==='function')renderTray();
@@ -2406,10 +2508,15 @@ function renderStepBar(){
     const mark=done&&!on?'✓':String(s.id);
     return `<button type="button" class="stepPill${on?' on':''}${done?' done':''}" data-step="${s.id}" aria-current="${on?'step':'false'}" title="${esc(s.label)}"><span class="sn" aria-hidden="true">${mark}</span><span>${esc(s.label)}</span></button>`;
   }).join('');
+  /* TEMP: Create quote button (presentation) — remove this whole block later */
+  host.insertAdjacentHTML('beforeend',`<button type="button" class="stepPill tempQuote" id="bCreateQuote" data-temp="create-quote" title="Create quote (presentation — not wired yet)"><span class="sn" aria-hidden="true">7</span><span>Create quote</span></button>`);
+  const bCQ=document.getElementById('bCreateQuote');
+  if(bCQ)bCQ.onclick=e=>{e.preventDefault();e.stopPropagation()};
+  /* /TEMP: Create quote button (presentation) */
   host.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>goStep(+b.dataset.step));
   const back=document.getElementById('bStepBack'),next=document.getElementById('bStepNext');
   if(back){back.disabled=cur<=1;back.onclick=()=>goStep(cur-1)}
-  if(next){next.disabled=cur>=5;next.textContent=cur>=5?'Done':'Next →';next.onclick=()=>{if(cur<5)goStep(cur+1)}}
+  if(next){next.disabled=cur>=STEP_MAX;next.textContent=cur>=STEP_MAX?'Done':'Next →';next.onclick=()=>{if(cur<STEP_MAX)goStep(cur+1)}}
 }
 function renderStepHint(){
   const h=document.getElementById('stepHint');if(!h)return;
@@ -2429,11 +2536,14 @@ function renderStepSummary(){
   const rooms=P.rooms.length,opens=P.items.filter(i=>i.kind==='opening').length;
   const zones=P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type]&&ALARM[i.type].zone).length;
   const cams=P.items.filter(i=>i.kind==='cam').length;
+  const yards=(P.yards||[]).length, streets=streetSides().length;
   const warns=(typeof checks==='function'?checks():[]).filter(w=>w.w).length;
   const miss=roomsMissingOpenings().length;
   host.innerHTML=`
     <div class="si"><b>${rooms}</b>Rooms</div>
     <div class="si"><b>${opens}</b>Doors &amp; windows</div>
+    <div class="si"><b>${streets}</b>Street side${streets===1?'':'s'}</div>
+    <div class="si"><b>${yards}</b>Yards</div>
     <div class="si"><b>${zones}</b>Zones</div>
     <div class="si"><b>${cams}</b>Cameras</div>
     <div class="si${warns?' warn':''}"><b>${warns}</b>Placement warnings</div>
@@ -2459,6 +2569,8 @@ function wireStepActions(){
   bind('bStepCamCsv',()=>bCamCsv.click());
   bind('bOpenGuideDev',()=>showGuidePanel());
   bind('bOpenGuideRev',()=>showGuidePanel());
+  const by=document.getElementById('bYardsAdd');if(by)by.onclick=()=>addYardsAuto();
+  renderYardPal();
 }
 
 // ---- device tray + room templates ----
@@ -2489,7 +2601,7 @@ function renderTray(){const st=curStep();
   all.push(['outlet','outlet',ibadge('outlet',OUTLET.c,'lg'),'Outlet','dev',false]);
   for(const [k,c] of Object.entries(CAMS))all.push(['cam',k,photoTag(k),'Vyanet '+c.name,'cam',false]);
   all.push(['nvr','N85',photoTag('N85'),'Vyanet N85 5MP PoE NVR','cam',false]);
-  const grp=st===2?'open':st===3?'dev':st===4?'cam':null;
+  const grp=st===2?'open':st===4?'dev':st===5?'cam':null;
   const DD=all.filter(d=>!(d[5]&&COMM())&&grp!=null&&d[4]===grp);
   const T=TPL[COMM()?'commercial':'residential'];
   const showTpl=st===1,showDev=DD.length>0;
@@ -2518,6 +2630,7 @@ document.addEventListener('keydown',e=>{if(ovl.hidden)return;if(e.key==='Escape'
 const GSTEPS=[
   {t:'Draw rooms',b:'Use the <b>Floor plan</b> step. Click <b>Room</b>, or drag a <b>room template</b> (typical sizes, as estimates) onto the map. Drag a room to move it; drag a red edge to move one wall, or the corner to resize. Use the floor tabs on the map to add a Basement or Upper Floor.'},
   {t:'Add doors and windows',b:'Drag <b>Door</b> or <b>Window</b> from the tray onto a wall, or click it in the list. It snaps to the nearest room wall.'},
+  {t:'Set the exterior',b:'In the <b>Exterior</b> step, choose which side(s) face a street (corner lots can have two), tap <b>Add yards</b> for front/back/side yards, and tag exterior photos by side.'},
   {t:'Place devices',b:'Drag sensors, outlets, Vyanet cameras and the N85 onto the map, or press <b>Suggest devices</b> for a starting layout. A yellow <b>!</b> marks a placement warning with a one-click fix. A small <b>W</b> means wireless.'},
   {t:'Print or export',b:'<b>Print</b> gives one page per floor plus the zone list, camera list and site-issue list. <b>Export PNG</b> makes one image. <b>Save</b> keeps a project file. Your work also autosaves; find it under <b>Recent</b>.'}];
 function showGuide(i){const s=GSTEPS[i],n=GSTEPS.length;const box=modal(`<div class="gStep"><div class="gNum">${i+1}</div><div><div class="sub" style="margin-top:0">Getting started · Step ${i+1} of ${n}</div><h2>${s.t}</h2><p>${s.b}</p></div></div><div class="gDots">${GSTEPS.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div><div class="mAct"><button class="btn ghost sm" data-g="skip" type="button">Skip guide</button>${i?'<button class="btn ghost sm" data-g="back" type="button">Back</button>':''}<button class="btn sm" data-g="next" type="button">${i<n-1?'Next':'Done'}</button></div><div class="legend">Reopen it any time with Show guide, just above the map.</div>`,'Getting started guide');
@@ -2561,7 +2674,7 @@ function offerRestore(p){const at=+localStorage.getItem('vyAutosaveAt')||0;const
 function normalizeP(){if(!Array.isArray(P.floors)||!P.floors.length)P.floors=[{id:'f0',name:'Main Floor'}];const f0=P.floors[0].id;
   for(const o of [...P.rooms,...P.items])if(!o.floor||!P.floors.some(f=>f.id===o.floor))o.floor=f0;
   if(!Array.isArray(P.issues))P.issues=[];for(const s of P.issues){if(!s.floor||!P.floors.some(f=>f.id===s.floor))s.floor=f0;if(!SEV[s.severity])s.severity='caution';if(!ISSUE[s.type])s.type='other'}
-  if(!P.curFloor||!P.floors.some(f=>f.id===P.curFloor))P.curFloor=f0;if(P.mode!=='commercial')P.mode='residential';if(!P.pid)P.pid=newPid();if(!(P.step>=1&&P.step<=5))P.step=defaultStepFor(P)}
+  if(!P.curFloor||!P.floors.some(f=>f.id===P.curFloor))P.curFloor=f0;if(P.mode!=='commercial')P.mode='residential';if(!P.pid)P.pid=newPid();migrateStep(P);if(!(P.step>=1&&P.step<=STEP_MAX))P.step=defaultStepFor(P);if(!Array.isArray(P.yards))P.yards=[]}
 
 // ---- Guidelines tab ----
 const SRC={
