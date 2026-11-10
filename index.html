@@ -420,6 +420,35 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   .stepNav{max-width:100%}
 }
 
+/* ==== features5: room presets, needs attention, tech note, device count, measure ==== */
+.namePresets{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px}
+.namePresets button{font:500 11px Poppins,sans-serif;letter-spacing:.2px;background:#fff;border:1px solid var(--vy-line);border-radius:999px;padding:4px 10px;cursor:pointer;color:var(--vy-ink);line-height:1.2}
+.namePresets button:hover,.namePresets button:focus-visible{border-color:var(--vy-red);color:var(--vy-red);outline:none}
+.namePresets button.on{background:var(--vy-red);border-color:var(--vy-red);color:#fff}
+.namePresets button.custom{border-style:dashed}
+.attnBox,.devCountBox{margin:10px 0 4px}
+.attnList{list-style:none;margin:4px 0 6px;padding:0;display:flex;flex-direction:column;gap:5px}
+.attnList li{display:flex;flex-direction:column;gap:5px;align-items:stretch;padding:6px 8px;border-radius:3px;border-left:4px solid var(--warn);background:var(--warnbg);font-size:12px;line-height:1.3}
+.attnList li.n{border-color:var(--note);background:var(--notebg)}
+.attnList li .at{min-width:0}
+.attnList li .btn{flex:0 0 auto;padding:4px 10px;font-size:10px;letter-spacing:.8px}
+.attnClear{background:#ecfdf3;border-left:4px solid var(--ok);padding:7px 9px;border-radius:3px;font-size:12.5px;color:var(--ok);font-weight:500}
+.devCountLine{font-size:12.5px;color:var(--vy-near);background:#fafafa;border:1px solid var(--vy-line);border-radius:8px;padding:8px 10px;line-height:1.4}
+.devCountTbl{width:100%;font-size:12px;margin-top:6px}
+.devCountTbl td{padding:4px 6px}.devCountTbl td.q{text-align:right;font-weight:600;color:var(--vy-near);width:40px}
+.devCountTbl tr.cat td{font:600 10px Poppins,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--vy-red);border-bottom:0;padding-top:8px}
+.devCountTbl tbody tr{cursor:default}
+.techNote{font-size:10.5px;color:var(--vy-muted);margin-top:2px}
+#bMeasure.on{background:var(--vy-red);border-color:var(--vy-red);color:#fff}
+.measBar{top:auto;bottom:10px;max-width:calc(100% - 20px);flex-wrap:wrap;justify-content:center;text-align:center}
+.measBar b{font-weight:600}
+@media (pointer:coarse) and (max-width:1366px),(max-width:900px){
+  .namePresets{gap:6px}.namePresets button{min-height:40px;padding:8px 14px;font-size:13px}
+  .attnList li{padding:9px 10px;font-size:13px}.attnList li .btn{min-height:40px;padding:8px 14px;font-size:11px}
+}
+body.customer .team-internal,body.customer .techCol{display:none!important}
+@media (max-width:900px){.tools .grp{flex-wrap:wrap;row-gap:6px}}
+@media print{.team-internal,.techCol,.measBar,[data-measure]{display:none!important}}
 </style>
 </head>
 <body>
@@ -569,7 +598,9 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
       </div>
 <div class="stepPane" data-step="6" id="stepReview" hidden>
         <div class="sub">Review &amp; send</div>
+        <div class="attnBox team-internal no-print" id="attnBox" aria-label="Needs attention"></div>
         <div class="stepSummary" id="stepSummary"></div>
+        <div class="devCountBox team-internal no-print" id="devCountBox" aria-label="Device count"></div>
         <div class="stepActions">
           <button class="btn soft sm" id="bStepCust" type="button">Customer view</button>
           <button class="btn soft sm" id="bStepPng" type="button">Export PNG</button>
@@ -577,6 +608,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
           <button class="btn soft sm" id="bStepPrint" type="button">Print</button>
           <button class="btn ghost sm" id="bStepZoneCsv" type="button">Export Zone list CSV</button>
           <button class="btn ghost sm" id="bStepCamCsv" type="button">Export Camera list CSV</button>
+          <button class="btn ghost sm team-internal" id="bStepCountCsv" type="button">Export device count CSV</button>
         </div>
         <div class="legend">Zone list and Camera list tables are below the map. Warnings never block saving or exporting.</div>
         <div class="stepMore"><button type="button" id="bOpenGuideRev">Placement guidelines</button></div>
@@ -598,6 +630,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
         <button class="btn ghost sm" id="bDup" disabled>Duplicate</button>
         <span class="sugGateWrap" id="wrapSuggest"><button class="btn sm" id="bSuggest" type="button" title="Propose devices and cameras from the rooms, doors and windows" aria-describedby="sugGateTip">Suggest devices</button></span>
       </span>
+      <span class="grp edit-only measGrp"><button class="btn ghost sm" id="bMeasure" type="button" aria-pressed="false" title="Measure: tap or click two points (Esc to exit)">Measure</button></span>
       <span class="grp">
         <button class="btn ghost sm iconbtn" id="bZin" type="button" title="Zoom in">＋</button>
         <button class="btn ghost sm iconbtn" id="bZout" type="button" title="Zoom out">－</button>
@@ -615,6 +648,7 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
     <div id="planStage">
       <div class="floorBar no-print" id="floorBar"></div>
       <div class="scalebar" id="scaleBar" hidden><span id="scaleMsg">Click the first point on the image</span><span id="scaleAsk" hidden><input id="scaleFt" type="number" min="0.5" step="0.5" placeholder="ft"> ft <button class="btn sm" id="bScaleOk" type="button">Apply</button></span><button class="btn ghost sm" id="bScaleX" type="button" style="color:#fff;border-color:#fff">Cancel</button></div>
+      <div class="scalebar measBar no-print" id="measBar" hidden><span id="measMsg">Tap the first point</span><button class="btn ghost sm" id="bMeasX" type="button" style="color:#fff;border-color:#fff">Done</button></div>
       <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" aria-label="Floor plan"></svg>
       <div class="extDock front" data-dock="front"></div>
       <div class="extDock back" data-dock="back"></div>
@@ -730,6 +764,7 @@ const camModelLabel=it=>it.model==='R5'?(it.variant==='B'?'R5B':'R5W'):it.model;
 const nightFt=m=>ftR(CAMS[m].nightM);
 
 let P=blank(), sel=null, uid=1, selExt=null;
+const MEAS={on:false,pts:[],hover:null}; // measure tool (never saved)
 function blank(){return {name:'Untitled project',floors:[{id:'f0',name:'Main Floor'}],curFloor:'f0',mode:'residential',issues:[],rooms:[],items:[],exteriors:[],yards:[],walk:[],streetSides:[],streetSide:undefined,mainStreetSide:undefined,streetSideSet:false,siteNotes:'',step:1,stepVer:6,job:{customer:'',address:'',account:'',date:'',tech:''}}}
 const nid=p=>p+(uid++);
 function syncUid(){let m=0;[...P.rooms,...P.items,...(P.exteriors||[]),...(P.yards||[]),...(P.walk||[]),...(P.floors||[]),...(P.issues||[])].forEach(o=>{const n=+String(o.id).replace(/\D/g,'');if(n>m)m=n});uid=m+1}
@@ -1122,6 +1157,7 @@ function drawPlan(opt={}){
   if(!PR&&yardEditable())drawYardZones(PR,true);
   if(!PR&&!CUST())drawRotHandle();
   if(!PR)drawSugGhosts();
+  if(!PR)drawMeasure();
 }
 
 // ---- interaction ----
@@ -1167,6 +1203,7 @@ function itemLabel(it){if(it.kind==='opening')return (it.type==='door'?'Door':'W
 svg.addEventListener('pointerdown',e=>{const t=e.target,p=pt(e);
   if(CUST()){drag={m:'pan',sx:e.clientX,sy:e.clientY,cx:ZV.cx,cy:ZV.cy,moved:0};svg.setPointerCapture(e.pointerId);return}
   if(SC.on){scaleClick(p);return}
+  if(MEAS.on){e.preventDefault();measClick(p);return}
   if(t.getAttribute('data-underlay')&&P.underlay&&!P.underlay.locked){drag={m:'ul',o:P.underlay,dx:p.x-P.underlay.x,dy:p.y-P.underlay.y,vb0:{...VB0}};svg.setPointerCapture(e.pointerId);return}
   const sg=t.closest('[data-sug]');if(sg){SUG.focus=sg.dataset.sug;render();const li=document.querySelector(`.sugRow[data-s="${sg.dataset.sug}"]`);if(li)li.scrollIntoView({block:'nearest'});return}
   const wm=t.closest('[data-warn]');if(wm){sel={t:'item',id:wm.dataset.warn};render();return}
@@ -1252,6 +1289,7 @@ svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.2:1/1.2,
 document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
   if((e.ctrlKey||e.metaKey)&&!inField&&!CUST()){const k=e.key.toLowerCase();if(k==='z'&&!e.shiftKey){e.preventDefault();undo();return}if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();redo();return}}
   if(e.key==='Escape'&&!lb.hidden){lb.hidden=true;return}
+  if(e.key==='Escape'&&MEAS.on){e.preventDefault();measOn(false);return}
   if(CUST())return;
   const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
@@ -1298,20 +1336,20 @@ function renderProps(){
       <div class="propAct"><button class="btn sm" type="button" data-pdel>Delete yard</button></div>`;
     bind(b,z);propActs(b);return}
   if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(!r){sel=null;return renderProps()}
-    h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`+
+    h=`<div><b>Room</b></div>${fld('Name (e.g. Garage, Living Room)','name',r)}${roomPresetHtml(r)}<div class="row2"><div>${fld('Width (ft)','w',r,'number','min=3 step=0.5')}</div><div>${fld('Depth (ft)','h',r,'number','min=3 step=0.5')}</div></div>`+
       `<label class="f">Rotation (°)</label><div class="rotRow"><button class="btn ghost sm" type="button" data-rot="-90" title="Rotate 90° left (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees left">⟲ 90°</button><input type="number" data-rotdeg step="1" value="${r2(n360(+r.rot||0))}" aria-label="Room angle in degrees"><button class="btn ghost sm" type="button" data-rot="90" title="Rotate 90° right (hold Alt to turn the room alone)" aria-label="Rotate 90 degrees right">⟳ 90°</button></div>`;
     const nOps=wallOps(r).length;h+=`<div class="legend">Drag to move (its doors, windows and devices come along; hold Alt to move the room alone). Drag a red edge handle to move one wall, or the corner to resize both. Drag the round handle above it to rotate (15° steps; Shift for free; Alt turns the room alone).</div><div class="propAct"><button class="btn sm" type="button" data-pdel>Delete room</button><button class="btn ghost sm" type="button" data-pdup>Duplicate</button></div>${nOps?`<div class="legend">Deleting also removes its ${nOps} door${nOps>1?'s':''}/window${nOps>1?'s':''}. Undo brings it back.</div>`:''}`;
-    h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);
+    h=h.replace('<div><b>Room</b></div>','<div><b>Room</b></div>'+(r.est?'<div class="legend estNote">Typical size estimate. Resize it to match the site.</div>':''))+floorSel(r);b.innerHTML=h;bind(b,r);propActs(b);bindFloorSel(b,r);bindRoomPresets(b,r);
     b.querySelectorAll('[data-rot]').forEach(x=>x.onclick=e=>rotateRoomBy(r,+x.dataset.rot,e.altKey));
     const rd=b.querySelector('[data-rotdeg]');rd.onchange=()=>{const v=parseFloat(rd.value);if(isNaN(v))return;rotateRoomBy(r,v-n360(+r.rot||0),false)};return}
   const it=P.items.find(i=>i.id===sel.id);if(!it){sel=null;return renderProps()}
   const room=roomName(it);
   if(it.kind==='alarm'){const a=ALARM[it.type];h=`<div class="propHead">${ibadge(it.type,a.c,'lg')}<b>${a.label}</b></div>`;
     if(a.zone)h+=fld('Zone #','zone',it,'number','min=1 step=1');else h+=`<div class="legend">${a.label} is not a zone.</div>`;
-    h+=fld('Name / location','name',it,'text','placeholder="e.g. Front door"')+ro('Room (from plan)',room)+selFld('Wired / wireless','wiring',it,[['Wireless','Wireless'],['Wired','Wired']])+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+    h+=fld('Name / location','name',it,'text','placeholder="e.g. Front door"')+ro('Room (from plan)',room)+selFld('Wired / wireless','wiring',it,[['Wireless','Wireless'],['Wired','Wired']])+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
   else if(it.kind==='opening'){h=`<div class="propHead">${ibadge(it.type,it.type==='door'?'#8a8780':'#0089f7','lg')}<b>${it.type==='door'?'Door':'Window'}</b></div><div class="legend">Snaps to the nearest room wall when dragged close to it.</div>`+fld('Label','name',it,'text','placeholder="e.g. Front door"')+fld('Width (ft)','width',it,'number','min=1 max=20 step=0.5')+(it.type==='door'?selFld('Swing','swing',it,[['in','Into the room'],['out','Out of the room']]):'')+ro('Room (from plan)',openingRoom(it))+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  else if(it.kind==='outlet'){h=`<div class="propHead">${ibadge('outlet',OUTLET.c,'lg')}<b>Outlet</b></div>`+ro('Room (from plan)',room)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  else if(it.kind==='nvr'){h=`<div class="propHead">${photoTag('N85','ph lg')}<b>Vyanet ${N85.name}</b></div><div class="legend">Recorder · ${N85_CH} channels · no camera cone</div>`+fld('Location','location',it)+ro('Room (from plan)',room)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+  else if(it.kind==='outlet'){h=`<div class="propHead">${ibadge('outlet',OUTLET.c,'lg')}<b>Outlet</b></div>`+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+  else if(it.kind==='nvr'){h=`<div class="propHead">${photoTag('N85','ph lg')}<b>Vyanet ${N85.name}</b></div><div class="legend">Recorder · ${N85_CH} channels · no camera cone</div>`+fld('Location','location',it)+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
   else{const c=CAMS[it.model];
     h=`<div class="propHead">${photoTag(it,'ph lg')}<b>Vyanet ${esc(c.name.replace(/^R5W \/ R5B/,camModelLabel(it)))}</b></div><div class="legend">${c.env} · ${c.power}${c.pt?' · pan/tilt':''} · spec ${c.fov}° HFOV · ${c.nightM} m (${ftR(c.nightM)} ft) night range</div>`;
     h+=fld('Camera #','num',it,'number','min=1 step=1');
@@ -1320,7 +1358,7 @@ function renderProps(){
     h+=`<div class="row2"><div>${fld('Aim (°)','rot',it,'number','min=0 max=359 step=1')}</div><div>${fld('Cone angle (°)','fov',it,'number','min=10 max=180 step=0.1')}</div></div>`;
     h+=fld('Cone range (ft)','range',it,'number','min=1 step=0.1');
     h+=c.noNvr?ro('Records to','Local (the S2 doesn’t work with the N85)')+(it.rec==='N85'?selFld('Records to (fix)','rec',it,[['Local','Local'],['N85','N85 — not supported']]):''):selFld('Records to','rec',it,[['N85','N85 NVR'],['Local','Local']]);
-    h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button><label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+    h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button>`+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
   const ov=overlapping(it);if(ov.length)h=`<div class="alsoHere">Also here:${ov.map(o=>`<button class="btn ghost sm" type="button" data-also="${esc(o.id)}">${esc(itemLabel(o))}</button>`).join('')}</div>`+h;
   h+=`<div class="propAct"><button class="btn sm" type="button" data-pdel>Delete${it.kind==='opening'?(it.type==='door'?' door':' window'):''}</button>${it.kind==='opening'?'':'<button class="btn ghost sm" type="button" data-pdup>Duplicate</button>'}</div>`;
   h=warnBox(it)+h;h=h.replace('<div class="propAct">',floorSel(it)+'<div class="propAct">');b.innerHTML=h;bind(b,it);propActs(b);bindFloorSel(b,it);bindFix(b);
@@ -1371,24 +1409,27 @@ const checksEl=document.getElementById('checks');
 // ---- zone/camera lists + CSV ----
 function pubNotes(n){if(n==null||n==='')return '';const s=String(n).trim();if(/^Suggested:/i.test(s)||/^CONFIRM OUTLET\b/i.test(s))return '';return s.split(/\s*;\s*/).filter(p=>{const t=p.trim();return t&&!/^Suggested:/i.test(t)&&!/^CONFIRM OUTLET\b/i.test(t)}).join('; ')}
 let NOTES_PUB=false;
-function listNotes(n){return (NOTES_PUB||CUST())?pubNotes(n):(n||'')}
-function zoneRows(){return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[i.zone,ALARM[i.type].label,i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes)],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
+let PRINTING=false;
+function listNotes(n){return (NOTES_PUB||PRINTING||CUST())?pubNotes(n):(n||'')}
+const TECH=()=>!(NOTES_PUB||PRINTING||CUST());
+function zoneRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[i.zone,ALARM[i.type].label,i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes),...(T?[i.tech||'']:[])],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
 const ZCOLS=['Zone #','Device','Name / Location','Floor','Room','Wired / Wireless','Notes'];
-function camRows(){return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
+function camRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
   const auto=[];if(i.model==='S2')auto.push('Records locally; not compatible with N85');if(c.poe)auto.push('PoE from N85');if(i.model==='D1')auto.push('Needs existing hardwired doorbell');
   const mn=c.name.replace(/^R5W \/ R5B/,camModelLabel(i));
   const noteParts=[listNotes(i.notes),...auto].filter(Boolean);
-  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; ')]}})}
+  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; '),...(T?[i.tech||'']:[])]}})}
 const CCOLS=['Camera #','Model','Location / Room','Floor','Indoor / Outdoor','Power','Records to','Notes'];
 function extRows(){return (P.exteriors||[]).map(ex=>{const s=suggestCam(ex);return {id:ex.id,c:[ex.side,ex.name,ex.watch,ex.distance,ex.power,ex.mount,ex.wifi,s.model||'',s.reason+(s.warn?' '+s.warn:'')]}})}
 const ECOLS=['Side','Name','Watch','Distance (ft)','Power','Mount','Wi-Fi','Suggested','Reason'];
 function tbl(host,cols,rows,empty,grouped){
-  const tb=rs=>`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rs.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const tci=cols.indexOf('Tech note'),tc=ci=>ci===tci?' class="techCol"':'';const tb=rs=>`<table><thead><tr>${cols.map((c,ci)=>`<th${tc(ci)}>${c}</th>`).join('')}</tr></thead><tbody>${rs.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td${tc(ci)}>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   if(!rows.length)host.innerHTML=`<div class="empty">${empty}</div>`;
   else if(grouped)host.innerHTML=P.floors.map((f,i)=>{const rs=rows.filter(r=>r.f===f.id);return rs.length?`<div class="flSub">${esc(f.name)}<small>Floor ${i+1} of ${P.floors.length} · ${rs.length} row${rs.length>1?'s':''}</small></div>`+tb(rs):''}).join('');
   else host.innerHTML=tb(rows);
   host.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{const id=tr.dataset.id;if(P.exteriors.some(e=>e.id===id)){selExt=id;document.querySelector('#leftTabs [data-tab=exterior]').click()}else{const it=P.items.find(i=>i.id===id),is=(P.issues||[]).find(i=>i.id===id),o=it||is;if(o&&flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:it?'item':'issue',id}}render()})}
-function renderTables(){tbl(zoneTbl,ZCOLS,zoneRows(),'No zones yet.',true);tbl(camTbl,CCOLS,camRows(),'No cameras yet.',true);tbl(issueTbl,ICOLS,issueRows(),'No site issues noted.',true);tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
+const zCols=t=>t?[...ZCOLS,'Tech note']:ZCOLS,cCols=t=>t?[...CCOLS,'Tech note']:CCOLS;
+function renderTables(){const T=TECH();tbl(zoneTbl,zCols(T),zoneRows(),'No zones yet.',true);tbl(camTbl,cCols(T),camRows(),'No cameras yet.',true);tbl(issueTbl,ICOLS,issueRows(),'No site issues noted.',true);tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
 function renderPrintExt(){
   printExt.innerHTML=(P.exteriors||[]).map(ex=>{const s=suggestCam(ex);const sug=CUST()?'':`<br>Suggested: <b>${esc(s.model)}</b> — ${esc(s.reason)}${s.warn?' '+esc(s.warn):''}`;return `<figure><img onclick="openLb(this.src)" src="${ex.dataUrl}" alt=""><figcaption><b>${esc(ex.side)}</b> — ${esc(ex.name)}<br>${esc(ex.watch)} · ${esc(ex.distance)} ft · ${esc(ex.power)}${sug}</figcaption></figure>`}).join('')||'<div class="empty">No exterior photos.</div>';
 }
@@ -1396,12 +1437,12 @@ const csvCell=v=>{v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'
 function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 const slug=()=>(P.name||'project').replace(/[^\w-]+/g,'-').replace(/^-|-$/g,'')||'project';
 function csv(cols,rows){return '\ufeff'+[cols,...rows.map(r=>r.c)].map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n'}
-bZoneCsv.onclick=()=>dl(slug()+'-zone-list.csv',csv(ZCOLS,zoneRows()),'text/csv');
-bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(CCOLS,camRows()),'text/csv');
+bZoneCsv.onclick=()=>dl(slug()+'-zone-list.csv',csv(zCols(true),zoneRows({tech:true})),'text/csv');
+bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(cCols(true),camRows({tech:true})),'text/csv');
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){SUG.list=[];SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
+function load(p){SUG.list=[];MEAS.pts=[];MEAS.hover=null;SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
   // Old projects: keep their streetSide as a selected street (display), without inventing one for brand-new blanks
   if(!hadStreets&&SSIDES.includes(raw.streetSide)){P.streetSides=[raw.streetSide];P.mainStreetSide=SSIDES.includes(P.mainStreetSide)?P.mainStreetSide:raw.streetSide}
   if(!Array.isArray(P.streetSides))P.streetSides=[];P.streetSideSet=!!P.streetSideSet;
@@ -1542,7 +1583,7 @@ function renderWalk(){const h=walkStrip;if(!(P.walk||[]).length){h.innerHTML='<d
 
 // ---- customer view ----
 const CUST=()=>document.body.classList.contains('customer');
-bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;pname.readOnly=on;if(on&&typeof SC!=='undefined'&&SC.on)scaleEnd();focusHouse();render()};
+bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;pname.readOnly=on;if(on&&typeof SC!=='undefined'&&SC.on)scaleEnd();if(on&&MEAS.on)measOn(false);focusHouse();render()};
 function legendShortAlarm(k){return ({contact:'Contact',motion:'Motion',glass:'Glass',smoke:'Smoke',co:'CO',heat:'Heat',water:'Water',siren:'Siren',panic:'Panic',panel:'Keypad'})[k]||((ALARM[k]||{}).label||k)}
 const SUG_LEGEND_ICON=`<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="#da0029" stroke-width="1.4" stroke-dasharray="2.5 2"/><circle cx="8" cy="8" r="2" fill="#da0029" opacity=".35"/></svg>`;
 function legendEntries(floorId){
@@ -1595,7 +1636,8 @@ function pngTable(g,y0,PX,title,cols,fr,rows,colorOf,empty,draw){
       g.fillStyle='#e1dfdf';g.fillRect(L,y+rh-1,TW,1.5)}
     y+=rh});
   return y+16-y0}
-async function exportPNG(){
+async function exportPNG(){const was=NOTES_PUB;NOTES_PUB=true;try{return await exportPNG0()}finally{NOTES_PUB=was;renderTables()}}
+async function exportPNG0(){
   const snaps=floorSnaps(),n=snaps.length,PX=2400,FH=124,maps=[];
   const svgImg=async(cl,B,w,h)=>{
     cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);
@@ -1994,7 +2036,7 @@ ulLock.onchange=()=>{P.underlay.locked=ulLock.checked;render()};
 ulCust.onchange=()=>{P.underlay.showCustomer=ulCust.checked;render()};
 bUlRot.onclick=()=>{P.underlay.rot=((P.underlay.rot||0)+90)%360;render()};
 bUlDel.onclick=()=>{if(confirm('Remove the floor plan image?')){P.underlay=null;scaleEnd();render()}};
-function scaleStart(){if(!P.underlay)return;SC.on=true;SC.pts=[];scaleBar.hidden=false;scaleAsk.hidden=true;scaleMsg.textContent='Click the first point on the image';render()}
+function scaleStart(){if(!P.underlay)return;if(MEAS.on)measOn(false);SC.on=true;SC.pts=[];scaleBar.hidden=false;scaleAsk.hidden=true;scaleMsg.textContent='Click the first point on the image';render()}
 function scaleEnd(){SC.on=false;SC.pts=[];scaleBar.hidden=true;render()}
 function scaleClick(p){if(SC.pts.length>=2)return;SC.pts.push({x:p.x,y:p.y});
   if(SC.pts.length===1)scaleMsg.textContent='Now click the second point';
@@ -2017,6 +2059,8 @@ const RX={
   bath:/bath|restroom|toilet|\bwc\b|powder|lavatory/i,
   wheater:/water heater|mechanical|furnace|boiler|utility/i,
   outside:/porch|patio|deck|yard|balcony|stoop|terrace/i,
+  basement:/basement|cellar|lower level/i,
+  closet:/closet|\bwic\b|storage/i,
   entry:/entry|foyer|vestibule|lobby|reception|mud\s*room/i,
   common:/living|family|great|den|open office|lobby|reception|lounge|common|dining|conference|area|office/i,
   commercial:/open office|conference|reception|lobby|break\s*room|cubicle|workroom|suite|\boffice\b/i
@@ -2046,7 +2090,7 @@ function buildSuggestions(){
   if(!rooms.length)return S;
   const has=(f)=>ex.some(f);
   const roomHas=(r,f)=>ex.some(i=>f(i)&&inRoomAt(i.x,i.y)===r);
-  const commercial=COMM()||rooms.some(r=>RX.commercial.test(r.name));
+  const commercial=COMM()||rooms.some(r=>RX.commercial.test(r.name)&&!RES_OFFICE.test(r.name)); // a home "Office" preset doesn't make a residential plan commercial
   const beds=rooms.filter(r=>RX.bed.test(r.name)),halls=rooms.filter(r=>RX.hall.test(r.name)&&!RX.bed.test(r.name));
   const ops=ex.filter(i=>i.kind==='opening').map(o=>({o,...opInfo(o)}));
   const doors=ops.filter(d=>d.o.type==='door'),wins=ops.filter(d=>d.o.type==='window');
@@ -2071,7 +2115,7 @@ function buildSuggestions(){
       add({cat:'Perimeter',kind:'alarm',type:'contact',x:w.o.x+w.n.x*.9+w.t.x*1.2,y:w.o.y+w.n.y*.9+w.t.y*1.2,name:nm(w).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' contact',
         reason:w.unsure?'Possible window (unconfirmed); contact if it opens and is reachable.':'Perimeter window, assumed reachable from ground; contact.'})}}
   // 3) motion: largest room, halls, rooms with exterior door; skip bedrooms/bath/garage/outside
-  const mOK=r=>!RX.bed.test(r.name)&&!RX.bath.test(r.name)&&!RX.garage.test(r.name);
+  const mOK=r=>!RX.bed.test(r.name)&&!RX.bath.test(r.name)&&!RX.garage.test(r.name)&&!RX.closet.test(r.name);
   const common=rooms.filter(r=>mOK(r)&&!RX.hall.test(r.name)).sort((a,b)=>rArea(b)-rArea(a));
   const largest=common[0];
   const mRooms=new Map();
@@ -2103,7 +2147,7 @@ function buildSuggestions(){
     if(RX.bed.test(r.name)){if(!fireIn(r,'smoke'))add({cat:'Fire / CO',kind:'alarm',type:'smoke',x:rCx(r),y:rCy(r),name:nmR+' smoke',reason:'Smoke detector in every bedroom.'});continue}
     if(RX.hall.test(r.name)){const nearBed=beds.some(b=>adjoin(b,r,2));if(!fireIn(r,'smoke'))add({cat:'Fire / CO',kind:'alarm',type:'smoke',x:rCx(r),y:rCy(r),name:nmR+' smoke',reason:nearBed?'Hallway outside sleeping areas.':(commercial?'Corridor smoke coverage.':'Hallway smoke coverage.')});continue}
     const a=rArea(r);
-    if(a>=200||RX.common.test(r.name)&&a>=120){if(fireIn(r,'smoke'))continue;const n=Math.max(1,Math.ceil(a/900));
+    if(a>=200||RX.basement.test(r.name)||RX.common.test(r.name)&&a>=120){if(fireIn(r,'smoke'))continue;const n=Math.max(1,Math.ceil(a/900));
       grid(r,n).forEach((c,i)=>add({cat:'Fire / CO',kind:'alarm',type:'smoke',x:c[0],y:c[1],name:nmR+' smoke'+(n>1?' '+(i+1):''),reason:n>1?`${Math.round(a)} sq ft open area: one smoke per ~900 sq ft, spread evenly (${n}).`:'Open / living area; at least one smoke per level, centered.'}))}
   }
   // CO: near sleeping areas + rooms adjoining garage
@@ -2114,7 +2158,7 @@ function buildSuggestions(){
     add({cat:'Fire / CO',kind:'alarm',type:'co',x:wx,y:wy,name:r.name+' CO',reason:`Shares a wall with the ${g.name.toLowerCase()} (car exhaust).`})}
   }
   // water
-  for(const r of rooms){const why=RX.kitchen.test(r.name)?'Kitchen: under the sink / by the dishwasher.':RX.laundry.test(r.name)?'Laundry: behind the washer.':RX.bath.test(r.name)?'Bathroom: by the toilet / under the sink.':RX.wheater.test(r.name)?'Water heater spot.':'';
+  for(const r of rooms){const why=RX.kitchen.test(r.name)?'Kitchen: under the sink / by the dishwasher.':RX.laundry.test(r.name)?'Laundry: behind the washer.':RX.bath.test(r.name)?'Bathroom: by the toilet / under the sink.':RX.basement.test(r.name)?'Basement: by the sump pump / water heater / lowest point.':RX.wheater.test(r.name)?'Water heater spot.':'';
     if(!why||roomHas(r,i=>i.kind==='alarm'&&i.type==='water'))continue;const [x,y]=clampIn(r,...LW(r,rCx(r)+r.w*.3,rCy(r)-r.h*.3),1);
     add({cat:'Fire / CO',kind:'alarm',type:'water',x,y,name:r.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' water/flood',reason:why+' (confirm exact spot)'})}
   // panel + siren
@@ -2419,7 +2463,7 @@ const segX=(a,b,c,d)=>{const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*
 // ---- floors ----
 function switchFloorRaw(fid){if(fid===P.curFloor)return;const cur=P.floors.find(f=>f.id===P.curFloor),nf=P.floors.find(f=>f.id===fid);if(!nf)return;
   if(cur){if(P.underlay)cur.underlay=P.underlay;else delete cur.underlay}P.underlay=nf.underlay||null;delete nf.underlay;P.curFloor=fid}
-function switchFloor(fid){if(SC.on)scaleEnd();switchFloorRaw(fid);sel=null;SUG.list=[];SUG.focus=null;focusHouse();render()}
+function switchFloor(fid){MEAS.pts=[];MEAS.hover=null;if(SC.on)scaleEnd();switchFloorRaw(fid);sel=null;SUG.list=[];SUG.focus=null;focusHouse();render()}
 function addFloor(name){const f={id:nid('f'),name};if(/basement/i.test(name))P.floors.unshift(f);else P.floors.push(f);switchFloor(f.id)}
 function deleteFloor(){if(P.floors.length<2)return;const id=FID(),f=P.floors.find(x=>x.id===id),nr=P.rooms.filter(onF).length,ni=P.items.filter(onF).length,ns=(P.issues||[]).filter(onF).length;
   if(!confirm(`Delete "${f.name}" with its ${nr} room${nr===1?'':'s'}, ${ni} device/door/window${ni===1?'':'s'} and ${ns} site issue${ns===1?'':'s'}? Undo brings it back.`))return;
@@ -2438,7 +2482,7 @@ function bindFloorSel(b,o){const s=b.querySelector('[data-floor-move]');if(!s)re
   if(sel&&sel.t==='room'){for(const k of roomKids(o).list)k.it.floor=v}o.floor=v;const keep=sel;switchFloorRaw(v);focusHouse();sel=keep;render()}}
 function clonePlanSvg(i){
   const c=svg.cloneNode(true);c.removeAttribute('id');c.removeAttribute('aria-label');c.setAttribute('role','img');
-  c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend]').forEach(n=>n.remove());
+  c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend],[data-measure]').forEach(n=>n.remove());
   c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);
   c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
   return c;
@@ -2515,6 +2559,7 @@ function buildPrintFloors(){if(drag)return;const snaps=floorSnaps(),n=snaps.leng
     printFloors.appendChild(sec)}}
 let pfT=null;function schedulePF(){clearTimeout(pfT);pfT=setTimeout(()=>{if(drag||PINCH){schedulePF();return}buildPrintFloors()},400)}
 addEventListener('beforeprint',buildPrintFloors);
+addEventListener('beforeprint',()=>{PRINTING=true;if(MEAS.on)measOn(false);renderTables()});addEventListener('afterprint',()=>{PRINTING=false;renderTables()});
 try{matchMedia('print').addEventListener('change',e=>{if(e.matches)buildPrintFloors()})}catch(e){}
 
 // ---- map key / W badge ----
@@ -2636,7 +2681,7 @@ function renderOpenMissing(){
   host.querySelectorAll('[data-rid]').forEach(b=>b.onclick=()=>{const r=P.rooms.find(x=>x.id===b.dataset.rid);if(!r)return;if(flOf(r)!==FID())switchFloorRaw(flOf(r));sel={t:'room',id:r.id};focusHouse();render()});
 }
 function renderStepSummary(){
-  const host=document.getElementById('stepSummary');if(!host||curStep()!==6)return;
+  const host=document.getElementById('stepSummary');if(!host||curStep()!==6)return;renderReviewExtras();
   const rooms=P.rooms.length,opens=P.items.filter(i=>i.kind==='opening').length;
   const zones=P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type]&&ALARM[i.type].zone).length;
   const cams=P.items.filter(i=>i.kind==='cam').length;
@@ -2881,6 +2926,91 @@ function renderGuidePrint(){const on=localStorage.getItem('vyGuidePrint')==='1';
   guidePrint.innerHTML=`<h2>Placement guidelines (${COMM()?'Commercial':'Residential'})</h2><div class="glBanner"><b>General guidance.</b> Always follow local code, the AHJ, and manufacturer instructions.</div>${COMM()?`<div class="glFire">${FIRENOTE}</div>`:''}<ul class="gpList">${vis.map(it=>`<li><b>${esc(it.cat)}: ${esc(it.title)}.</b> ${esc(it.text)} <span class="glS">(${(it.src||[]).map(s=>esc(s[0])).join('; ')})</span></li>`).join('')}</ul>`}
 
 // ---- boot ----
+// ==== features5 ====
+// ---- 1) Room name presets ----
+const ROOM_PRESETS=['Bedroom','Bedroom 2','Bedroom 3','Primary bedroom','Bathroom','Hall','Kitchen','Dining','Living','Family','Office','Laundry','Garage','Basement','Entry/Foyer','Closet','Utility'];
+const RES_OFFICE=/^\s*(home\s+)?office(\s*\d+)?\s*$/i;
+function roomPresetHtml(r){const cur=String(r.name||'').trim().toLowerCase();
+  return `<div class="namePresets" role="group" aria-label="Room name presets">${ROOM_PRESETS.map(n=>`<button type="button" data-rname="${esc(n)}" class="${cur===n.toLowerCase()?'on':''}" aria-pressed="${cur===n.toLowerCase()}">${esc(n)}</button>`).join('')}<button type="button" class="custom" data-rname-custom title="Type your own name">Custom…</button></div>`}
+function bindRoomPresets(b,r){
+  b.querySelectorAll('[data-rname]').forEach(x=>x.onclick=()=>{r.name=x.dataset.rname;delete r.est;render()});
+  const c=b.querySelector('[data-rname-custom]');if(c)c.onclick=()=>{const i=b.querySelector('input[data-k="name"]');if(i){i.focus();i.select()}}}
+
+// ---- 3) Tech note (internal) ----
+function techFld(it){return `<label class="f" for="techNote">Tech note <span style="text-transform:none;letter-spacing:0;color:#9a9690">(team only)</span></label><input id="techNote" data-k="tech" type="text" maxlength="200" value="${esc(it.tech)}" placeholder="e.g. left of door, 7 ft up"><div class="techNote">For the install team. Not shown to the customer or in the PNG, print or email PDF.</div>`}
+
+// ---- 4) Device count by type (clean data for a future quote tool; no prices) ----
+const ALARM_PL={panel:'Panels / keypads',contact:'Door/window contacts',motion:'Motion sensors',glass:'Glass break sensors',smoke:'Smoke detectors',co:'CO detectors',heat:'Heat detectors',water:'Water/flood sensors',siren:'Sirens',panic:'Panic / hold-up buttons'};
+function getDeviceCounts(){
+  const its=P.items||[];
+  const alarm=Object.keys(ALARM).map(t=>({category:'Alarm',type:t,model:'',label:ALARM[t].label,plural:ALARM_PL[t]||ALARM[t].label,qty:its.filter(i=>i.kind==='alarm'&&i.type===t).length})).filter(r=>r.qty);
+  const camKeys=[];for(const m of Object.keys(CAMS)){if(m==='R5')camKeys.push('R5W','R5B');else camKeys.push(m)}
+  const cameras=camKeys.map(k=>{const qty=its.filter(i=>i.kind==='cam'&&camModelLabel(i)===k).length;const base=k==='R5W'||k==='R5B'?'R5':k;
+    return {category:'Camera',type:'cam',model:k,label:'Vyanet '+CAMS[base].name.replace(/^R5W \/ R5B/,k),plural:'Vyanet '+CAMS[base].name.replace(/^R5W \/ R5B/,k),qty}}).filter(r=>r.qty);
+  const nN=its.filter(i=>i.kind==='nvr').length;
+  const recorders=nN?[{category:'Recorder',type:'nvr',model:'N85',label:'Vyanet '+N85.name,plural:'Vyanet '+N85.name,qty:nN}]:[];
+  const sum=a=>a.reduce((s,r)=>s+r.qty,0);
+  return {alarm,cameras,recorders,totals:{alarm:sum(alarm),cameras:sum(cameras),recorders:sum(recorders)},rows:[...alarm,...cameras,...recorders].map(r=>({category:r.category,item:r.label,model:r.model,qty:r.qty}))}}
+function deviceCountText(dc){dc=dc||getDeviceCounts();const parts=dc.alarm.map(r=>`${r.qty} ${r.qty===1?r.label:r.plural}`);
+  if(dc.totals.cameras)parts.push(`${dc.totals.cameras} Camera${dc.totals.cameras===1?'':'s'} (${dc.cameras.map(r=>r.qty+' '+r.model).join(', ')})`);
+  if(dc.totals.recorders)parts.push(`${dc.totals.recorders} N85`);
+  return parts.join(', ')}
+function deviceCountCsv(){const dc=getDeviceCounts();return csv(['Category','Device','Model','Quantity'],dc.rows.map(r=>({c:[r.category,r.item,r.model,r.qty]})))}
+function renderDevCount(){const host=document.getElementById('devCountBox');if(!host)return;const dc=getDeviceCounts();
+  if(!dc.rows.length){host.innerHTML='<div class="sub">Device count</div><div class="empty">No devices yet.</div>';return}
+  const sec=(t,rs)=>rs.length?`<tr class="cat"><td colspan="2">${t}</td></tr>`+rs.map(r=>`<tr data-count="${esc(r.model||r.type)}"><td>${esc(r.label.replace(/^Vyanet /,''))}</td><td class="q">${r.qty}</td></tr>`).join(''):'';
+  const open=host.querySelector('details')?host.querySelector('details').open:false;
+  host.innerHTML=`<div class="sub">Device count</div><div class="devCountLine" id="devCountLine">${esc(deviceCountText(dc))}</div>
+    <details class="walkDetails devCountDetails"${open?' open':''}><summary class="sub" style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;margin:6px 0 0">By type</summary><table class="devCountTbl"><tbody>${sec('Alarm devices',dc.alarm)}${sec('Vyanet cameras',dc.cameras)}${sec('Recorder',dc.recorders)}</tbody></table></details>`}
+
+// ---- 2) Needs attention (internal) ----
+function attnStepFor(it){if(!it)return 6;if(it.kind==='cam'||it.kind==='nvr')return 5;if(it.kind==='opening')return 2;return 4}
+function attentionItems(){
+  const out=[],seen=new Set(),push=o=>{const k=o.key||((o.id||o.iid||'')+'|'+o.t);if(seen.has(k))return;seen.add(k);out.push(o)};
+  const lab=it=>`C${it.num} ${camModelLabel(it)}`;
+  for(const r of roomsMissingOpenings())push({key:'room:'+r.id,w:1,kind:'room',rid:r.id,step:2,t:`<b>${esc(r.name||'Room')}</b> has no doors or windows.`});
+  const cams=P.items.filter(i=>i.kind==='cam'),nvrs=P.items.filter(i=>i.kind==='nvr');
+  for(const c of (typeof CHK!=='undefined'&&CHK?CHK:checks()))if(c.w){const it=c.id?P.items.find(i=>i.id===c.id):null;
+    push({w:1,id:c.id,iid:c.iid,fix:c.fix,step:it?attnStepFor(it):c.iid?4:/exterior/i.test(c.t)?3:6,t:c.t})}
+  if(!nvrs.length)for(const it of cams.filter(i=>i.model!=='S2'&&(NVR_CAMS.includes(i.model)||i.rec==='N85')))
+    push({key:'n85:'+it.id,w:1,id:it.id,fix:'n85',step:5,t:`<b>${lab(it)}</b> ${CAMS[it.model].poe?'is a PoE camera (powered by the N85)':'records to an N85'}, but there's no N85 on the plan.`});
+  if(nvrs.length)for(const it of cams.filter(i=>i.model==='S2'&&i.rec!=='N85'))
+    push({key:'s2n85:'+it.id,w:0,id:it.id,step:5,t:`<b>${lab(it)}</b> is on a plan with an N85, but the S2 doesn't work with the N85. It records locally, so tell the customer its video isn't on the N85.`});
+  return out}
+function attnCenter(x,y){computeVB();VB0={...VB};ZV={k:Math.max(ZV.k||1,2),cx:x,cy:y}}
+function goAttn(a){
+  if(a.rid){const r=P.rooms.find(x=>x.id===a.rid);if(!r)return;goStep(a.step);if(flOf(r)!==FID())switchFloorRaw(flOf(r));sel={t:'room',id:r.id};attnCenter(rCx(r),rCy(r))}
+  else if(a.iid){const o=(P.issues||[]).find(i=>i.id===a.iid);if(!o)return;goStep(a.step);if(flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:'issue',id:o.id};attnCenter(o.x,o.y)}
+  else if(a.id){const it=P.items.find(i=>i.id===a.id);if(!it)return;goStep(a.step);if(flOf(it)!==FID())switchFloorRaw(flOf(it));sel={t:'item',id:it.id};attnCenter(it.x,it.y)}
+  else goStep(a.step);
+  render();const st=document.getElementById('planStage');if(st&&st.scrollIntoView){const r=st.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)st.scrollIntoView({block:'center'})}}
+function renderAttention(){const host=document.getElementById('attnBox');if(!host)return;const L=attentionItems();
+  if(!L.length){host.innerHTML='<div class="sub">Needs attention</div><div class="attnClear" id="attnClear">✓ All clear. Nothing needs attention.</div>';return}
+  const SL={2:'Doors & windows',3:'Exterior',4:'Devices',5:'Cameras',6:'Review'};
+  host.innerHTML=`<div class="sub">Needs attention (${L.length})</div><ul class="attnList" id="attnList">${L.map((a,i)=>`<li class="${a.w?'w':'n'}" data-attn="${i}"><span class="at">${a.w?'⚠ ':'ℹ '}${a.t}</span><span class="attnBtns" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${a.fix&&a.id&&FIXL[a.fix]?`<button type="button" class="btn soft sm" data-fix="${a.fix}" data-fid="${a.id}">${FIXL[a.fix]}</button>`:''}<button type="button" class="btn sm" data-attngo="${i}" title="Go to ${esc(SL[a.step]||'step')} and show it">Show</button></span></li>`).join('')}</ul>`;
+  host.querySelectorAll('[data-attngo]').forEach(b=>b.onclick=e=>{e.stopPropagation();goAttn(L[+b.dataset.attngo])});bindFix(host)}
+function renderReviewExtras(){if(CUST())return;renderAttention();renderDevCount();
+  const b=document.getElementById('bStepCountCsv');if(b&&!b._bound){b._bound=1;b.onclick=()=>dl(slug()+'-device-count.csv',deviceCountCsv(),'text/csv')}}
+
+// ---- 5) Measure tool (not saved, not exported) ----
+function fmtFtIn(d){let i=Math.round(d*12),f=Math.floor(i/12);i-=f*12;return `${f}′ ${i}″`}
+function measOn(v){MEAS.on=!!v;MEAS.pts=[];MEAS.hover=null;const b=document.getElementById('bMeasure');if(b){b.classList.toggle('on',MEAS.on);b.setAttribute('aria-pressed',String(MEAS.on));b.textContent=MEAS.on?'Measuring…':'Measure'}
+  if(MEAS.on&&typeof SC!=='undefined'&&SC.on)scaleEnd();
+  measBar.hidden=!MEAS.on;svg.style.cursor=MEAS.on?'crosshair':'';measMsgUpd();drawMeasure()}
+function measDist(){const [a,b]=MEAS.pts;return a&&b?Math.hypot(b.x-a.x,b.y-a.y):null}
+function measMsgUpd(){if(!MEAS.on)return;const d=measDist(),U=P.underlay,unsc=U&&U.src&&!U.scaled?' (underlay scale not set; uses the 1 ft grid)':'';
+  measMsg.innerHTML=d!=null?`Distance: <b>${fmtFtIn(d)}</b> (${d.toFixed(1)} ft) · tap again to start a new one${unsc}`:MEAS.pts.length?'Now tap the second point':'Tap or click the first point'+unsc}
+function measClick(p){if(MEAS.pts.length>=2)MEAS.pts=[];MEAS.pts.push({x:p.x,y:p.y});MEAS.hover=null;measMsgUpd();drawMeasure()}
+function drawMeasure(){svg.querySelectorAll('[data-measure]').forEach(n=>n.remove());if(!MEAS.on||!MEAS.pts.length||CUST())return;
+  const px=VB.w/Math.max(1,svg.clientWidth),a=MEAS.pts[0],b=MEAS.pts[1]||MEAS.hover,g=el('g',{'data-measure':1,style:'pointer-events:none'},svg);
+  if(b){el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#da0029','stroke-width':2.2*px,'stroke-dasharray':`${7*px} ${5*px}`,'stroke-linecap':'round'},g)}
+  for(const q of [a,b])if(q)el('circle',{cx:q.x,cy:q.y,r:4.5*px,fill:'#fff',stroke:'#da0029','stroke-width':2*px},g);
+  if(b){const d=Math.hypot(b.x-a.x,b.y-a.y),fs=13*px,mx=(a.x+b.x)/2,my=(a.y+b.y)/2-fs*.55;
+    const t=el('text',{x:mx,y:my,'font-size':fs,'text-anchor':'middle','font-weight':600,fill:'#da0029',stroke:'#fff','stroke-width':3.5*px,'paint-order':'stroke','stroke-linejoin':'round','font-family':'Poppins,sans-serif','data-measlabel':1},g);t.textContent=fmtFtIn(d)}}
+svg.addEventListener('pointermove',e=>{if(!MEAS.on||drag||MEAS.pts.length!==1)return;MEAS.hover=pt(e);drawMeasure()});
+document.getElementById('bMeasure').onclick=()=>measOn(!MEAS.on);
+document.getElementById('bMeasX').onclick=()=>measOn(false);
+
 function boot(){wireStepActions();let saved=null;try{saved=JSON.parse(localStorage.getItem(AS_KEY)||'null')}catch(e){}
   const ok=saved&&Array.isArray(saved.items)&&Array.isArray(saved.rooms),isDemo=p=>p.pid==='demo'||(p.job&&p.job.account==='DEMO-00214');
   placeTray();
