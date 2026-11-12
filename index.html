@@ -447,8 +447,19 @@ header.app #pname{flex:0 1 240px;min-width:150px;width:240px}
   .attnList li{padding:9px 10px;font-size:13px}.attnList li .btn{min-height:40px;padding:8px 14px;font-size:11px}
 }
 body.customer .team-internal,body.customer .techCol{display:none!important}
+/* optional item photos (team only) */
+.photoFld{margin-top:8px}.phRow{display:flex;gap:10px;align-items:flex-start}
+.phThumb{width:96px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--vy-line,#e5e2dc);cursor:zoom-in;background:#f4f2ee;flex:none}
+.phBtns{display:flex;flex-wrap:wrap;gap:6px}.phBtns .btn,.photoFld>.phAdd .btn{border-radius:999px}
+.phAdd{display:flex;flex-wrap:wrap;gap:6px}
+.photoBox{margin:10px 0 4px}.photoGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.photoGrid button{display:flex;flex-direction:column;gap:3px;align-items:stretch;padding:4px;border:1px solid var(--vy-line,#e5e2dc);border-radius:10px;background:#fff;cursor:pointer;font:inherit;font-size:11px;text-align:left;color:inherit}
+.photoGrid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:7px}
+.photoGrid span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.customer [data-photobadge],body.customer .photoFld,body.customer .photoBox,body.customer .phCol{display:none!important}
+@media (pointer:coarse){.phBtns .btn,.phAdd .btn{min-height:40px;padding:8px 14px}}
 @media (max-width:900px){.tools .grp{flex-wrap:wrap;row-gap:6px}}
-@media print{.team-internal,.techCol,.measBar,[data-measure]{display:none!important}}
+@media print{.team-internal,.techCol,.measBar,[data-measure],[data-photobadge],.photoFld,.photoBox,.phCol{display:none!important}}
 </style>
 </head>
 <body>
@@ -539,6 +550,7 @@ body.customer .team-internal,body.customer .techCol{display:none!important}
         <div class="sub">Alarm devices</div>
         <span class="sugGateWrap block" id="wrapSuggestStepDev"><button class="btn sm" id="bSuggestStepDev" type="button" style="width:100%;margin-bottom:8px" title="Propose alarm devices from the rooms, doors and windows" aria-describedby="sugGateTip">Suggest devices</button></span>
         <div class="pal" id="palAlarm"></div>
+        <div class="sub commDev" id="palCommH">Commercial</div><div class="pal commDev" id="palComm"></div>
         <div class="sub">Power</div><div class="pal" id="palPower"></div>
         <div class="sub">Site issues</div>
       <label class="f" for="issueType">Walkthrough note</label>
@@ -601,6 +613,7 @@ body.customer .team-internal,body.customer .techCol{display:none!important}
         <div class="attnBox team-internal no-print" id="attnBox" aria-label="Needs attention"></div>
         <div class="stepSummary" id="stepSummary"></div>
         <div class="devCountBox team-internal no-print" id="devCountBox" aria-label="Device count"></div>
+        <div class="photoBox team-internal no-print" id="photoBox" aria-label="Item photos" hidden></div>
         <div class="stepActions">
           <button class="btn soft sm" id="bStepCust" type="button">Customer view</button>
           <button class="btn soft sm" id="bStepPng" type="button">Export PNG</button>
@@ -723,6 +736,10 @@ const ICON={
  nvr:'<rect x="2.5" y="8" width="19" height="8" rx="1.5"/><circle cx="6" cy="12" r=".9" fill="currentColor"/><path d="M10 12h8"/><path d="M5 16v2M19 16v2"/>'
 };
 ICON.panic='<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 1.5v1.5M12 21v1.5M1.5 12H3M21 12h1.5"/>';
+ICON.access='<rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M9.3 7.6a3.9 3.9 0 0 1 5.4 0M10.6 9.4a2 2 0 0 1 2.8 0"/><circle cx="12" cy="11.4" r=".7" fill="currentColor"/><path d="M9.5 15.5h5M9.5 18h5"/>';
+ICON.holdup='<rect x="3.5" y="14" width="17" height="6.5" rx="1.5"/><path d="M7.5 14v-2a4.5 4.5 0 0 1 9 0v2"/><path d="M12 2.5v3M5 5l1.8 1.8M19 5l-1.8 1.8"/>';
+ICON.pendant='<path d="M8 2.5 12 8l4-5.5"/><circle cx="12" cy="14.5" r="6"/><circle cx="12" cy="14.5" r="2.3" fill="currentColor"/>';
+ICON.photo='<path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.4-2h6.8l1.4 2H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.6" r="3.6"/>';
 const svgIcon=(k,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]||''}</svg>`;
 const badgeSvg=(k,c)=>`<svg class="ibs" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="${c}"/><g transform="translate(4.8 4.8) scale(.6)" fill="none" stroke="#fff" color="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]||''}</g></svg>`;
 const ibadge=(k,c,size='')=>`<span class="ib ${size}" style="--ibc:${c}">${badgeSvg(k,c)}</span>`;
@@ -740,8 +757,20 @@ const ALARM={
   heat:{label:'Heat detector',ic:'HD',c:'#9f1239',zone:true},
   water:{label:'Water/flood sensor',ic:'WF',c:'#0284c7',zone:true},
   siren:{label:'Siren',ic:'SR',c:'#2b2829',zone:false},
-  panic:{label:'Panic / hold-up button',ic:'PB',c:'#7c2d12',zone:true}
+  access:{label:'Access-control door',ic:'AC',c:'#475569',zone:false,comm:true},
+  holdup:{label:'Hold-up / duress button',ic:'HU',c:'#991b1b',zone:true,comm:true},
+  pendant:{label:'Wireless panic pendant',ic:'PP',c:'#a16207',zone:true,comm:true}
 };
+// ---- commercial extras (generic): access-control doors, hold-up / duress buttons, wireless panic pendants ----
+const COMMK=['access','holdup','pendant'];
+// the old 'Panic / hold-up button' (type 'panic') is merged into the Hold-up / duress button; keeps id, position, zone #, name, notes, tech note, photo
+function migrateHoldup(i){if(!i||i.kind!=='alarm'||i.type!=='panic')return false;i.type='holdup';if(i.mount==null)i.mount='Fixed';if(i.signal==null)i.signal='Silent';if(i.wiring==null)i.wiring='Wireless';return true}
+// a zone: normal zoned devices, plus an access-control door that has a door contact (then it is a normal door zone)
+const isZoneDev=i=>i.kind==='alarm'&&!!ALARM[i.type]&&(ALARM[i.type].zone||(i.type==='access'&&i.doorContact==='Yes'));
+function zoneTypeOf(i){if(i.kind!=='alarm')return '';if(i.type==='holdup')return '24-hr hold-up ('+(i.signal==='Audible'?'audible':'silent')+')';if(i.type==='pendant')return '24-hr panic ('+(i.signal==='Audible'?'audible':'silent')+')';if(i.type==='access')return i.doorContact==='Yes'?'Door (entry / perimeter)':'';return ''}
+function devDesc(i){const a=ALARM[i.type];if(!a)return '';if(i.type==='access'){const p=[a.label,i.reader?i.reader+' reader':'',i.lock||'',i.rex==='Yes'?'REX':'',i.doorContact==='Yes'?'door contact (door zone)':'no alarm zone'].filter(Boolean);return p.join(' · ')}
+  if(i.type==='holdup')return [a.label,zoneTypeOf(i),i.mount||''].filter(Boolean).join(' · ');if(i.type==='pendant')return [a.label,zoneTypeOf(i)].join(' · ');return a.label}
+function accessZoneSync(it){if(!it||it.kind!=='alarm'||it.type!=='access')return;if(it.doorContact==='Yes'){if(it.zone==null)it.zone=nextZone()}else if(it.zone!=null)delete it.zone}
 const OUTLET={label:'Outlet',ic:'⏚',c:'#65a30d'};
 const CAMS={
   F1:{name:'F1 5MP Blue and Red Light Camera',env:'Outdoor',power:'PoE',fov:94.5,nightM:20,rec:'N85',outlet:false,poe:true},
@@ -774,7 +803,7 @@ function store(){if(QUIET||loading)return;clearTimeout(asT);asT=setTimeout(autos
 
 function mkItem(kind,type,x,y){
   const it={id:nid('i'),kind,type,x,y,notes:'',floor:FID()};
-  if(kind==='alarm'){it.name='';it.wiring='Wireless';if(ALARM[type].zone)it.zone=nextZone()}
+  if(kind==='alarm'){it.name='';it.wiring='Wireless';if(ALARM[type].zone)it.zone=nextZone();if(type==='access'){it.wiring='Wired';it.reader='';it.lock='';it.rex='';it.doorContact='No'}if(type==='holdup'){it.mount='Fixed';it.signal='Silent'}if(type==='pendant')it.signal='Silent'}
   if(kind==='cam'){const c=CAMS[type];it.model=type;it.rot=0;it.fov=c.fov;it.range=ftR(c.nightM);it.rec=c.rec;it.location='';if(c.variant)it.variant='W';it.num=nextCam()}
   if(kind==='nvr'){it.location=''}
   if(kind==='opening'){it.width=type==='door'?3:4;it.orient='h';it.inward=1;it.swing='in';it.name=''}
@@ -805,7 +834,7 @@ const isOutdoorCam=it=>CAMS[it.model]&&CAMS[it.model].env!=='Indoor';
 // ---- palette ----
 function palBtn(host,ic,c,label,sub,fn){const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="ic">${ic}</span><span>${label}${sub?`<small>${sub}</small>`:''}</span>`;b.onclick=fn;host.appendChild(b)}
 function placeNew(kind,type){const it=mkItem(kind,type,W/2+(Math.random()*6-3),H/2+(Math.random()*6-3));if(kind==='opening'){snapOpening(it,it.x,it.y,99);freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
-for(const [k,a] of Object.entries(ALARM)){palBtn(palAlarm,ibadge(k,a.c,'lg'),a.c,a.label,a.zone?'':'Not a zone',()=>placeNew('alarm',k));if(['smoke','co','heat'].includes(k))palAlarm.lastChild.classList.add('fireDev');if(k==='panic')palAlarm.lastChild.classList.add('commDev')}
+for(const [k,a] of Object.entries(ALARM)){const C=!!a.comm,host=C?palComm:palAlarm,sub=k==='access'?'Card / fob reader · zone only with a door contact':k==='holdup'?'24-hr hold-up (silent)':k==='pendant'?'24-hr panic (silent)':a.zone?'':'Not a zone';palBtn(host,ibadge(k,a.c,'lg'),a.c,a.label,sub,()=>placeNew('alarm',k));host.lastChild.dataset.pal=k;if(['smoke','co','heat'].includes(k))host.lastChild.classList.add('fireDev');if(C)host.lastChild.classList.add('commDev')}
 palBtn(palPower,ibadge('outlet',OUTLET.c,'lg'),OUTLET.c,'Outlet','Marker for the 5 ft camera rule',()=>placeNew('outlet','outlet'));
 for(const [k,c] of Object.entries(CAMS))palBtn(palCam,photoTag(k),camColor[c.env],c.name,`${c.env} · ${c.power} · ${c.fov}° · ${ftR(c.nightM)} ft`,()=>placeNew('cam',k));
 palBtn(palRec,photoTag('N85'),'#2e2f2a',N85.name,`${N85_CH} channels · no cone`,()=>placeNew('nvr','N85'));
@@ -1107,7 +1136,7 @@ function drawYard(){
   for(const k of SSs){const lp=lpS[k],v=k==='left'||k==='right',lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15,'data-streetlabel':k,...(v?{transform:`rotate(${k==='left'?-90:90} ${lp[0]} ${lp[1]})`}:{})},g);lt.textContent=SSs.length>1&&k===street?'STREET · MAIN ENTRANCE':'STREET'}
 }
 function render(){
-  if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
+  (P.items||[]).forEach(i=>{migrateHoldup(i);accessZoneSync(i)});if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
   streetSides();renderStreetBox();streetSide.value=SSIDES.includes(P.streetSide)?P.streetSide:'';
   if(typeof syncSiteNotesUI==='function')syncSiteNotesUI();
   CHK=checks();
@@ -1137,7 +1166,7 @@ function drawPlan(opt={}){
     const t=el('text',{x:cx,y:cy-fs*.35,'font-size':fs,'text-anchor':'middle',fill:'#5e5758','font-weight':600,style:'pointer-events:none','data-rlabel':'name'},svg);t.textContent=r.name;
     const sz=el('text',{x:cx,y:cy+fs*.85,'font-size':fs*.75,'text-anchor':'middle',fill:'#9a9690',style:'pointer-events:none','data-rlabel':'size'},svg);sz.textContent=`${Math.round(r.w)}′ × ${Math.round(r.h)}′`;
   }
-  for(const it of FI().filter(i=>i.kind==='opening'))drawOpening(it);
+  for(const it of FI().filter(i=>i.kind==='opening'))drawOpening(it,PR);
   drawIssueLines();
   // edge + corner resize handles (outside the walls so the room body stays draggable)
   if(sel&&sel.t==='room'&&!PR){const r=P.rooms.find(r=>r.id===sel.id&&onF(r));if(r){const hs=Math.max(1.4,HS()),A=RA(r),cx=r.x+r.w/2,cy=r.y+r.h/2,tf=A?{transform:`rotate(${A} ${cx} ${cy})`}:{};
@@ -1171,6 +1200,7 @@ function drawPlan(opt={}){
     const tag=it.kind==='alarm'&&it.zone!=null?'Z'+it.zone:it.kind==='cam'?'C'+it.num+' '+camModelLabel(it):it.kind==='nvr'?'N85':'';
     if(tag){const tt=el('text',{x:it.x,y:it.y-rr-.3,'font-size':.7,'text-anchor':'middle',fill:'#2e2f2a','font-weight':600,style:'pointer-events:none'},g);tt.textContent=tag}
     if(it.kind==='alarm'&&it.wiring==='Wireless'){const bx=it.x+rr*.78,by=it.y+rr*.78;el('circle',{cx:bx,cy:by,r:.4,fill:'#fff',stroke:'#0089f7','stroke-width':.09,'data-wbadge':1,style:'pointer-events:none'},g);const wt=el('text',{x:bx,y:by+.2,'font-size':.52,'text-anchor':'middle',fill:'#0089f7','font-weight':700,style:'pointer-events:none'},g);wt.textContent='W'}
+    if(it.photo&&!PR&&TECH())photoBadge(g,it.x-rr*.8,it.y+rr*.8);
     if(warn[it.id]){const cx=it.x-rr*.95,cy=it.y-rr*.95,ws=1;const wg=el('g',{'data-warn':it.id,'data-warnmark':1,style:'cursor:pointer'},svg);el('title',{},wg).textContent=strip(warn[it.id].t)+' (click for the fix)';el('path',{d:`M${cx},${cy-ws*.62} L${cx+ws*.58},${cy+ws*.42} L${cx-ws*.58},${cy+ws*.42} Z`,fill:'#facc15',stroke:'#92400e','stroke-width':.08,'stroke-linejoin':'round'},wg);const wx=el('text',{x:cx,y:cy+.33,'font-size':.62,'text-anchor':'middle',fill:'#78350f','font-weight':700,style:'pointer-events:none'},wg);wx.textContent='!'}
     if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:Math.max(.55,HS()/2),fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
   drawIssueMarks(PR);
@@ -1375,11 +1405,12 @@ function renderProps(){
   const it=P.items.find(i=>i.id===sel.id);if(!it){sel=null;return renderProps()}
   const room=roomName(it);
   if(it.kind==='alarm'){const a=ALARM[it.type];h=`<div class="propHead">${ibadge(it.type,a.c,'lg')}<b>${a.label}</b></div>`;
-    if(a.zone)h+=fld('Zone #','zone',it,'number','min=1 step=1');else h+=`<div class="legend">${a.label} is not a zone.</div>`;
-    h+=fld('Name / location','name',it,'text','placeholder="e.g. Front door"')+ro('Room (from plan)',room)+selFld('Wired / wireless','wiring',it,[['Wireless','Wireless'],['Wired','Wired']])+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  else if(it.kind==='opening'){h=`<div class="propHead">${ibadge(it.type,it.type==='door'?'#8a8780':'#0089f7','lg')}<b>${it.type==='door'?'Door':'Window'}</b></div><div class="legend">Snaps to the nearest room wall when dragged close to it.</div>`+fld('Label','name',it,'text','placeholder="e.g. Front door"')+fld('Width (ft)','width',it,'number','min=1 max=20 step=0.5')+(it.type==='door'?selFld('Swing','swing',it,[['in','Into the room'],['out','Out of the room']]):'')+ro('Room (from plan)',openingRoom(it))+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  else if(it.kind==='outlet'){h=`<div class="propHead">${ibadge('outlet',OUTLET.c,'lg')}<b>Outlet</b></div>`+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
-  else if(it.kind==='nvr'){h=`<div class="propHead">${photoTag('N85','ph lg')}<b>Vyanet ${N85.name}</b></div><div class="legend">Recorder · ${N85_CH} channels · no camera cone</div>`+fld('Location','location',it)+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+    if(it.type==='access'){accessZoneSync(it);if(it.zone!=null)h+=fld('Zone #','zone',it,'number','min=1 step=1')+ro('Zone type',zoneTypeOf(it));else h+=`<div class="legend">Not an alarm zone. Set <b>Door contact</b> to Yes to make it a normal door zone.</div>`}
+    else if(a.zone){h+=fld('Zone #','zone',it,'number','min=1 step=1');if(zoneTypeOf(it))h+=ro('Zone type',zoneTypeOf(it))}else h+=`<div class="legend">${a.label} is not a zone.</div>`;
+    h+=fld('Name / location','name',it,'text','placeholder="e.g. Front door"')+ro('Room (from plan)',room)+commFlds(it)+selFld('Wired / wireless','wiring',it,[['Wireless','Wireless'],['Wired','Wired']])+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`+photoFld(it)}
+  else if(it.kind==='opening'){h=`<div class="propHead">${ibadge(it.type,it.type==='door'?'#8a8780':'#0089f7','lg')}<b>${it.type==='door'?'Door':'Window'}</b></div><div class="legend">Snaps to the nearest room wall when dragged close to it.</div>`+fld('Label','name',it,'text','placeholder="e.g. Front door"')+fld('Width (ft)','width',it,'number','min=1 max=20 step=0.5')+(it.type==='door'?selFld('Swing','swing',it,[['in','Into the room'],['out','Out of the room']]):'')+ro('Room (from plan)',openingRoom(it))+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`+photoFld(it)}
+  else if(it.kind==='outlet'){h=`<div class="propHead">${ibadge('outlet',OUTLET.c,'lg')}<b>Outlet</b></div>`+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`+photoFld(it)}
+  else if(it.kind==='nvr'){h=`<div class="propHead">${photoTag('N85','ph lg')}<b>Vyanet ${N85.name}</b></div><div class="legend">Recorder · ${N85_CH} channels · no camera cone</div>`+fld('Location','location',it)+ro('Room (from plan)',room)+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`+photoFld(it)}
   else{const c=CAMS[it.model];
     h=`<div class="propHead">${photoTag(it,'ph lg')}<b>Vyanet ${esc(c.name.replace(/^R5W \/ R5B/,camModelLabel(it)))}</b></div><div class="legend">${c.env} · ${c.power}${c.pt?' · pan/tilt':''} · spec ${c.fov}° HFOV · ${c.nightM} m (${ftR(c.nightM)} ft) night range</div>`;
     h+=fld('Camera #','num',it,'number','min=1 step=1');
@@ -1388,10 +1419,10 @@ function renderProps(){
     h+=`<div class="row2"><div>${fld('Aim (°)','rot',it,'number','min=0 max=359 step=1')}</div><div>${fld('Cone angle (°)','fov',it,'number','min=10 max=180 step=0.1')}</div></div>`;
     h+=fld('Cone range (ft)','range',it,'number','min=1 step=0.1');
     h+=c.noNvr?ro('Records to','Local (the S2 doesn’t work with the N85)')+(it.rec==='N85'?selFld('Records to (fix)','rec',it,[['Local','Local'],['N85','N85 — not supported']]):''):selFld('Records to','rec',it,[['N85','N85 NVR'],['Local','Local']]);
-    h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button>`+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`}
+    h+=`<button class="btn soft sm" style="margin-top:8px" data-reset type="button">Reset cone to spec</button>`+techFld(it)+`<label class="f">Notes</label><textarea data-k="notes">${esc(it.notes)}</textarea>`+photoFld(it)}
   const ov=overlapping(it);if(ov.length)h=`<div class="alsoHere">Also here:${ov.map(o=>`<button class="btn ghost sm" type="button" data-also="${esc(o.id)}">${esc(itemLabel(o))}</button>`).join('')}</div>`+h;
   h+=`<div class="propAct"><button class="btn sm" type="button" data-pdel>Delete${it.kind==='opening'?(it.type==='door'?' door':' window'):''}</button>${it.kind==='opening'?'':'<button class="btn ghost sm" type="button" data-pdup>Duplicate</button>'}</div>`;
-  h=warnBox(it)+h;h=h.replace('<div class="propAct">',floorSel(it)+'<div class="propAct">');b.innerHTML=h;bind(b,it);propActs(b);bindFloorSel(b,it);bindFix(b);
+  h=warnBox(it)+h;h=h.replace('<div class="propAct">',floorSel(it)+'<div class="propAct">');b.innerHTML=h;bind(b,it);propActs(b);bindFloorSel(b,it);bindFix(b);bindPhoto(b,it);
   const rb=b.querySelector('[data-reset]');if(rb)rb.onclick=()=>{const c=CAMS[it.model];it.fov=c.fov;it.range=ftR(c.nightM);render()};
 }
 function propActs(b){const d=b.querySelector('[data-pdel]');if(d)d.onclick=delSel;const u=b.querySelector('[data-pdup]');if(u)u.onclick=()=>bDup.click();
@@ -1442,23 +1473,23 @@ let NOTES_PUB=false;
 let PRINTING=false;
 function listNotes(n){return (NOTES_PUB||PRINTING||CUST())?pubNotes(n):(n||'')}
 const TECH=()=>!(NOTES_PUB||PRINTING||CUST());
-function zoneRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type].zone).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[i.zone,ALARM[i.type].label,i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes),...(T?[i.tech||'']:[])],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(ALARM[i.type].label)}</span>`}}))}
+function zoneRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>isZoneDev(i)||(i.kind==='alarm'&&i.type==='access')).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.zone||1e9)-(+b.zone||1e9))).map(i=>({id:i.id,f:flOf(i),c:[isZoneDev(i)?i.zone:'',devDesc(i),i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes),...(T?[i.photo?'Y':'N',i.tech||'']:[])],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(devDesc(i))}</span>`}}))}
 const ZCOLS=['Zone #','Device','Name / Location','Floor','Room','Wired / Wireless','Notes'];
 function camRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
   const auto=[];if(i.model==='S2')auto.push('Records locally; not compatible with N85');if(c.poe)auto.push('PoE from N85');if(i.model==='D1')auto.push('Needs existing hardwired doorbell');
   const mn=c.name.replace(/^R5W \/ R5B/,camModelLabel(i));
   const noteParts=[listNotes(i.notes),...auto].filter(Boolean);
-  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; '),...(T?[i.tech||'']:[])]}})}
+  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; '),...(T?[i.photo?'Y':'N',i.tech||'']:[])]}})}
 const CCOLS=['Camera #','Model','Location / Room','Floor','Indoor / Outdoor','Power','Records to','Notes'];
 function extRows(){return (P.exteriors||[]).map(ex=>{const s=suggestCam(ex);return {id:ex.id,c:[ex.side,ex.name,ex.watch,ex.distance,ex.power,ex.mount,ex.wifi,s.model||'',s.reason+(s.warn?' '+s.warn:'')]}})}
 const ECOLS=['Side','Name','Watch','Distance (ft)','Power','Mount','Wi-Fi','Suggested','Reason'];
 function tbl(host,cols,rows,empty,grouped){
-  const tci=cols.indexOf('Tech note'),tc=ci=>ci===tci?' class="techCol"':'';const tb=rs=>`<table><thead><tr>${cols.map((c,ci)=>`<th${tc(ci)}>${c}</th>`).join('')}</tr></thead><tbody>${rs.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td${tc(ci)}>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const tci=cols.indexOf('Tech note'),pci=cols.indexOf('Has photo'),tc=ci=>ci===tci?' class="techCol"':ci===pci?' class="phCol"':'';const tb=rs=>`<table><thead><tr>${cols.map((c,ci)=>`<th${tc(ci)}>${c}</th>`).join('')}</tr></thead><tbody>${rs.map(r=>`<tr data-id="${r.id}" class="${sel&&sel.id===r.id?'sel':''}">${r.c.map((v,ci)=>`<td${tc(ci)}>${r.h&&r.h[ci]!=null?r.h[ci]:esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   if(!rows.length)host.innerHTML=`<div class="empty">${empty}</div>`;
   else if(grouped)host.innerHTML=P.floors.map((f,i)=>{const rs=rows.filter(r=>r.f===f.id);return rs.length?`<div class="flSub">${esc(f.name)}<small>Floor ${i+1} of ${P.floors.length} · ${rs.length} row${rs.length>1?'s':''}</small></div>`+tb(rs):''}).join('');
   else host.innerHTML=tb(rows);
   host.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{const id=tr.dataset.id;if(P.exteriors.some(e=>e.id===id)){selExt=id;document.querySelector('#leftTabs [data-tab=exterior]').click()}else{const it=P.items.find(i=>i.id===id),is=(P.issues||[]).find(i=>i.id===id),o=it||is;if(o&&flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:it?'item':'issue',id}}render()})}
-const zCols=t=>t?[...ZCOLS,'Tech note']:ZCOLS,cCols=t=>t?[...CCOLS,'Tech note']:CCOLS;
+const zCols=t=>t?[...ZCOLS,'Has photo','Tech note']:ZCOLS,cCols=t=>t?[...CCOLS,'Has photo','Tech note']:CCOLS;
 function renderTables(){const T=TECH();tbl(zoneTbl,zCols(T),zoneRows(),'No zones yet.',true);tbl(camTbl,cCols(T),camRows(),'No cameras yet.',true);tbl(issueTbl,ICOLS,issueRows(),'No site issues noted.',true);tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
 function renderPrintExt(){
   printExt.innerHTML=(P.exteriors||[]).map(ex=>{const s=suggestCam(ex);const sug=CUST()?'':`<br>Suggested: <b>${esc(s.model)}</b> — ${esc(s.reason)}${s.warn?' '+esc(s.warn):''}`;return `<figure><img onclick="openLb(this.src)" src="${ex.dataUrl}" alt=""><figcaption><b>${esc(ex.side)}</b> — ${esc(ex.name)}<br>${esc(ex.watch)} · ${esc(ex.distance)} ft · ${esc(ex.power)}${sug}</figcaption></figure>`}).join('')||'<div class="empty">No exterior photos.</div>';
@@ -1472,7 +1503,7 @@ bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(cCols(true),camRows({tech:t
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){SUG.list=[];MEAS.pts=[];MEAS.hover=null;SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
+function load(p){if(p&&Array.isArray(p.items))p.items.forEach(migrateHoldup);SUG.list=[];MEAS.pts=[];MEAS.hover=null;SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
   // Old projects: keep their streetSide as a selected street (display), without inventing one for brand-new blanks
   if(!hadStreets&&SSIDES.includes(raw.streetSide)){P.streetSides=[raw.streetSide];P.mainStreetSide=SSIDES.includes(P.mainStreetSide)?P.mainStreetSide:raw.streetSide}
   if(!Array.isArray(P.streetSides))P.streetSides=[];P.streetSideSet=!!P.streetSideSet;
@@ -1550,7 +1581,7 @@ function freeSpot(o){if(!opClash(o))return;const x0=o.x,y0=o.y,T=opT(o),step=.5;
   for(let k=1;k<200;k++){const d=Math.ceil(k/2)*step*(k%2?1:-1);const t={...o};if(!snapOpening(t,x0+T.x*d,y0+T.y*d,.01))continue;const U=opT(t);if(Math.abs(T.x*U.y-T.y*U.x)>.02)continue;t.id=o.id;if(!opClash(Object.assign(o,{x:t.x,y:t.y})))return}
   o.x=x0;o.y=y0}
 function openingRoom(o){const N=opN(o),dx=N.x*.3,dy=N.y*.3;const r=roomAt(o.x+dx,o.y+dy);return r?r.name:''}
-function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width||3,h2=w/2,inw=(it.inward||1)*(it.swing==='out'?-1:1);
+function drawOpening(it,PR){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width||3,h2=w/2,inw=(it.inward||1)*(it.swing==='out'?-1:1);
   const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);if(opAng(it))g.setAttribute('transform',`rotate(${opAng(it)} ${it.x} ${it.y})`);
   const H=it.orient==='h';
   const a=H?[it.x-h2,it.y]:[it.x,it.y-h2],b=H?[it.x+h2,it.y]:[it.x,it.y+h2];
@@ -1563,6 +1594,7 @@ function drawOpening(it){const s=sel&&sel.t==='item'&&sel.id===it.id,w=+it.width
     el('path',{d:`M${leaf[0]},${leaf[1]} A${w},${w} 0 0 ${sweep} ${b[0]},${b[1]}`,fill:'none',stroke:'#8a8780','stroke-width':.07,'stroke-dasharray':'.25 .15'},g);
     for(const q of [a,b])el('circle',{cx:q[0],cy:q[1],r:.12,fill:'#2e2f2a'},g)}
   else{const off=.13;for(const k of [-off,0,off])el('line',H?{x1:a[0],y1:a[1]+k,x2:b[0],y2:b[1]+k}:{x1:a[0]+k,y1:a[1],x2:b[0]+k,y2:b[1]},g).setAttribute('stroke',k?'#0089f7':'#9fd0ff'),g.lastChild.setAttribute('stroke-width',k?.07:.05)}
+  if(it.photo&&!PR&&TECH()){const o=-(it.inward||1)*1.05;photoBadge(g,H?it.x:it.x+o,H?it.y+o:it.y)}
   if(s){const r=el('rect',H?{x:it.x-h2-.3,y:it.y-.9,width:w+.6,height:1.8,rx:.3}:{x:it.x-.9,y:it.y-h2-.3,width:1.8,height:w+.6,rx:.3},g);r.setAttribute('fill','none');r.setAttribute('stroke','#da0029');r.setAttribute('stroke-width',.16);
     for(const q of [a,b])el('circle',{cx:q[0],cy:q[1],r:.28,fill:'#fff',stroke:'#da0029','stroke-width':.1,style:'pointer-events:none'},g)}
 }
@@ -1614,7 +1646,7 @@ function renderWalk(){const h=walkStrip;if(!(P.walk||[]).length){h.innerHTML='<d
 // ---- customer view ----
 const CUST=()=>document.body.classList.contains('customer');
 bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;pname.readOnly=on;if(on&&typeof SC!=='undefined'&&SC.on)scaleEnd();if(on&&MEAS.on)measOn(false);focusHouse();render()};
-function legendShortAlarm(k){return ({contact:'Contact',motion:'Motion',glass:'Glass',smoke:'Smoke',co:'CO',heat:'Heat',water:'Water',siren:'Siren',panic:'Panic',panel:'Keypad'})[k]||((ALARM[k]||{}).label||k)}
+function legendShortAlarm(k){return ({access:'Access door',holdup:'Hold-up',pendant:'Pendant',contact:'Contact',motion:'Motion',glass:'Glass',smoke:'Smoke',co:'CO',heat:'Heat',water:'Water',siren:'Siren',panel:'Keypad'})[k]||((ALARM[k]||{}).label||k)}
 const SUG_LEGEND_ICON=`<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="#da0029" stroke-width="1.4" stroke-dasharray="2.5 2"/><circle cx="8" cy="8" r="2" fill="#da0029" opacity=".35"/></svg>`;
 function legendEntries(floorId){
   const items=P.items.filter(i=>floorId==null||flOf(i)===floorId);
@@ -2209,7 +2241,11 @@ function buildSuggestions(){
     const cx=all.reduce((s,r)=>s+rCx(r)*rArea(r),0)/A,cy=all.reduce((s,r)=>s+rCy(r)*rArea(r),0)/A;
     const c0=inRoomAt(cx,cy),okS=r=>!RX.garage.test(r.name)&&!RX.bath.test(r.name)&&!RX.bed.test(r.name);const cand=(c0&&okS(c0))?c0:all.filter(okS).slice().sort((a,b)=>Math.hypot(rCx(a)-cx,rCy(a)-cy)-Math.hypot(rCx(b)-cx,rCy(b)-cy))[0]||largest||rooms[0];
     const [x,y]=clampIn(cand,cx,cy,.9);add({cat:'Control',kind:'alarm',type:'siren',x,y,name:cand.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' siren',reason:'Central location so it is heard throughout.'})}
-  if(COMM()&&!ex.some(i=>i.kind==='alarm'&&i.type==='panic'))rooms.filter(r=>/reception|lobby|front desk|retail|register|checkout|cashier|sales/i.test(r.name)).slice(0,3).forEach(r=>{const [x,y]=clampIn(r,...LW(r,r.x+r.w*.75,r.y+r.h*.7),1);add({cat:'Control',kind:'alarm',type:'panic',x,y,name:r.name.replace(/\s*\?\s*/g,' ').trim()+' panic button',reason:'Generic panic / hold-up button where staff work (reception desk or register). Confirm the exact spot with the business.'})});
+  // commercial extras (never on a residential plan): one hold-up / duress button at the front desk / reception / register / office, an access-control door on the main entry
+  if(COMM()&&!has(i=>i.kind==='alarm'&&i.type==='holdup')){const R=[/reception|front desk|lobby/i,/register|cashier|checkout/i,/retail|sales/i,/office/i].map(re=>rooms.find(r=>re.test(r.name))).find(Boolean);
+    if(R){const [x,y]=clampIn(R,...LW(R,R.x+R.w*.3,R.y+R.h*.7),1);add({cat:'Control',kind:'alarm',type:'holdup',x,y,name:R.name.replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' hold-up / duress button?',reason:'Generic silent 24-hr hold-up / duress button where staff work (front desk, reception, register or office), within reach but out of sight. Confirm the business wants one and the exact spot.'})}}
+  if(COMM()&&main&&main.room&&!has(i=>i.kind==='alarm'&&i.type==='access')){const [x,y]=clampIn(main.room,main.o.x+main.n.x*1.2-main.t.x*2,main.o.y+main.n.y*1.2-main.t.y*2,.9);
+    add({cat:'Perimeter',kind:'alarm',type:'access',x,y,name:nm(main).replace(/\s*\?\s*/g,' ').replace(/\s+/g,' ').trim()+' access control?',reason:'Generic card / fob reader on the main entry. Confirm reader, lock type and request-to-exit with the business.'})}
   // 5) cameras
   const camAt=(model,x,y,rot,name,reason,extra={})=>add({cat:'Cameras',kind:'cam',model,x,y,rot:((rot%360)+360)%360,name,reason,...extra});
   const outCams=ex.filter(i=>i.kind==='cam'&&isOutdoorCam(i));
@@ -2736,7 +2772,7 @@ function renderOpenMissing(){
 function renderStepSummary(){
   const host=document.getElementById('stepSummary');if(!host||curStep()!==6)return;renderReviewExtras();
   const rooms=P.rooms.length,opens=P.items.filter(i=>i.kind==='opening').length;
-  const zones=P.items.filter(i=>i.kind==='alarm'&&ALARM[i.type]&&ALARM[i.type].zone).length;
+  const zones=P.items.filter(isZoneDev).length;
   const cams=P.items.filter(i=>i.kind==='cam').length;
   const yards=(P.yards||[]).length, streets=streetSides().length;
   const warns=(typeof checks==='function'?checks():[]).filter(w=>w.w).length;
@@ -2802,7 +2838,7 @@ function renderTray(){const st=curStep();
   const all=[];
   all.push(['opening','door',ibadge('door','#8a8780','lg'),'Door','open',false]);
   all.push(['opening','window',ibadge('window','#0089f7','lg'),'Window','open',false]);
-  for(const [k,a] of Object.entries(ALARM))if(k!=='panic'||COMM())all.push(['alarm',k,ibadge(k,a.c,'lg'),a.label,'dev',FIRE.includes(k)]);
+  for(const [k,a] of Object.entries(ALARM))if(!a.comm||COMM())all.push(['alarm',k,ibadge(k,a.c,'lg'),a.label,'dev',FIRE.includes(k)]);
   all.push(['outlet','outlet',ibadge('outlet',OUTLET.c,'lg'),'Outlet','dev',false]);
   for(const [k,c] of Object.entries(CAMS))all.push(['cam',k,photoTag(k),'Vyanet '+c.name,'cam',false]);
   all.push(['nvr','N85',photoTag('N85'),'Vyanet N85 5MP PoE NVR','cam',false]);
@@ -2842,7 +2878,7 @@ function showGuide(i){const s=GSTEPS[i],n=GSTEPS.length;const box=modal(`<div cl
   ovl.dataset.kind='guide';const done=()=>{localStorage.setItem('vyGuideSeen','1');closeModal()};
   box.querySelector('[data-g=skip]').onclick=done;const bk=box.querySelector('[data-g=back]');if(bk)bk.onclick=()=>showGuide(i-1);box.querySelector('[data-g=next]').onclick=()=>i<n-1?showGuide(i+1):done()}
 bGuide.onclick=e=>{e.preventDefault();showGuide(0)};
-function askMode(){if(AUTO)return;const box=modal(`<h2>New project</h2><p>Is this a home or a business? You can change it later in <b>Project type</b>.</p><div class="mChoice"><button type="button" data-m="residential"><b>Residential</b><small>Homes: bedrooms, kitchen, garage. Intrusion, fire/CO and Vyanet cameras.</small></button><button type="button" data-m="commercial"><b>Commercial</b><small>Businesses: offices, retail, warehouse. Intrusion, panic button and Vyanet cameras. No fire devices.</small></button></div>`,'Choose project type');
+function askMode(){if(AUTO)return;const box=modal(`<h2>New project</h2><p>Is this a home or a business? You can change it later in <b>Project type</b>.</p><div class="mChoice"><button type="button" data-m="residential"><b>Residential</b><small>Homes: bedrooms, kitchen, garage. Intrusion, fire/CO and Vyanet cameras.</small></button><button type="button" data-m="commercial"><b>Commercial</b><small>Businesses: offices, retail, warehouse. Intrusion, hold-up button and Vyanet cameras. No fire devices.</small></button></div>`,'Choose project type');
   box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{P.mode=b.dataset.m;closeModal();render()})}
 function setMode(m){if(m===P.mode)return;const fire=P.items.filter(i=>i.kind==='alarm'&&FIRE.includes(i.type));
   const go=rm=>{if(rm)P.items=P.items.filter(i=>!fire.includes(i));P.mode=m;SUG.list=[];closeModal();if(sel&&!P.items.some(i=>i.id===sel.id)&&sel.t==='item')sel=null;render()};
@@ -2927,7 +2963,7 @@ const G0=[
  ['g19','Door / window contacts','both','Magnet gap','Mount the sensor and magnet aligned, and keep the gap within the maximum on the device\u2019s spec sheet; it varies by model.',['SPEC']],
  ['g20','Keypad & siren','both','Keypad location','Residential: inside the main entry, within ~5 ft of the door. Commercial: at the employee entrance. Train everyone who uses the system to arm, disarm and cancel a false alarm.',['VYS','EPS'],'keypad'],
  ['g21','Keypad & siren','both','Siren location','A central location so it can be heard throughout.',['VYS'],'siren'],
- ['g22','Panic button','commercial','Panic / hold-up button','Place it where staff work and can reach it, such as the reception desk or register, and confirm the exact spot with the business. Keep panic buttons out of the reach of small children.',['VYS','EPS']],
+ ['g22','Hold-up / duress button','commercial','Hold-up / duress button','Place it where staff work and can reach it quietly, such as the reception desk or register, and confirm the exact spot with the business. Keep hold-up buttons out of the reach of small children.',['VYS','EPS']],
  ['g23','Vyanet cameras','both','Outlet within 5 ft','The V5P, E1, P1, M1 and R5 need an outlet within 5 ft.',['VYC'],'outlet5'],
  ['g24','Vyanet cameras','both','PoE cameras need an N85','The F1 and T1 are PoE and need an N85 NVR. When a plan has them and no N85, Suggest devices offers \u201cAdd N85 NVR\u201d (accept or reject) instead of a warning.',['VYC'],'n85sug'],
  ['g25','Vyanet cameras','both','D1 and R5 record to the N85','The D1 doorbell and the R5 record to the N85, so the plan needs one; Suggest devices offers \u201cAdd N85 NVR\u201d when it is missing. The D1 needs existing hardwired doorbell wiring.',['VYC'],'n85sug'],
@@ -2992,11 +3028,36 @@ function bindRoomPresets(b,r){
 // ---- 3) Tech note (internal) ----
 function techFld(it){return `<label class="f" for="techNote">Tech note <span style="text-transform:none;letter-spacing:0;color:#9a9690">(team only)</span></label><input id="techNote" data-k="tech" type="text" maxlength="200" value="${esc(it.tech)}" placeholder="e.g. left of door, 7 ft up"><div class="techNote">For the install team. Not shown to the customer or in the PNG, print or email PDF.</div>`}
 
+// ---- commercial-device fields (generic, all optional) ----
+function commFlds(it){const v=k=>({[k]:it[k]??''});if(it.type==='access')return selFld('Reader type','reader',v('reader'),[['','Not sure'],['Keypad','Keypad'],['Card','Card'],['Fob','Fob'],['Mobile','Mobile']])+selFld('Lock type','lock',v('lock'),[['','Not sure'],['Maglock','Maglock'],['Electric strike','Electric strike'],['Other lock','Other']])+`<div class="row2"><div>${selFld('REX (request to exit)','rex',v('rex'),[['','Not sure'],['Yes','Yes'],['No','No']])}</div><div>${selFld('Door contact','doorContact',v('doorContact'),[['No','No'],['Yes','Yes']])}</div></div>`;
+  if(it.type==='holdup')return `<div class="row2"><div>${selFld('Mount','mount',v('mount'),[['Fixed','Fixed'],['Portable','Portable']])}</div><div>${selFld('Signal','signal',v('signal'),[['Silent','Silent'],['Audible','Audible']])}</div></div>`;
+  if(it.type==='pendant')return selFld('Signal','signal',v('signal'),[['Silent','Silent'],['Audible','Audible']]);return ''}
+
+// ---- optional item photos (team only; never in customer view, PNG, print or email PDF) ----
+const PHOTO_MAX=1280,PHOTO_Q=.75;
+function photoFld(it){const nm=esc(itemLabel(it));return `<div class="photoFld team-internal" data-photofld><label class="f">Photo <span style="text-transform:none;letter-spacing:0;color:#9a9690">(optional · team only)</span></label>`+
+  (it.photo?`<div class="phRow"><img class="phThumb" data-phview src="${it.photo}" alt="Photo of ${nm}" title="Tap to view larger"><div class="phBtns"><button class="btn ghost sm" type="button" data-phadd>Replace</button><button class="btn ghost sm" type="button" data-phdel>Remove</button></div></div>`
+  :`<div class="phAdd"><button class="btn soft sm" type="button" data-phadd>Add photo</button><button class="btn ghost sm" type="button" data-phpick title="Choose a saved photo instead of the camera">Choose file</button></div>`)+
+  `<input type="file" accept="image/*" capture="environment" hidden data-phfile><input type="file" accept="image/*" hidden data-phfile2><div class="techNote">For the install team. Not shown to the customer or in the PNG, print or email PDF.</div></div>`}
+function photoBadge(g,x,y){const b=el('g',{'data-photobadge':1,style:'pointer-events:none'},g);el('circle',{cx:x,cy:y,r:.46,fill:'#fff',stroke:'#da0029','stroke-width':.09},b);
+  const s=.6,ic=el('svg',{x:x-s/2,y:y-s/2,width:s,height:s,viewBox:'0 0 24 24',fill:'none',stroke:'#da0029','stroke-width':2.6,'stroke-linecap':'round','stroke-linejoin':'round'},b);ic.innerHTML=ICON.photo}
+async function photoFromFile(file){const src=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+  const img=await loadImg(src),k=Math.min(1,PHOTO_MAX/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',PHOTO_Q)}
+function bindPhoto(b,it){const f=b.querySelector('[data-phfile]'),f2=b.querySelector('[data-phfile2]');if(!f)return;
+  const on=inp=>{inp.onchange=async()=>{const file=inp.files&&inp.files[0];inp.value='';if(!file)return;try{const d=await photoFromFile(file);const o=P.items.find(i=>i.id===it.id);if(!o)return;o.photo=d;render()}catch(e){alert('Could not read that photo. Try a JPG or PNG.')}}};on(f);on(f2);
+  const a=b.querySelector('[data-phadd]');if(a)a.onclick=()=>f.click();const p=b.querySelector('[data-phpick]');if(p)p.onclick=()=>f2.click();
+  const d=b.querySelector('[data-phdel]');if(d)d.onclick=()=>{delete it.photo;render()};
+  const v=b.querySelector('[data-phview]');if(v)v.onclick=()=>openLb(it.photo)}
+function renderPhotoBox(){const host=document.getElementById('photoBox');if(!host)return;const L=P.items.filter(i=>i.photo);host.hidden=!L.length;if(!L.length){host.innerHTML='';return}
+  host.innerHTML=`<div class="sub">Photos (${L.length}) <small style="text-transform:none;letter-spacing:0;color:#9a9690">team only</small></div><div class="photoGrid">${L.map(i=>`<button type="button" data-phgo="${esc(i.id)}" title="Show ${esc(itemLabel(i))} on the plan"><img src="${i.photo}" alt=""><span>${esc(itemLabel(i))}</span></button>`).join('')}</div>`;
+  host.querySelectorAll('[data-phgo]').forEach(x=>x.onclick=()=>{const it=P.items.find(i=>i.id===x.dataset.phgo);if(it)goAttn({id:it.id,step:attnStepFor(it)})})}
+
 // ---- 4) Device count by type (clean data for a future quote tool; no prices) ----
-const ALARM_PL={panel:'Panels / keypads',contact:'Door/window contacts',motion:'Motion sensors',glass:'Glass break sensors',smoke:'Smoke detectors',co:'CO detectors',heat:'Heat detectors',water:'Water/flood sensors',siren:'Sirens',panic:'Panic / hold-up buttons'};
+const ALARM_PL={panel:'Panels / keypads',contact:'Door/window contacts',motion:'Motion sensors',glass:'Glass break sensors',smoke:'Smoke detectors',co:'CO detectors',heat:'Heat detectors',water:'Water/flood sensors',siren:'Sirens',access:'Access-control doors',holdup:'Hold-up / duress buttons',pendant:'Wireless panic pendants'};
 function getDeviceCounts(){
   const its=P.items||[];
-  const alarm=Object.keys(ALARM).map(t=>({category:'Alarm',type:t,model:'',label:ALARM[t].label,plural:ALARM_PL[t]||ALARM[t].label,qty:its.filter(i=>i.kind==='alarm'&&i.type===t).length})).filter(r=>r.qty);
+  const alarm=[...Object.keys(ALARM).filter(t=>!COMMK.includes(t)),...COMMK].map(t=>({category:COMMK.includes(t)?'Commercial':'Alarm',type:t,model:'',label:ALARM[t].label,plural:ALARM_PL[t]||ALARM[t].label,qty:its.filter(i=>i.kind==='alarm'&&i.type===t).length})).filter(r=>r.qty);
   const camKeys=[];for(const m of Object.keys(CAMS)){if(m==='R5')camKeys.push('R5W','R5B');else camKeys.push(m)}
   const cameras=camKeys.map(k=>{const qty=its.filter(i=>i.kind==='cam'&&camModelLabel(i)===k).length;const base=k==='R5W'||k==='R5B'?'R5':k;
     return {category:'Camera',type:'cam',model:k,label:'Vyanet '+CAMS[base].name.replace(/^R5W \/ R5B/,k),plural:'Vyanet '+CAMS[base].name.replace(/^R5W \/ R5B/,k),qty}}).filter(r=>r.qty);
@@ -3014,7 +3075,7 @@ function renderDevCount(){const host=document.getElementById('devCountBox');if(!
   const sec=(t,rs)=>rs.length?`<tr class="cat"><td colspan="2">${t}</td></tr>`+rs.map(r=>`<tr data-count="${esc(r.model||r.type)}"><td>${esc(r.label.replace(/^Vyanet /,''))}</td><td class="q">${r.qty}</td></tr>`).join(''):'';
   const open=host.querySelector('details')?host.querySelector('details').open:false;
   host.innerHTML=`<div class="sub">Device count</div><div class="devCountLine" id="devCountLine">${esc(deviceCountText(dc))}</div>
-    <details class="walkDetails devCountDetails"${open?' open':''}><summary class="sub" style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;margin:6px 0 0">By type</summary><table class="devCountTbl"><tbody>${sec('Alarm devices',dc.alarm)}${sec('Vyanet cameras',dc.cameras)}${sec('Recorder',dc.recorders)}</tbody></table></details>`}
+    <details class="walkDetails devCountDetails"${open?' open':''}><summary class="sub" style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;margin:6px 0 0">By type</summary><table class="devCountTbl"><tbody>${sec('Alarm devices',dc.alarm.filter(r=>r.category==='Alarm'))}${sec('Commercial',dc.alarm.filter(r=>r.category==='Commercial'))}${sec('Vyanet cameras',dc.cameras)}${sec('Recorder',dc.recorders)}</tbody></table></details>`}
 
 // ---- 2) Needs attention (internal) ----
 function attnStepFor(it){if(!it)return 6;if(it.kind==='cam'||it.kind==='nvr')return 5;if(it.kind==='opening')return 2;return 4}
@@ -3042,7 +3103,7 @@ function renderAttention(){const host=document.getElementById('attnBox');if(!hos
   const SL={2:'Doors & windows',3:'Exterior',4:'Devices',5:'Cameras',6:'Review'};
   host.innerHTML=`<div class="sub">Needs attention (${L.length})</div><ul class="attnList" id="attnList">${L.map((a,i)=>`<li class="${a.w?'w':'n'}" data-attn="${i}"><span class="at">${a.w?'⚠ ':'ℹ '}${a.t}</span><span class="attnBtns" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${a.fix&&a.id&&FIXL[a.fix]?`<button type="button" class="btn soft sm" data-fix="${a.fix}" data-fid="${a.id}">${FIXL[a.fix]}</button>`:''}<button type="button" class="btn sm" data-attngo="${i}" title="Go to ${esc(SL[a.step]||'step')} and show it">Show</button></span></li>`).join('')}</ul>`;
   host.querySelectorAll('[data-attngo]').forEach(b=>b.onclick=e=>{e.stopPropagation();goAttn(L[+b.dataset.attngo])});bindFix(host)}
-function renderReviewExtras(){if(CUST())return;renderAttention();renderDevCount();
+function renderReviewExtras(){if(CUST())return;renderAttention();renderDevCount();renderPhotoBox();
   const b=document.getElementById('bStepCountCsv');if(b&&!b._bound){b._bound=1;b.onclick=()=>dl(slug()+'-device-count.csv',deviceCountCsv(),'text/csv')}}
 
 // ---- 5) Measure tool (not saved, not exported) ----
