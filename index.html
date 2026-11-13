@@ -869,6 +869,23 @@ function roomAtF(x,y,f){let best=null;for(const r of P.rooms){if(flOf(r)!==f)con
 const roomName=it=>{const r=roomAtF(it.x,it.y,flOf(it));return r?r.name:''};
 function inRoom(r,x,y){if(RA(r))[x,y]=toL(r,x,y);return x>=r.x-1e-6&&x<=r.x+r.w+1e-6&&y>=r.y-1e-6&&y<=r.y+r.h+1e-6}
 const isOutdoorCam=it=>CAMS[it.model]&&CAMS[it.model].env!=='Indoor';
+// Cone mode: 'in' = indoor camera (clip to its room); 'room' = outdoor model inside a room aimed into it (e.g. F1 in a garage, clip to that room);
+// 'ext' = exterior camera (outside the house or on a wall aimed out): cone masked to OUTSIDE the house so no coverage draws over the rooms.
+function coneMode(it){if(!isOutdoorCam(it))return 'in';const r=roomAt(it.x,it.y);if(!r||!isIn(r))return 'ext';
+  const a=(+it.rot||0)*Math.PI/180,dd=Math.min(3,+it.range||3);return inRoom(r,it.x+dd*Math.cos(a),it.y+dd*Math.sin(a))?'room':'ext'}
+// Mask (white = draw) for exterior cones: whole plan minus every indoor room on this floor. A mask (not an even-odd clip) so overlapping rooms stay hidden.
+function extConeMask(){const id='extconemask';if(svg.querySelector('#'+id))return id;const B=VB0||VB,pad=600,box={x:B.x-pad,y:B.y-pad,width:B.w+2*pad,height:B.h+2*pad};
+  const defs=svg.querySelector('defs[data-conedefs]')||el('defs',{'data-conedefs':1},svg);if(defs!==svg.firstChild)svg.insertBefore(defs,svg.firstChild);
+  const m=el('mask',{id,maskUnits:'userSpaceOnUse',maskContentUnits:'userSpaceOnUse',...box},defs);el('rect',{...box,fill:'#fff'},m);
+  for(const r of FR()){if(!isIn(r))continue;el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,fill:'#000',...(RA(r)?{transform:`rotate(${RA(r)} ${r.x+r.w/2} ${r.y+r.h/2})`}:{})},m)}
+  return id}
+// Soft radial fill for exterior cones: strongest near the camera, fading out toward the night range so overlapping cones stay calm.
+function extConeGrad(key,it,col){const id='cgrad-'+key;const defs=svg.querySelector('defs[data-conedefs]')||(extConeMask(),svg.querySelector('defs[data-conedefs]'));
+  const g=el('radialGradient',{id,gradientUnits:'userSpaceOnUse',cx:it.x,cy:it.y,r:Math.max(.1,it.range)},defs);
+  for(const [o,op] of [[0,.18],[.5,.07],[1,.015]])el('stop',{offset:o,'stop-color':col,'stop-opacity':op},g);return id}
+// Aim an exterior camera straight out from the nearest indoor-room wall (used when a camera is dropped outside the house).
+function outwardRot(x,y){let best=null;for(const r of FR()){if(!isIn(r))continue;const [lx,ly]=toL(r,x,y),cx=Math.max(r.x,Math.min(r.x+r.w,lx)),cy=Math.max(r.y,Math.min(r.y+r.h,ly)),d=Math.hypot(lx-cx,ly-cy);
+  if(d>1e-6&&(!best||d<best.d)){const [wx,wy]=LW(r,cx,cy);best={d,a:Math.atan2(y-wy,x-wx)*180/Math.PI}}}return best&&best.d<=12?Math.round(n360(best.a)):null}
 
 // ---- palette ----
 function palBtn(host,ic,c,label,sub,fn){const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="ic">${ic}</span><span>${label}${sub?`<small>${sub}</small>`:''}</span>`;b.onclick=fn;host.appendChild(b)}
@@ -1018,14 +1035,16 @@ function placeSuggested(ex){
   const s=suggestCam(ex); if(!s.model)return;
   const side=sideKey(ex.side);
   // Map street orientation so "front" docks at the street side
-  const map=orientMap(P.streetSide||'front');
+  const RB=FR().filter(isIn).map(rBox),HB=RB.length?{x:Math.min(...RB.map(b=>b[0])),y:Math.min(...RB.map(b=>b[1]))}:null;if(HB){HB.w=Math.max(...RB.map(b=>b[2]))-HB.x;HB.h=Math.max(...RB.map(b=>b[3]))-HB.y}
+  const map=orientMap(P.streetSide||'front',HB||FOOT);
   const place=map[side]||map.front;
   const it=mkItem('cam',s.model,place.x,place.y);
   it.rot=place.rot; it.location=ex.name||ex.side; it.notes=(ex.notes?ex.notes+'; ':'')+s.reason;
   if(s.model==='S2')it.rec='Local';
   P.items.push(it); sel={t:'item',id:it.id}; render();
 }
-function orientMap(street){
+function orientMap(street,FB){return orientMap0(street,FB||FOOT)}
+function orientMap0(street,FOOT){
   // returns dock key -> {x,y,rot} aimed outward from building
   // Default: street=front at bottom of canvas
   const midX=FOOT.x+FOOT.w/2, midY=FOOT.y+FOOT.h/2;
@@ -1215,17 +1234,18 @@ function drawPlan(opt={}){
     }
     el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize',...tf},svg);
 }}
-  // cones: outdoor unclipped (extend into yard); indoor clipped to their room
+  // cones: indoor clipped to their room; exterior cameras masked to outside the house (never over the rooms), soft fill
   if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam')){
-    const c=CAMS[it.model],on=sel&&sel.id===it.id;
-    const g=el('g',{},svg);
-    // Outdoor cones draw on top of yard — no clip. Indoor: clip to room if present (easy clip via clipPath)
-    let target=g;
-    if(!isOutdoorCam(it)){
+    const c=CAMS[it.model],on=sel&&sel.id===it.id,mode=coneMode(it),col=camColor[c.env];
+    const g=el('g',{'data-cone':mode==='ext'?'ext':'in'},svg);
+    if(mode!=='ext'){
       const room=roomAt(it.x,it.y);
       if(room){const cp=el('clipPath',{id:'clip-'+it.id},svg);el('rect',{x:room.x,y:room.y,width:room.w,height:room.h,...(RA(room)?{transform:`rotate(${RA(room)} ${room.x+room.w/2} ${room.y+room.h/2})`}:{})},cp);g.setAttribute('clip-path',`url(#clip-${it.id})`)}
+      el('path',{d:conePath(it),fill:col,'fill-opacity':on?.22:.06,stroke:col,'stroke-opacity':on?.85:.3,'stroke-width':on?.15:.08,style:'pointer-events:none'},g);
+    }else{
+      g.setAttribute('mask',`url(#${extConeMask()})`);
+      el('path',{d:conePath(it),fill:`url(#${extConeGrad(it.id,it,col)})`,'fill-opacity':on?1:.6,stroke:col,'stroke-opacity':on?.8:.16,'stroke-width':on?.14:.06,style:'pointer-events:none'},g);
     }
-    el('path',{d:conePath(it),fill:camColor[c.env],'fill-opacity':on?.22:.06,stroke:camColor[c.env],'stroke-opacity':on?.85:.3,'stroke-width':on?.15:.08,style:'pointer-events:none'},g);
   }
   const warn=PR||CUST()?{}:warnIds();
   for(const it of FI()){if(it.kind==='opening')continue;const s=sel&&sel.t==='item'&&sel.id===it.id;const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
@@ -2334,7 +2354,8 @@ function buildSuggestions(){
      const model=s2&&s2.model&&s2.model!=='D1'&&CAMS[s2.model].env==='Outdoor'?s2.model:'V5P',c=CAMS[model],R=ftR(c.nightM);
      const why=s2&&model===s2.model?`${s2.reason} (from ${exs.side} exterior spot)`:`V5P bullet (${c.fov}° FOV, ${nightFt(model)} ft night); needs an outlet within ${OUTLET_FT} ft + Wi-Fi.`;
      const put=(rev,lab)=>{const a=rev?w.b:w.a,d=rev?{x:-w.d.x,y:-w.d.y}:w.d,x=r2(a.x-d.x*.8+w.o.x*.6),y=r2(a.y-d.y*.8+w.o.y*.6);
-       return camAt(model,x,y,Math.atan2(d.y,d.x)*180/Math.PI,`Perimeter camera (${w.label} wall${lab||''})`,`Perimeter: covers the ${w.label.toLowerCase()} wall (~${Math.round(w.len)} ft), corner mount aimed along the wall. ${why}`,{perim:1})};
+       const near=Math.atan2(.6,.8)*180/Math.PI,tw=Math.max(0,c.fov/2-near-2),sg=Math.sign(d.x*w.o.y-d.y*w.o.x)||1;
+       return camAt(model,x,y,Math.atan2(d.y,d.x)*180/Math.PI+sg*tw,`Perimeter camera (${w.label} wall${lab||''})`,`Perimeter: covers the ${w.label.toLowerCase()} wall (~${Math.round(w.len)} ft), corner mount aimed along the wall. ${why}`,{perim:1})};
      const s1=put(false);C=cams();miss=wallGaps(w,C);
      if(miss.length){const s3=put(true,', far end');C=cams();miss=wallGaps(w,C);
        if(miss.length){const ft=Math.round(miss.length*.5);s3.reason+=` About ${ft} ft of this wall is still outside every camera's range (${R} ft at night); add another camera mid-wall or confirm on site.`}}}}
@@ -2403,8 +2424,10 @@ function rejectSug(ids){const set=new Set(ids);SUG.list.forEach(s=>{if(set.has(s
 function drawSugGhosts(){if(CUST()||!SUG.list.length)return;const g=el('g',{'data-sugghosts':1},svg);
   for(const s of SUG.list){const [ik,c,t]=sugIcon(s),f=SUG.focus===s.sid,op=s.on?1:.45;const gg=el('g',{'data-sug':s.sid,style:'cursor:pointer',opacity:op},g);
     el('title',{},gg).textContent=`Suggested: ${s.name} — ${s.reason}`;
-    if(s.kind==='cam'&&cCones.checked){const it={x:s.x,y:s.y,rot:s.rot,fov:CAMS[s.model].fov,range:ftR(CAMS[s.model].nightM)};const cg=el('g',{},gg);if(!isOutdoorCam(s)){const r=inRoomAt(s.x,s.y);if(r){const cp=el('clipPath',{id:'sclip-'+s.sid},svg);el('rect',{x:r.x,y:r.y,width:r.w,height:r.h},cp);cg.setAttribute('clip-path',`url(#sclip-${s.sid})`)}}
-    el('path',{d:conePath(it),fill:c,'fill-opacity':f?.14:.04,stroke:c,'stroke-opacity':.5,'stroke-width':.08,'stroke-dasharray':'.5 .35',style:'pointer-events:none'},cg)}
+    if(s.kind==='cam'&&cCones.checked){const it={x:s.x,y:s.y,rot:s.rot,fov:CAMS[s.model].fov,range:ftR(CAMS[s.model].nightM),model:s.model};const cg=el('g',{},gg),mode=coneMode(it);
+    if(mode!=='ext'){const r=inRoomAt(s.x,s.y);if(r){const cp=el('clipPath',{id:'sclip-'+s.sid},svg);el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,...(RA(r)?{transform:`rotate(${RA(r)} ${r.x+r.w/2} ${r.y+r.h/2})`}:{})},cp);cg.setAttribute('clip-path',`url(#sclip-${s.sid})`)}}
+    else{cg.setAttribute('mask',`url(#${extConeMask()})`);cg.setAttribute('data-cone','ext')}
+    el('path',{d:conePath(it),fill:c,'fill-opacity':f?.14:mode==='ext'?.03:.04,stroke:c,'stroke-opacity':mode==='ext'&&!f?.3:.5,'stroke-width':.08,'stroke-dasharray':'.5 .35',style:'pointer-events:none'},cg)}
     const rr=s.kind==='outlet'?.75:s.kind==='alarm'?.95:1.05;
     el('circle',{cx:s.x,cy:s.y,r:rr+.25,fill:'#fff','fill-opacity':.85,stroke:f?'#f59e0b':c,'stroke-width':f?.3:.16,'stroke-dasharray':'.35 .25'},gg);
     const isz=rr*1.2,ic=el('svg',{x:s.x-isz/2,y:s.y-isz/2,width:isz,height:isz,viewBox:'0 0 24 24',fill:'none',stroke:c,'stroke-width':2.2,'stroke-linecap':'round','stroke-linejoin':'round',style:'pointer-events:none'},gg);ic.innerHTML=ICON[ik];
@@ -2617,6 +2640,7 @@ function clonePlanSvg(i){
   c.querySelectorAll('[data-aim],[data-aimline],[data-sugghosts],[data-warnmark],[data-iend],[data-measure],[data-streethits]').forEach(n=>n.remove());
   c.querySelectorAll('[id]').forEach(n=>n.id='pf'+i+'-'+n.id);
   c.querySelectorAll('[clip-path]').forEach(n=>n.setAttribute('clip-path',n.getAttribute('clip-path').replace('url(#','url(#pf'+i+'-')));
+  for(const a of ['mask','fill'])c.querySelectorAll(`[${a}^="url(#"]`).forEach(n=>n.setAttribute(a,n.getAttribute(a).replace('url(#','url(#pf'+i+'-')));
   return c;
 }
 function snapFloorViews(f,i){
@@ -2870,6 +2894,7 @@ function trayBind(b,act){
   b.addEventListener('pointercancel',()=>{if(TD&&TD.gh)TD.gh.remove();svg.classList.remove('dropOk');TD=null});
   b.addEventListener('click',e=>{if(e.detail===0)act(null)})}
 function placeAt(kind,type,p){if(!p){placeNew(kind,type);return}const sn=v=>Math.round(v*2)/2,it=mkItem(kind,type,sn(p.x),sn(p.y));
+  if(kind==='cam'&&isOutdoorCam(it)){const r=roomAt(it.x,it.y);if(!r||!isIn(r)){const o=outwardRot(it.x,it.y);if(o!=null)it.rot=o}} // dropped outside: face away from the house
   if(kind==='opening'){if(snapOpening(it,p.x,p.y,4))freeSpot(it)}P.items.push(it);sel={t:'item',id:it.id};render()}
 function freeRoomSpot(w,h){const rs=FR().map(rBox),hit=(x,y)=>rs.some(b=>x<b[2]&&b[0]<x+w&&y<b[3]&&b[1]<y+h);
   for(let y=FOOT.y;y<=FOOT.y+Math.max(0,FOOT.h-h);y+=1)for(let x=FOOT.x;x<=FOOT.x+Math.max(0,FOOT.w-w);x+=1)if(!hit(x,y))return [x,y];
