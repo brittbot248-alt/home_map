@@ -479,13 +479,28 @@ body.install:not(.customer) .instBar{display:flex}
 .instFilt{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.instFilt .btn{min-height:40px}
 .instList{list-style:none;margin:0 0 8px;padding:0;max-height:360px;overflow:auto;border-top:1px solid #eee8e6}
 .instList li{display:flex;align-items:center;gap:6px;border-bottom:1px solid #eee8e6;padding:2px 0}
-.instList li.sel{background:#fff5f6}.instList li.done .instGo span{color:#8a8780}
+.instList li.sel{background:#fff5f6}.instList li.done .instGo span{color:#8a8780}.instList li.removed .instGo span{color:#8a8780;text-decoration:line-through}.instList li.removed em{color:#991b1b}
 .instList .instChk{min-height:44px;padding:0 4px}
 .instGo{flex:1;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;text-align:left;background:none;border:0;padding:6px 4px;min-height:44px;font:inherit;font-size:13px;color:inherit;cursor:pointer}
 .instGo .ib{grid-row:span 2}.instGo small{color:#8a8780;font-size:11px}.instGo em{font-style:normal;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#b45309;margin-left:4px}
-.signoffBox{margin:10px 0 4px;border:1px solid #f0c9d0;border-radius:12px;padding:8px 10px;background:#fffafa}
-body.customer .instBar,body.customer #bInstall,body.customer #instCard,body.customer .signoffBox,body.customer .instCol,body.customer [data-instmark],body.customer [data-assold]{display:none!important}
-@media print{.instBar,#bInstall,#instCard,.signoffBox,.instCol,[data-instmark],[data-assold]{display:none!important}}
+.signoffBox{margin:10px 0 4px;border:1px solid #f0c9d0;border-radius:12px;padding:8px 10px;background:#fffafa;min-width:0;overflow-x:hidden}
+.signoffFields{display:grid;grid-template-columns:1fr;gap:0;min-width:0}
+.signoffBox input[type="text"],.signoffBox input[type="date"],.signoffBox textarea{display:block;width:100%;max-width:100%;min-width:0;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--vy-line);border-radius:3px;color:var(--vy-ink);background:#fff}
+.signoffBox textarea{min-height:52px;resize:vertical}
+body.customer .instBar,body.customer #bInstall,body.customer #instCard,body.customer .signoffBox,body.customer .instCol,body.customer [data-instmark],body.customer [data-assold],body.customer #instPop{display:none!important}
+@media print{.instBar,#bInstall,#instCard,.signoffBox,.instCol,[data-instmark],[data-assold],#instPop{display:none!important}}
+.instPop{position:fixed;z-index:80;min-width:168px;max-width:min(260px,calc(100vw - 16px));background:#fff;border:2px solid #da0029;border-radius:12px;box-shadow:0 8px 24px rgba(46,47,42,.2);padding:10px 10px 8px;font-size:13px;color:#2e2f2a;box-sizing:border-box}
+.instPop .ipName{font-weight:700;font-size:14px;line-height:1.25}
+.instPop .ipZone{color:#8a8780;font-size:12px;margin:2px 0 8px}
+.instPop .ipActs{display:flex;gap:6px}
+.instPop .ipActs .btn{flex:1;min-height:40px;padding:6px 8px}
+.instPop .ipActs .btn.on{background:#da0029;color:#fff;border-color:#da0029}
+.instPop .ipActs .btn[data-iprem].on{background:#7f1d1d;border-color:#7f1d1d}
+.instPop .ipMore{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;color:#da0029;text-decoration:none}
+.instPop .ipMore:hover{text-decoration:underline}
+.instSubmitRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.instSubmitWrap{display:inline-block;max-width:100%}
+.instSubmitted{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
@@ -500,7 +515,7 @@ body.customer .instBar,body.customer #bInstall,body.customer #instCard,body.cust
   <input type="file" id="fOpen" accept=".json,application/json" hidden>
   <button class="edit-only btn ghost sm" id="bRecent" type="button" aria-expanded="false" title="Reopen one of your last 5 autosaved plans">Recent</button>
   <span class="sp"></span>
-  <button class="edit-only btn ghost sm no-print" id="bInstall" type="button" aria-pressed="false" title="For the tech installing a sold job: mark devices installed, record actual zones and moves">Install mode</button>
+  <button class="edit-only btn ghost sm no-print" id="bInstall" type="button" aria-pressed="false" title="For the tech installing a sold job: mark devices installed, record actual zones and removals">Install mode</button>
   <button class="btn ghost sm" id="bCust" type="button" aria-pressed="false">Customer view</button>
   <button class="btn ghost sm" id="bPng" type="button">Export PNG</button>
   <button class="btn soft sm" id="bEmail" type="button">Email plan</button>
@@ -692,6 +707,7 @@ body.customer .instBar,body.customer #bInstall,body.customer #instCard,body.cust
       <div class="scalebar" id="scaleBar" hidden><span id="scaleMsg">Click the first point on the image</span><span id="scaleAsk" hidden><input id="scaleFt" type="number" min="0.5" step="0.5" placeholder="ft"> ft <button class="btn sm" id="bScaleOk" type="button">Apply</button></span><button class="btn ghost sm" id="bScaleX" type="button" style="color:#fff;border-color:#fff">Cancel</button></div>
       <div class="scalebar measBar no-print" id="measBar" hidden><span id="measMsg">Tap the first point</span><button class="btn ghost sm" id="bMeasX" type="button" style="color:#fff;border-color:#fff">Done</button></div>
       <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" aria-label="Floor plan"></svg>
+      <div id="instPop" class="instPop no-print" hidden role="dialog" aria-label="Install actions"></div>
       <div class="extDock front" data-dock="front"></div>
       <div class="extDock back" data-dock="back"></div>
       <div class="extDock left" data-dock="left"></div>
@@ -800,13 +816,16 @@ const isZoneDev=i=>i.kind==='alarm'&&!!ALARM[i.type]&&(ALARM[i.type].zone||(i.ty
 function zoneTypeOf(i){if(i.kind!=='alarm')return '';if(i.type==='holdup')return '24-hr hold-up ('+(i.signal==='Audible'?'audible':'silent')+')';if(i.type==='pendant')return '24-hr panic ('+(i.signal==='Audible'?'audible':'silent')+')';if(i.type==='access')return i.doorContact==='Yes'?'Door (entry / perimeter)':'';return ''}
 function devDesc(i){const a=ALARM[i.type];if(!a)return '';if(i.type==='access'){const p=[a.label,i.reader?i.reader+' reader':'',i.lock||'',i.rex==='Yes'?'REX':'',i.doorContact==='Yes'?'door contact (door zone)':'no alarm zone'].filter(Boolean);return p.join(' · ')}
   if(i.type==='holdup')return [a.label,zoneTypeOf(i),i.mount||''].filter(Boolean).join(' · ');if(i.type==='pendant')return [a.label,zoneTypeOf(i)].join(' · ');return a.label}
-// ---- install mode: as-sold snapshot + as-built edits (azone = actual zone, installed, moved) ----
-const INSTV={on:false,ghost:false,filter:'all'};
+// ---- install mode: as-sold snapshot + as-built edits (azone = actual zone, installed, removed) ----
+const INSTV={on:false,ghost:false,filter:'all',pop:null};
 const INST=()=>INSTV.on&&!CUST();
 const INSTK=i=>!!i&&(i.kind==='alarm'||i.kind==='cam'||i.kind==='nvr'||i.kind==='outlet');
 const hasInst=()=>!!(P.install&&P.install.asSold);
 const instCols=()=>INSTV.on||hasInst();
-const INSTC=['Planned zone','Actual zone','Installed (Y/N)','Moved (Y/N)'];
+const INSTC=['Planned zone','Actual zone','Installed (Y/N)','Removed (Y/N)'];
+const isRem=i=>!!(i&&i.removed);
+function migrateInstall(i){if(i&&('moved' in i))delete i.moved}
+function setInstFlag(it,k,on){if(!it)return;if(k==='installed'){if(on){it.installed=true;delete it.removed}else delete it.installed}else if(k==='removed'){if(on){it.removed=true;delete it.installed}else delete it.removed}}
 const effZone=i=>(i&&i.azone!=null&&i.azone!=='')?i.azone:(i?i.zone:undefined);
 function accessZoneSync(it){if(!it||it.kind!=='alarm'||it.type!=='access')return;if(it.doorContact==='Yes'){if(it.zone==null)it.zone=nextZone()}else if(it.zone!=null)delete it.zone}
 const OUTLET={label:'Outlet',ic:'⏚',c:'#65a30d'};
@@ -847,7 +866,7 @@ function mkItem(kind,type,x,y){
   if(kind==='opening'){it.width=type==='door'?3:4;it.orient='h';it.inward=1;it.swing='in';it.name=''}
   return it;
 }
-function nextEffZone(){const u=new Set(P.items.filter(i=>i.kind==='alarm'&&effZone(i)!=null).map(i=>+effZone(i)));let n=1;while(u.has(n))n++;return n}
+function nextEffZone(){const u=new Set(P.items.filter(i=>i.kind==='alarm'&&!isRem(i)&&effZone(i)!=null).map(i=>+effZone(i)));let n=1;while(u.has(n))n++;return n}
 function nextZone(){const u=new Set(P.items.filter(i=>i.zone!=null).map(i=>+i.zone));let n=1;while(u.has(n))n++;return n}
 function nextCam(){const u=new Set(P.items.filter(i=>i.kind==='cam').map(i=>+i.num));let n=1;while(u.has(n))n++;return n}
 // ---- room rotation: r.rot (deg, any value) turns the room about its center. A rectangle turned 180° looks the same,
@@ -1194,7 +1213,7 @@ function drawYard(){
   for(const k of SSs){const lp=lpS[k],v=k==='left'||k==='right',lt=el('text',{x:lp[0],y:lp[1],'font-size':1.3,'text-anchor':'middle',fill:'#6b6860','font-weight':600,style:'pointer-events:none','letter-spacing':.15,'data-streetlabel':k,...(v?{transform:`rotate(${k==='left'?-90:90} ${lp[0]} ${lp[1]})`}:{})},g);lt.textContent=SSs.length>1&&k===street?'STREET · MAIN ENTRANCE':'STREET'}
 }
 function render(){
-  (P.items||[]).forEach(i=>{migrateHoldup(i);accessZoneSync(i)});if(INSTV.on&&!hasInst())instSnapshot();if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
+  (P.items||[]).forEach(i=>{migrateHoldup(i);migrateInstall(i);accessZoneSync(i)});if(INSTV.on&&!hasInst())instSnapshot();if(!P.exteriors)P.exteriors=[];if(!P.issues)P.issues=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
   streetSides();renderStreetBox();streetSide.value=SSIDES.includes(P.streetSide)?P.streetSide:'';
   if(typeof syncSiteNotesUI==='function')syncSiteNotesUI();
   CHK=checks();
@@ -1203,16 +1222,17 @@ function render(){
   bUndo.disabled=!H_.length;bRedo.disabled=!R_.length;ulUI();
   renderProps();renderChecks();renderTables();renderExtList();renderExtDocks();renderPrintExt();renderWalk();renderLegend();renderJob();renderSug();renderInstall();
   renderFloors();renderModeUI();renderMapKey();renderStepBar();renderStepHint();renderOpenMissing();renderStepSummary();schedulePF();store();
+  if(typeof renderInstPop==='function')renderInstPop();
 }
 function drawPlan(opt={}){
-  const PR=!!opt.print;
+  const INSTDOC=!!opt.installDoc,CUSTDOC=!!opt.customerDoc,PR=!!opt.print||INSTDOC||CUSTDOC;
   if(drag&&drag.vb0&&!PR){VB0={...drag.vb0}}else{computeVB();VB0={...VB}}applyZoom();svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   svg.innerHTML='';
   drawYard();
   // Decorative yards under the plan (non-interactive). Live editable yards redrawn on top in Exterior.
   if(!(!PR&&yardEditable()))drawYardZones(PR,false);
   if(cGrid.checked){const B=VB0,g=el('g',{'stroke-width':.04,style:'pointer-events:none'},svg);for(let x=B.x;x<=B.x+B.w;x++)el('line',{x1:x,y1:B.y,x2:x,y2:B.y+B.h,stroke:x%5?'#e3e6dc':'#cfd3c6',style:'pointer-events:none'},g);for(let y=B.y;y<=B.y+B.h;y++)el('line',{x1:B.x,y1:y,x2:B.x+B.w,y2:y,stroke:y%5?'#e3e6dc':'#cfd3c6',style:'pointer-events:none'},g)}
-  drawUnderlay();
+  if(!CUSTDOC)drawUnderlay();
   for(const r of FR()){const s=sel&&sel.t==='room'&&sel.id===r.id;const cx=r.x+r.w/2,cy=r.y+r.h/2,A=RA(r);
     const g=el('g',{'data-room':r.id},svg);if(A)g.setAttribute('transform',`rotate(${A} ${cx} ${cy})`);
     el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,'fill-opacity':(P.underlay&&P.underlay.src&&(!CUST()||P.underlay.showCustomer))?.3:1,fill:s?'#fff5f6':'#ffffff',stroke:s?'#da0029':'#8a8780','stroke-width':s?.25:.16,style:'cursor:move'},g);
@@ -1235,7 +1255,7 @@ function drawPlan(opt={}){
     el('rect',{x:r.x+r.w-hs/2,y:r.y+r.h-hs/2,width:hs,height:hs,rx:.2,fill:'#da0029',stroke:'#fff','stroke-width':.1,'data-resize':r.id,style:'cursor:nwse-resize',...tf},svg);
 }}
   // cones: indoor clipped to their room; exterior cameras masked to outside the house (never over the rooms), soft fill
-  if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam')){
+  if(cCones.checked)for(const it of FI().filter(i=>i.kind==='cam')){if((PR||CUST())&&it.removed&&!INSTDOC)continue;
     const c=CAMS[it.model],on=sel&&sel.id===it.id,mode=coneMode(it),col=camColor[c.env];
     const g=el('g',{'data-cone':mode==='ext'?'ext':'in'},svg);
     if(mode!=='ext'){
@@ -1248,7 +1268,7 @@ function drawPlan(opt={}){
     }
   }
   const warn=PR||CUST()?{}:warnIds();
-  for(const it of FI()){if(it.kind==='opening')continue;const s=sel&&sel.t==='item'&&sel.id===it.id;const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
+  for(const it of FI()){if(it.kind==='opening')continue;if((PR||CUST())&&it.removed&&!INSTDOC)continue;const s=sel&&sel.t==='item'&&sel.id===it.id;const g=el('g',{'data-item':it.id,style:'cursor:move'},svg);
     let c,ik,title;if(it.kind==='alarm'){c=ALARM[it.type].c;ik=it.type;title=ALARM[it.type].label}else if(it.kind==='outlet'){c=OUTLET.c;ik='outlet';title='Outlet'}else if(it.kind==='cam'){c=camColor[CAMS[it.model].env];ik=camIconKey(it.model);title='Vyanet '+CAMS[it.model].name.replace(/^R5W \/ R5B/,camModelLabel(it))}else{c='#2e2f2a';ik='nvr';title='Vyanet N85 5MP PoE NVR'}
     const rr=it.kind==='outlet'?.75:it.kind==='alarm'?.95:1.05;
     el('title',{},g).textContent=title;
@@ -1260,7 +1280,7 @@ function drawPlan(opt={}){
     if(tag){const tt=el('text',{x:it.x,y:it.y-rr-.3,'font-size':.7,'text-anchor':'middle',fill:'#2e2f2a','font-weight':600,style:'pointer-events:none'},g);tt.textContent=tag}
     if(it.kind==='alarm'&&it.wiring==='Wireless'){const bx=it.x+rr*.78,by=it.y+rr*.78;el('circle',{cx:bx,cy:by,r:.4,fill:'#fff',stroke:'#0089f7','stroke-width':.09,'data-wbadge':1,style:'pointer-events:none'},g);const wt=el('text',{x:bx,y:by+.2,'font-size':.52,'text-anchor':'middle',fill:'#0089f7','font-weight':700,style:'pointer-events:none'},g);wt.textContent='W'}
     if(it.photo&&!PR&&TECH())photoBadge(g,it.x-rr*.8,it.y+rr*.8);
-    if(!PR&&INST()&&INSTK(it)){if(it.installed)instBadge(g,it.x+rr*.8,it.y-rr*.8);if(INSTV.filter==='todo'){if(it.installed)g.setAttribute('opacity','.25');else el('circle',{cx:it.x,cy:it.y,r:rr+.38,fill:'none',stroke:'#f59e0b','stroke-width':.2,'stroke-dasharray':'.45 .25','data-instmark':'todo',style:'pointer-events:none'},g)}}
+    if((INSTDOC||(!PR&&!CUST()))&&it.removed&&INSTK(it)){g.setAttribute('opacity','.45');instRemovedMark(g,it.x,it.y,rr)}else if((INSTDOC||(!PR&&INST()))&&INSTK(it)){if(it.installed)instBadge(g,it.x+rr*.8,it.y-rr*.8);if(!INSTDOC&&INST()&&INSTV.filter==='todo'){if(it.installed)g.setAttribute('opacity','.25');else el('circle',{cx:it.x,cy:it.y,r:rr+.38,fill:'none',stroke:'#f59e0b','stroke-width':.2,'stroke-dasharray':'.45 .25','data-instmark':'todo',style:'pointer-events:none'},g)}}
     if(warn[it.id]){const cx=it.x-rr*.95,cy=it.y-rr*.95,ws=1;const wg=el('g',{'data-warn':it.id,'data-warnmark':1,style:'cursor:pointer'},svg);el('title',{},wg).textContent=strip(warn[it.id].t)+' (click for the fix)';el('path',{d:`M${cx},${cy-ws*.62} L${cx+ws*.58},${cy+ws*.42} L${cx-ws*.58},${cy+ws*.42} Z`,fill:'#facc15',stroke:'#92400e','stroke-width':.08,'stroke-linejoin':'round'},wg);const wx=el('text',{x:cx,y:cy+.33,'font-size':.62,'text-anchor':'middle',fill:'#78350f','font-weight':700,style:'pointer-events:none'},wg);wx.textContent='!'}
     if(s&&it.kind==='cam'){const a=it.rot*Math.PI/180,hx=it.x+Math.min(it.range,10)*Math.cos(a),hy=it.y+Math.min(it.range,10)*Math.sin(a);el('line',{x1:it.x,y1:it.y,x2:hx,y2:hy,stroke:'#f59e0b','stroke-width':.1,'stroke-dasharray':'.3 .2','data-aimline':1,style:'pointer-events:none'},svg);el('circle',{cx:hx,cy:hy,r:Math.max(.55,HS()/2),fill:'#f59e0b','data-aim':it.id,style:'cursor:crosshair'},svg)}}
   drawIssueMarks(PR);
@@ -1396,9 +1416,9 @@ svg.addEventListener('pointermove',e=>{if(!drag)return;
       const q=LW(o,o.x+lx,o.y+ly);it.x=r2(q[0]);it.y=r2(q[1])}}
   else if(drag.m==='aim'){o.rot=Math.round(Math.atan2(p.y-o.y,p.x-o.x)*180/Math.PI);if(o.rot<0)o.rot+=360}
   render()});
-function endDrag(){const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;render()}return}
-  if(d&&d.m==='move'&&d.cycle&&(d.moved||0)<3){const i=d.cycle.findIndex(k=>sel&&k.id===sel.id),n=d.cycle[(i+1)%d.cycle.length];sel={t:n.t,id:n.id};render()}
-  if(d&&d.m==='move'&&INST()&&d.o&&INSTK(d.o)&&(d.moved||0)>=3&&!d.o.moved){d.o.moved=true;render()}
+function endDrag(){const d=drag;drag=null;if(d&&d.m==='pan'){if(d.desel&&d.moved<3){sel=null;INSTV.pop=null;render()}return}
+  if(d&&d.m==='move'&&d.cycle&&(d.moved||0)<3){const i=d.cycle.findIndex(k=>sel&&k.id===sel.id),n=d.cycle[(i+1)%d.cycle.length];sel={t:n.t,id:n.id};const it=n.t==='item'?P.items.find(x=>x.id===n.id):null;INSTV.pop=(INST()&&INSTK(it))?it.id:null;render()}
+  else if(d&&d.m==='move'&&(d.moved||0)<3&&INST()&&d.o&&INSTK(d.o))INSTV.pop=d.o.id;
   if(d&&d.m==='street'&&d.moved&&ZV.k>1)focusHouse();
   if(d&&d.vb0)render();else scheduleHist()}
 svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
@@ -1407,12 +1427,13 @@ document.addEventListener('keydown',e=>{const inField=/INPUT|TEXTAREA|SELECT/.te
   if((e.ctrlKey||e.metaKey)&&!inField&&!CUST()){const k=e.key.toLowerCase();if(k==='z'&&!e.shiftKey){e.preventDefault();undo();return}if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();redo();return}}
   if(e.key==='Escape'&&!lb.hidden){lb.hidden=true;return}
   if(e.key==='Escape'&&MEAS.on){e.preventDefault();measOn(false);return}
+  if(e.key==='Escape'&&INSTV.pop){e.preventDefault();INSTV.pop=null;renderInstPop();return}
   if(CUST())return;
   const ae=document.activeElement,typing=ae&&(ae.isContentEditable||/TEXTAREA|SELECT/.test(ae.tagName)||(ae.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|reset|file|range|color)$/.test(ae.type)));
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&!typing){delSel();e.preventDefault()}});
 function delSel(){if(!sel||sel.t==='street')return;if(sel.t==='yard'){P.yards=(P.yards||[]).filter(y=>y.id!==sel.id);sel=null;render();return}if(sel.t==='issue'){P.issues=P.issues.filter(i=>i.id!==sel.id);sel=null;render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id);if(r){const ops=new Set(wallOps(r).map(w=>w.it));P.items=P.items.filter(i=>!ops.has(i))}P.rooms=P.rooms.filter(r=>r.id!==sel.id)}else P.items=P.items.filter(i=>i.id!==sel.id);sel=null;render()}
 bDel.onclick=delSel;
-bDup.onclick=()=>{if(!sel)return;if(sel.t==='yard'||sel.t==='street')return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};delete n.azone;delete n.installed;delete n.moved;if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
+bDup.onclick=()=>{if(!sel)return;if(sel.t==='yard'||sel.t==='street')return;if(sel.t==='issue'){const q=P.issues.find(i=>i.id===sel.id);if(!q)return;const n={...q,id:nid('x'),x:q.x+2,y:q.y+2};if(n.x2!=null){n.x2+=2;n.y2+=2}P.issues.push(n);sel={t:'issue',id:n.id};render();return}if(sel.t==='room'){const r=P.rooms.find(r=>r.id===sel.id),n={...r,id:nid('r'),x:r.x+2,y:r.y+2,name:r.name+' copy'};const ops=wallOps(r);P.rooms.push(n);for(const w of ops)P.items.push({...w.it,id:nid('i'),x:w.it.x+2,y:w.it.y+2});sel={t:'room',id:n.id}}else{const i=P.items.find(i=>i.id===sel.id),n={...i,id:nid('i'),x:i.x+2,y:i.y+2};delete n.azone;delete n.installed;delete n.moved;delete n.removed;if(n.zone!=null)n.zone=nextZone();if(n.kind==='cam')n.num=nextCam();P.items.push(n);sel={t:'item',id:n.id}}render()};
 cCones.onchange=cGrid.onchange=cView.onchange=render;
 
 // ---- properties ----
@@ -1510,7 +1531,7 @@ function checks(){
   const used=cams.filter(i=>i.model!=='S2'&&(NVR_CAMS.includes(i.model)||i.rec==='N85'));const cap=nvrs.length*N85_CH;
   if(used.length){if(nvrs.length&&used.length>cap)out.push({w:1,id:nvrs[0].id,t:`<b>N85 channels:</b> ${used.length} cameras need a channel but ${nvrs.length>1?`${nvrs.length} N85s give ${cap}`:`the N85 has ${N85_CH}`}.`});
     else if(nvrs.length)out.push({w:0,t:`<b>N85 channels:</b> ${used.length} of ${cap} used.`})}
-  const zs={};P.items.filter(i=>i.kind==='alarm'&&effZone(i)!=null&&effZone(i)!=='').forEach(i=>(zs[effZone(i)]=zs[effZone(i)]||[]).push(i));
+  const zs={};P.items.filter(i=>i.kind==='alarm'&&!isRem(i)&&effZone(i)!=null&&effZone(i)!=='').forEach(i=>(zs[effZone(i)]=zs[effZone(i)]||[]).push(i));
   for(const [z,l] of Object.entries(zs))if(l.length>1)out.push({w:1,id:l[1].id,fix:'zone',t:`<b>Zone ${z}</b> is used by ${l.length} devices${l.some(i=>i.azone!=null&&i.azone!=='')?' (actual zone as installed)':''}.`});
   const nums={};cams.forEach(i=>(nums[i.num]=nums[i.num]||[]).push(i));for(const [n,l] of Object.entries(nums))if(l.length>1)out.push({w:1,id:l[1].id,fix:'camnum',t:`<b>Camera #${n}</b> is used by ${l.length} cameras.`});
   // site issues: metal / concrete walls between a wireless device and the panel; pets; problem notes
@@ -1536,13 +1557,13 @@ let NOTES_PUB=false;
 let PRINTING=false;
 function listNotes(n){return (NOTES_PUB||PRINTING||CUST())?pubNotes(n):(n||'')}
 const TECH=()=>!(NOTES_PUB||PRINTING||CUST());
-function zoneRows(o){const T=o&&o.tech!=null?!!o.tech:TECH(),IN=T&&(o&&o.inst!=null?!!o.inst:instCols()),zd=i=>isZoneDev(i);return P.items.filter(i=>isZoneDev(i)||(i.kind==='alarm'&&i.type==='access')).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+effZone(a)||1e9)-(+effZone(b)||1e9))).map(i=>({id:i.id,f:flOf(i),c:[isZoneDev(i)?effZone(i):'',devDesc(i),i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes),...(IN?[zd(i)?i.zone:'',zd(i)&&i.azone!=null?i.azone:'',i.installed?'Y':'N',i.moved?'Y':'N']:[]),...(T?[i.photo?'Y':'N',i.tech||'']:[])],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(devDesc(i))}</span>`}}))}
+function zoneRows(o){const T=o&&o.tech!=null?!!o.tech:TECH(),IN=T&&(o&&o.inst!=null?!!o.inst:instCols()),zd=i=>isZoneDev(i);return P.items.filter(i=>(isZoneDev(i)||(i.kind==='alarm'&&i.type==='access'))&&!(!T&&i.removed)).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+effZone(a)||1e9)-(+effZone(b)||1e9))).map(i=>({id:i.id,f:flOf(i),c:[isZoneDev(i)?effZone(i):'',devDesc(i),i.name,floorName(flOf(i)),roomName(i),i.wiring,listNotes(i.notes),...(IN?[zd(i)?i.zone:'',zd(i)&&i.azone!=null?i.azone:'',i.installed?'Y':'N',i.removed?'Y':'N']:[]),...(T?[i.photo?'Y':'N',i.tech||'']:[])],h:{1:`<span class="cellIc">${ibadge(i.type,ALARM[i.type].c)}${esc(devDesc(i))}</span>`}}))}
 const ZCOLS=['Zone #','Device','Name / Location','Floor','Room','Wired / Wireless','Notes'];
-function camRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='cam').sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
+function camRows(o){const T=o&&o.tech!=null?!!o.tech:TECH();return P.items.filter(i=>i.kind==='cam'&&!(!T&&i.removed)).sort((a,b)=>(floorIdx(flOf(a))-floorIdx(flOf(b)))||((+a.num||1e9)-(+b.num||1e9))).map(i=>{const c=CAMS[i.model],rec=c.noNvr?'Local':i.rec;
   const auto=[];if(i.model==='S2')auto.push('Records locally; not compatible with N85');if(c.poe)auto.push('PoE from N85');if(i.model==='D1')auto.push('Needs existing hardwired doorbell');
   const mn=c.name.replace(/^R5W \/ R5B/,camModelLabel(i));
   const noteParts=[listNotes(i.notes),...auto].filter(Boolean);
-  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; '),...(T?[i.photo?'Y':'N',i.tech||'']:[])]}})}
+  return {id:i.id,f:flOf(i),h:{1:`<span class="cellIc">${photoTag(i,'ph sm')}${esc(mn)}</span>`},c:[i.num,mn,[i.location,roomName(i)].filter(Boolean).join(' — '),floorName(flOf(i)),c.env,c.power,rec,noteParts.join('; '),...(T?[i.removed?'Y':'N',i.photo?'Y':'N',i.tech||'']:[])]}})}
 const CCOLS=['Camera #','Model','Location / Room','Floor','Indoor / Outdoor','Power','Records to','Notes'];
 function extRows(){return (P.exteriors||[]).map(ex=>{const s=suggestCam(ex);return {id:ex.id,c:[ex.side,ex.name,ex.watch,ex.distance,ex.power,ex.mount,ex.wifi,s.model||'',s.reason+(s.warn?' '+s.warn:'')]}})}
 const ECOLS=['Side','Name','Watch','Distance (ft)','Power','Mount','Wi-Fi','Suggested','Reason'];
@@ -1552,7 +1573,7 @@ function tbl(host,cols,rows,empty,grouped){
   else if(grouped)host.innerHTML=P.floors.map((f,i)=>{const rs=rows.filter(r=>r.f===f.id);return rs.length?`<div class="flSub">${esc(f.name)}<small>Floor ${i+1} of ${P.floors.length} · ${rs.length} row${rs.length>1?'s':''}</small></div>`+tb(rs):''}).join('');
   else host.innerHTML=tb(rows);
   host.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{const id=tr.dataset.id;if(P.exteriors.some(e=>e.id===id)){selExt=id;document.querySelector('#leftTabs [data-tab=exterior]').click()}else{const it=P.items.find(i=>i.id===id),is=(P.issues||[]).find(i=>i.id===id),o=it||is;if(o&&flOf(o)!==FID())switchFloorRaw(flOf(o));sel={t:it?'item':'issue',id}}render()})}
-const zCols=(t,inst)=>t?[...ZCOLS,...((inst!=null?inst:instCols())?INSTC:[]),'Has photo','Tech note']:ZCOLS,cCols=t=>t?[...CCOLS,'Has photo','Tech note']:CCOLS;
+const zCols=(t,inst)=>t?[...ZCOLS,...((inst!=null?inst:instCols())?INSTC:[]),'Has photo','Tech note']:ZCOLS,cCols=t=>t?[...CCOLS,'Removed (Y/N)','Has photo','Tech note']:CCOLS;
 function renderTables(){const T=TECH();tbl(zoneTbl,zCols(T),zoneRows(),'No zones yet.',true);tbl(camTbl,cCols(T),camRows(),'No cameras yet.',true);tbl(issueTbl,ICOLS,issueRows(),'No site issues noted.',true);tbl(extTbl,ECOLS,extRows(),'No exterior spots yet.')}
 function renderPrintExt(){
   printExt.innerHTML=(P.exteriors||[]).map(ex=>{const s=suggestCam(ex);const sug=CUST()?'':`<br>Suggested: <b>${esc(s.model)}</b> — ${esc(s.reason)}${s.warn?' '+esc(s.warn):''}`;return `<figure><img onclick="openLb(this.src)" src="${ex.dataUrl}" alt=""><figcaption><b>${esc(ex.side)}</b> — ${esc(ex.name)}<br>${esc(ex.watch)} · ${esc(ex.distance)} ft · ${esc(ex.power)}${sug}</figcaption></figure>`}).join('')||'<div class="empty">No exterior photos.</div>';
@@ -1566,7 +1587,7 @@ bCamCsv.onclick=()=>dl(slug()+'-camera-list.csv',csv(cCols(true),camRows({tech:t
 
 // ---- project ----
 pname.oninput=()=>{P.name=pname.value;store()};
-function load(p){if(p&&Array.isArray(p.items))p.items.forEach(migrateHoldup);if(INSTV.on&&!(p&&p.install&&p.install.asSold))instMode(false,true);SUG.list=[];MEAS.pts=[];MEAS.hover=null;SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
+function load(p){if(p&&Array.isArray(p.items))p.items.forEach(i=>{migrateHoldup(i);migrateInstall(i)});INSTV.pop=null;if(INSTV.on&&!(p&&p.install&&p.install.asSold))instMode(false,true);SUG.list=[];MEAS.pts=[];MEAS.hover=null;SUG.focus=null;SUG.bannerOff=false;const raw=p||{},hadStreets=Array.isArray(raw.streetSides);const b=blank();P=Object.assign(b,raw);P.job=Object.assign(blank().job,raw.job||{});if(!P.exteriors)P.exteriors=[];if(!P.walk)P.walk=[];if(!P.yards)P.yards=[];if(P.siteNotes==null)P.siteNotes='';
   // Old projects: keep their streetSide as a selected street (display), without inventing one for brand-new blanks
   if(!hadStreets&&SSIDES.includes(raw.streetSide)){P.streetSides=[raw.streetSide];P.mainStreetSide=SSIDES.includes(P.mainStreetSide)?P.mainStreetSide:raw.streetSide}
   if(!Array.isArray(P.streetSides))P.streetSides=[];P.streetSideSet=!!P.streetSideSet;
@@ -1708,11 +1729,11 @@ function renderWalk(){const h=walkStrip;if(!(P.walk||[]).length){h.innerHTML='<d
 
 // ---- customer view ----
 const CUST=()=>document.body.classList.contains('customer');
-bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;pname.readOnly=on;if(on&&typeof SC!=='undefined'&&SC.on)scaleEnd();if(on&&MEAS.on)measOn(false);focusHouse();render()};
+bCust.onclick=()=>{const on=!CUST();document.body.classList.toggle('customer',on);bCust.classList.toggle('on',on);bCust.setAttribute('aria-pressed',on);bCust.textContent=on?'Team view':'Customer view';sel=null;selExt=null;if(on)INSTV.pop=null;pname.readOnly=on;if(on&&typeof SC!=='undefined'&&SC.on)scaleEnd();if(on&&MEAS.on)measOn(false);focusHouse();render()};
 function legendShortAlarm(k){return ({access:'Access door',holdup:'Hold-up',pendant:'Pendant',contact:'Contact',motion:'Motion',glass:'Glass',smoke:'Smoke',co:'CO',heat:'Heat',water:'Water',siren:'Siren',panel:'Keypad'})[k]||((ALARM[k]||{}).label||k)}
 const SUG_LEGEND_ICON=`<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="#da0029" stroke-width="1.4" stroke-dasharray="2.5 2"/><circle cx="8" cy="8" r="2" fill="#da0029" opacity=".35"/></svg>`;
-function legendEntries(floorId){
-  const items=P.items.filter(i=>floorId==null||flOf(i)===floorId);
+function legendEntries(floorId,pub){
+  const items=P.items.filter(i=>(floorId==null||flOf(i)===floorId)&&!((pub||CUST()||PRINTING||NOTES_PUB)&&i.removed));
   const has=f=>items.some(f);
   const out=[];
   for(const [k,a] of Object.entries(ALARM))if(has(i=>i.kind==='alarm'&&i.type===k))out.push({html:ibadge(k,a.c),label:legendShortAlarm(k)});
@@ -1915,7 +1936,7 @@ function emailWrap(g,text,maxW){
 }
 function emailColWidths(cols,W){
   // Narrow ID/meta cols; give room to Device / Name / Model so common labels stay one line
-  const pref={'Zone #':.065,'Camera #':.06,'Device':.22,'Model':.25,'Name / Location':.22,'Location / Room':.12,'Floor':.085,'Room':.075,'Wired / Wireless':.1,'Indoor / Outdoor':.1,'Power':.11,'Records to':.085,'Notes':.07};
+  const pref={'Zone #':.065,'Camera #':.06,'Device':.22,'Model':.25,'Name / Location':.22,'Location / Room':.12,'Floor':.085,'Room':.075,'Wired / Wireless':.1,'Indoor / Outdoor':.1,'Power':.11,'Records to':.085,'Notes':.07,'Planned zone':.08,'Actual zone':.08,'Installed (Y/N)':.08,'Removed (Y/N)':.08,'Has photo':.07,'Tech note':.12,'Status':.1};
   let ws=cols.map(c=>pref[c]||(1/cols.length)); const s=ws.reduce((a,b)=>a+b,0); return ws.map(w=>w/s*W);
 }
 function emailHeadLabel(c){
@@ -1935,7 +1956,7 @@ function emailNewPage(W,H,scale){
   const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d');
   const y=emailDrawHeader(g,W,scale,''); return {c,g,y};
 }
-function emailAppendSchedule(canvases,title,cols,rows,scale,W,H,margin){
+function emailAppendSchedule(canvases,title,cols,rows,scale,W,H,margin,pageFn){
   const colW=emailColWidths(cols,W-2*margin), padX=3*scale, bottom=H-28*scale;
   // Body: ~1.4× font line + ~6px total pad → ~34 canvas units/row at scale=2 (~38 rows/page)
   const fontPx=9*scale, lineH=Math.round(fontPx*1.15), padTop=3*scale, padBot=3*scale;
@@ -1962,8 +1983,9 @@ function emailAppendSchedule(canvases,title,cols,rows,scale,W,H,margin){
     g.strokeStyle='#cfcaca'; g.beginPath(); g.moveTo(margin,y+headH); g.lineTo(W-margin,y+headH); g.stroke();
     return y+headH+afterHead;
   };
-  let page=emailNewPage(W,H,scale), y=drawHead(page.g,page.y,false);
-  const flush=()=>{canvases.push(page.c); page=emailNewPage(W,H,scale); y=drawHead(page.g,page.y,true)};
+  const newPage=pageFn||emailNewPage;
+  let page=newPage(W,H,scale), y=drawHead(page.g,page.y,false);
+  const flush=()=>{canvases.push(page.c); page=newPage(W,H,scale); y=drawHead(page.g,page.y,true)};
   if(!rows.length){
     page.g.fillStyle='#8a8484'; page.g.font=`${10*scale}px Poppins,Arial,sans-serif`;
     page.g.fillText('None',margin,y+12*scale); canvases.push(page.c); return;
@@ -2643,13 +2665,13 @@ function clonePlanSvg(i){
   for(const a of ['mask','fill'])c.querySelectorAll(`[${a}^="url(#"]`).forEach(n=>n.setAttribute(a,n.getAttribute(a).replace('url(#','url(#pf'+i+'-')));
   return c;
 }
-function snapFloorViews(f,i){
+function snapFloorViews(f,i,opt={}){
   // Print/PDF/PNG ignore on-screen View setting: always house close-up + full-coverage inset
   const prev=cView.value, prevZ={...ZV};
-  cView.value='full';ZV={k:1,cx:null,cy:null};drawPlan({print:true});
+  cView.value='full';ZV={k:1,cx:null,cy:null};drawPlan(Object.assign({print:true},opt));
   const inset=clonePlanSvg(i+'i'); inset.setAttribute('aria-label',f.name+' full coverage');
   const insetB={...VB0};
-  cView.value='house';ZV={k:1,cx:null,cy:null};drawPlan({print:true});
+  cView.value='house';ZV={k:1,cx:null,cy:null};drawPlan(Object.assign({print:true},opt));
   const main=clonePlanSvg(i+'m'); main.setAttribute('aria-label',f.name+' floor map');
   const mainB={...VB0};
   cView.value=prev;ZV=prevZ;
@@ -2681,8 +2703,8 @@ function prepareSnapSvg(c,B){
   c.removeAttribute('width');c.removeAttribute('height');
   return c;
 }
-function floorSnaps(){const st={cf:P.curFloor,sel,ZV:{...ZV},drag,view:cView.value};QUIET=true;drag=null;sel=null;const out=[];
-  try{P.floors.forEach((f,i)=>{switchFloorRaw(f.id);out.push(snapFloorViews(f,i))})}
+function floorSnaps(opt={}){const st={cf:P.curFloor,sel,ZV:{...ZV},drag,view:cView.value};QUIET=true;drag=null;sel=null;const out=[];
+  try{P.floors.forEach((f,i)=>{switchFloorRaw(f.id);out.push(snapFloorViews(f,i,opt))})}
   finally{cView.value=st.view;switchFloorRaw(st.cf);sel=st.sel;ZV=st.ZV;drag=st.drag;drawPlan();QUIET=false}return out}
 function buildPrintFloors(){if(drag)return;const snaps=floorSnaps(),n=snaps.length,j=P.job||{},who=[j.customer,j.address,j.date].filter(Boolean).join(' · ');
   printFloors.innerHTML='';for(const s of snaps){const sec=document.createElement('section');sec.className='fpPage'+(s.i?' fpBreak':'');sec.dataset.floor=s.f.id;
@@ -2723,7 +2745,7 @@ const WB=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><ci
 const WARNSVG=`<svg width="16" height="15" viewBox="0 0 16 15" aria-hidden="true"><path d="M8 1 15 14H1Z" fill="#facc15" stroke="#92400e" stroke-width="1.2" stroke-linejoin="round"/><text x="8" y="12.6" font-size="9" font-weight="700" text-anchor="middle" fill="#78350f" font-family="Poppins,Arial,sans-serif">!</text></svg>`;
 function mapKeyHtml(pr,floorId){
   const id=floorId!=null?floorId:(typeof FID==='function'?FID():null);
-  const L=legendEntries(id).filter(e=>!(pr&&e.label==='Suggestion'));
+  const L=legendEntries(id,pr).filter(e=>!(pr&&e.label==='Suggestion'));
   if(!L.length)return '';
   return `<ul class="legendList legendCompact">${L.map(e=>`<li>${e.html}<span>${esc(e.label)}</span></li>`).join('')}</ul>`;
 }
@@ -3125,11 +3147,26 @@ function renderPhotoBox(){const host=document.getElementById('photoBox');if(!hos
 function instSnapshot(){if(!P.install||typeof P.install!=='object'||Array.isArray(P.install))P.install={};if(P.install.asSold)return;
   P.install.asSold={at:new Date().toISOString().slice(0,10),items:P.items.filter(i=>INSTK(i)||i.kind==='opening').map(i=>({id:i.id,kind:i.kind,type:i.type,model:i.model||'',x:i.x,y:i.y,zone:i.zone??null,num:i.num??null,floor:i.floor}))}}
 function asSoldOf(i){const d=P.install&&P.install.asSold;return d&&Array.isArray(d.items)?d.items.find(o=>o.id===i.id)||null:null}
-function instMode(on,quiet){INSTV.on=!!on;if(INSTV.on)instSnapshot();if(!INSTV.on){INSTV.filter='all'}
+function instMode(on,quiet){INSTV.on=!!on;if(INSTV.on)instSnapshot();if(!INSTV.on){INSTV.filter='all';INSTV.pop=null}
   document.body.classList.toggle('install',INSTV.on);bInstall.classList.toggle('on',INSTV.on);bInstall.setAttribute('aria-pressed',String(INSTV.on));bInstall.textContent=INSTV.on?'Install mode: on':'Install mode';
   instGhost.checked=INSTV.ghost;if(!quiet)render()}
 bInstall.onclick=()=>instMode(!INSTV.on);bInstExit.onclick=()=>instMode(false);instGhost.onchange=()=>{INSTV.ghost=instGhost.checked;render()};
 function instBadge(g,x,y){const b=el('g',{'data-instmark':'done',style:'pointer-events:none'},g);el('circle',{cx:x,cy:y,r:.46,fill:'#16a34a',stroke:'#fff','stroke-width':.09},b);el('path',{d:`M${x-.22},${y+.01} L${x-.05},${y+.18} L${x+.24},${y-.16}`,fill:'none',stroke:'#fff','stroke-width':.12,'stroke-linecap':'round','stroke-linejoin':'round'},b)}
+function instRemovedMark(g,x,y,rr){const b=el('g',{'data-instmark':'removed',style:'pointer-events:none'},g);el('circle',{cx:x,cy:y,r:rr+.06,fill:'rgba(255,255,255,.55)',stroke:'#991b1b','stroke-width':.14},b);el('path',{d:`M${x-rr*.48},${y-rr*.48} L${x+rr*.48},${y+rr*.48} M${x+rr*.48},${y-rr*.48} L${x-rr*.48},${y+rr*.48}`,fill:'none',stroke:'#991b1b','stroke-width':.22,'stroke-linecap':'round'},b)}
+function itemScreen(it){const ctm=svg.getScreenCTM();if(!ctm||!it)return null;const p=svg.createSVGPoint();p.x=it.x;p.y=it.y;const s=p.matrixTransform(ctm);return {x:s.x,y:s.y}}
+function placeInstPop(it){const box=document.getElementById('instPop');if(!box||box.hidden)return;const s=itemScreen(it);if(!s)return;const m=8,gap=14,w=box.offsetWidth,h=box.offsetHeight;let left=s.x+gap,top=s.y-h/2;if(left+w>innerWidth-m)left=s.x-gap-w;if(left<m)left=m;if(left+w>innerWidth-m)left=Math.max(m,innerWidth-m-w);if(top+h>innerHeight-m)top=innerHeight-m-h;if(top<m)top=m;box.style.left=Math.round(left)+'px';box.style.top=Math.round(top)+'px'}
+function renderInstPop(){const box=document.getElementById('instPop');if(!box)return;if(!INST()||!INSTV.pop){box.hidden=true;return}const it=P.items.find(i=>i.id===INSTV.pop);if(!it||!INSTK(it)){INSTV.pop=null;box.hidden=true;return}
+  const z=isZoneDev(it)&&effZone(it)!=null?('Zone '+effZone(it)):'';
+  const name=it.kind==='alarm'?ALARM[it.type].label:itemLabel(it);
+  box.innerHTML=`<div class="ipName">${esc(name)}</div>${z?`<div class="ipZone">${esc(z)}</div>`:''}<div class="ipActs"><button type="button" class="btn sm${it.installed?' on':''}" data-ipinst aria-pressed="${it.installed?'true':'false'}">Installed</button><button type="button" class="btn sm${it.removed?' on':''}" data-iprem aria-pressed="${it.removed?'true':'false'}">Removed</button></div><a href="#" class="ipMore" data-ipmore>More…</a>`;
+  box.hidden=false;placeInstPop(it);
+  const bi=box.querySelector('[data-ipinst]'),br=box.querySelector('[data-iprem]'),bm=box.querySelector('[data-ipmore]');
+  if(bi)bi.onclick=e=>{e.preventDefault();e.stopPropagation();setInstFlag(it,'installed',!it.installed);render()};
+  if(br)br.onclick=e=>{e.preventDefault();e.stopPropagation();setInstFlag(it,'removed',!it.removed);render()};
+  if(bm)bm.onclick=e=>{e.preventDefault();e.stopPropagation();INSTV.pop=null;sel={t:'item',id:it.id};render();const p=document.getElementById('props');if(p)p.scrollIntoView({block:'nearest',behavior:'smooth'})}}
+document.addEventListener('pointerdown',e=>{if(!INSTV.pop)return;const box=document.getElementById('instPop');if(box&&(box===e.target||box.contains(e.target)))return;INSTV.pop=null;renderInstPop()},true);
+addEventListener('resize',()=>{if(INSTV.pop)placeInstPop(P.items.find(i=>i.id===INSTV.pop))});
+(function(){const st=document.getElementById('planwrap');if(st)st.addEventListener('scroll',()=>{if(INSTV.pop)placeInstPop(P.items.find(i=>i.id===INSTV.pop))},{passive:true})})();
 function drawAsSold(){const d=P.install&&P.install.asSold;if(!d||!Array.isArray(d.items))return;const g=el('g',{'data-assold':1,style:'pointer-events:none'},svg);
   for(const o of d.items){if(o.kind==='opening'||(o.floor||'f0')!==(FID()||'f0'))continue;const c=P.items.find(i=>i.id===o.id);if(c&&Math.hypot(c.x-o.x,c.y-o.y)<.3)continue;
     if(c)el('line',{x1:o.x,y1:o.y,x2:c.x,y2:c.y,stroke:'#5e5758','stroke-width':.1,'stroke-dasharray':'.35 .25'},g);
@@ -3142,36 +3179,195 @@ function instPanel(it,h){const z=isZoneDev(it),as=asSoldOf(it);
   const blk=`<div class="instBlock" data-instblock><div class="instHead">Install · as-built</div>`+
     (z?`<div class="row2"><div>${ro('Planned zone',String(it.zone??''))}</div><div><label class="f" for="instAz">Actual zone</label><input id="instAz" data-iaz type="number" min="1" step="1" inputmode="numeric" value="${esc(it.azone??'')}" placeholder="Same (${esc(it.zone??'')})" aria-label="Actual zone (blank means same as planned)"></div></div>`:'')+
     `<label class="instChk"><input type="checkbox" data-iinst ${it.installed?'checked':''}> Installed</label>`+
-    `<label class="instChk"><input type="checkbox" data-imoved ${it.moved?'checked':''}> Moved from plan?</label>`+
-    (!as?`<div class="legend">Added during install (not in the as-sold plan).</div>`:it.moved?`<div class="legend">The as-sold spot is kept. Turn on <b>Show as-sold plan</b> to see it.</div>`:'')+`</div>`+techFld(it)+photoFld(it);
+    `<label class="instChk"><input type="checkbox" data-irem ${it.removed?'checked':''}> Removed</label>`+
+    (!as?`<div class="legend">Added during install (not in the as-sold plan).</div>`:it.removed?`<div class="legend">Removed from the as-built plan. The as-sold spot is kept. Turn on <b>Show as-sold plan</b> to see it.</div>`:'')+`</div>`+techFld(it)+photoFld(it);
   const i0=x.indexOf('<div class="propHead">'),i1=i0>=0?x.indexOf('</b></div>',i0):-1;
   return i1>=0?x.slice(0,i1+10)+blk+x.slice(i1+10):blk+x}
 function bindInst(b,it){const az=b.querySelector('[data-iaz]');
   if(az)az.oninput=()=>{const v=az.value.trim(),n=parseInt(v,10);if(v===''||isNaN(n)||n<1)delete it.azone;else it.azone=n;render();const q=propBody.querySelector('[data-iaz]');if(q)q.focus()};
-  const c1=b.querySelector('[data-iinst]');if(c1)c1.onchange=()=>{if(c1.checked)it.installed=true;else delete it.installed;render()};
-  const c2=b.querySelector('[data-imoved]');if(c2)c2.onchange=()=>{if(c2.checked)it.moved=true;else delete it.moved;render()}}
+  const c1=b.querySelector('[data-iinst]');if(c1)c1.onchange=()=>{setInstFlag(it,'installed',c1.checked);render()};
+  const c2=b.querySelector('[data-irem]');if(c2)c2.onchange=()=>{setInstFlag(it,'removed',c2.checked);render()}}
 function renderInstall(){const card=document.getElementById('instCard');if(!card)return;card.hidden=!INST();
-  if(INST()){const L=P.items.filter(INSTK),n=L.filter(i=>i.installed).length,F=INSTV.filter==='todo'?L.filter(i=>!i.installed):L;
+  if(INST()){const Lall=P.items.filter(INSTK),L=Lall.filter(i=>!i.removed),rem=Lall.filter(i=>i.removed),n=L.filter(i=>i.installed).length;
+    const F=INSTV.filter==='todo'?L.filter(i=>!i.installed):INSTV.filter==='removed'?rem:Lall;
     instBody.innerHTML=`<div class="instCount" id="instCount"><b>${n}</b> of <b>${L.length}</b> installed</div><div class="instProg" aria-hidden="true"><span style="width:${L.length?Math.round(n/L.length*100):0}%"></span></div>
-      <div class="instFilt" role="group" aria-label="Show"><button type="button" class="btn ${INSTV.filter==='all'?'':'ghost '}sm" data-ifilt="all" aria-pressed="${INSTV.filter==='all'}">All (${L.length})</button><button type="button" class="btn ${INSTV.filter==='todo'?'':'ghost '}sm" data-ifilt="todo" aria-pressed="${INSTV.filter==='todo'}">Not installed yet (${L.length-n})</button></div>
-      <ul class="instList" id="instList">${F.map(i=>`<li class="${i.installed?'done':''}${sel&&sel.id===i.id?' sel':''}" data-irow="${esc(i.id)}"><label class="instChk"><input type="checkbox" data-icheck="${esc(i.id)}" ${i.installed?'checked':''} aria-label="Installed: ${esc(itemLabel(i))}"></label><button type="button" class="instGo" data-igo="${esc(i.id)}" title="Show on the plan">${instIcon(i)}<span>${esc(itemLabel(i))}${i.moved?'<em>moved</em>':''}${hasInst()&&!asSoldOf(i)?'<em>added</em>':''}</span><small>${esc([floorName(flOf(i)),roomName(i)].filter(Boolean).join(' · '))}</small></button></li>`).join('')||`<li class="empty" style="padding:10px 4px">${L.length?'Everything is installed.':'No devices on the plan.'}</li>`}</ul>
-      <div class="propAct"><button type="button" class="btn sm" id="bInstAll" ${n===L.length?'disabled':''}>Mark all installed</button></div>`;
+      <div class="instFilt" role="group" aria-label="Show"><button type="button" class="btn ${INSTV.filter==='all'?'':'ghost '}sm" data-ifilt="all" aria-pressed="${INSTV.filter==='all'}">All (${Lall.length})</button><button type="button" class="btn ${INSTV.filter==='todo'?'':'ghost '}sm" data-ifilt="todo" aria-pressed="${INSTV.filter==='todo'}">Not installed yet (${L.length-n})</button><button type="button" class="btn ${INSTV.filter==='removed'?'':'ghost '}sm" data-ifilt="removed" aria-pressed="${INSTV.filter==='removed'}">Removed (${rem.length})</button></div>
+      <ul class="instList" id="instList">${F.map(i=>`<li class="${i.removed?'removed':i.installed?'done':''}${sel&&sel.id===i.id?' sel':''}" data-irow="${esc(i.id)}"><label class="instChk"><input type="checkbox" data-icheck="${esc(i.id)}" ${i.installed?'checked':''} aria-label="Installed: ${esc(itemLabel(i))}"></label><button type="button" class="instGo" data-igo="${esc(i.id)}" title="Show on the plan">${instIcon(i)}<span>${esc(itemLabel(i))}${i.removed?'<em>removed</em>':''}${!i.removed&&hasInst()&&!asSoldOf(i)?'<em>added</em>':''}</span><small>${esc([floorName(flOf(i)),roomName(i)].filter(Boolean).join(' · '))}</small></button></li>`).join('')||`<li class="empty" style="padding:10px 4px">${INSTV.filter==='removed'?'No removed devices.':L.length?'Everything is installed.':'No devices on the plan.'}</li>`}</ul>
+      <div class="propAct"><button type="button" class="btn sm" id="bInstAll" ${n===L.length?'disabled':''}>Mark all installed</button></div>`+instSubmitBtnHtml('bInstSubmit');
     instBody.querySelectorAll('[data-ifilt]').forEach(x=>x.onclick=()=>{INSTV.filter=x.dataset.ifilt;render()});
-    instBody.querySelectorAll('[data-icheck]').forEach(x=>x.onchange=()=>{const it=P.items.find(i=>i.id===x.dataset.icheck);if(!it)return;if(x.checked)it.installed=true;else delete it.installed;render()});
-    instBody.querySelectorAll('[data-igo]').forEach(x=>x.onclick=()=>{const it=P.items.find(i=>i.id===x.dataset.igo);if(it)goAttn({id:it.id,step:attnStepFor(it)})});
-    const all=document.getElementById('bInstAll');if(all)all.onclick=()=>{const left=L.filter(i=>!i.installed);if(!left.length)return;if(!confirm(`Mark all ${left.length} remaining device${left.length>1?'s':''} as installed?`))return;left.forEach(i=>i.installed=true);render()}}
+    instBody.querySelectorAll('[data-icheck]').forEach(x=>x.onchange=()=>{const it=P.items.find(i=>i.id===x.dataset.icheck);if(!it)return;setInstFlag(it,'installed',x.checked);render()});
+    instBody.querySelectorAll('[data-igo]').forEach(x=>x.onclick=()=>{const it=P.items.find(i=>i.id===x.dataset.igo);if(it){if(INSTK(it))INSTV.pop=it.id;goAttn({id:it.id,step:attnStepFor(it)})}});
+    const all=document.getElementById('bInstAll');if(all)all.onclick=()=>{const left=L.filter(i=>!i.installed);if(!left.length)return;if(!confirm(`Mark all ${left.length} remaining device${left.length>1?'s':''} as installed?`))return;left.forEach(i=>setInstFlag(i,'installed',true));render()};bindInstSubmit(instBody)}
   else if(instBody.innerHTML)instBody.innerHTML='';
   renderSignoff()}
 function renderSignoff(){const h=document.getElementById('signoffBox');if(!h)return;const show=!CUST()&&(INSTV.on||hasInst());h.hidden=!show;if(!show){if(h.innerHTML)h.innerHTML='';return}
   if(h.contains(document.activeElement)&&h.innerHTML)return;const s=(P.install&&P.install.signoff)||{};
   h.innerHTML=`<div class="sub">Tech sign-off <small style="text-transform:none;letter-spacing:0;color:#9a9690">team only</small></div>
-    <div class="row2"><div><label class="f" for="soName">Tech name</label><input id="soName" data-so="name" type="text" maxlength="80" value="${esc(s.name)}" placeholder="Installing tech"></div><div><label class="f" for="soDate">Install date</label><input id="soDate" data-so="date" type="date" value="${esc(s.date)}"></div></div>
+    <div class="signoffFields"><div><label class="f" for="soName">Tech name</label><input id="soName" data-so="name" type="text" maxlength="80" value="${esc(s.name)}" placeholder="Installing tech"></div><div><label class="f" for="soDate">Install date</label><input id="soDate" data-so="date" type="date" value="${esc(s.date)}"></div></div>
     <label class="instChk"><input type="checkbox" id="soDone" data-so="complete" ${s.complete?'checked':''}> Install complete</label>
     <label class="f" for="soNotes">Sign-off notes</label><textarea id="soNotes" data-so="notes" maxlength="1000" placeholder="e.g. walked the customer through the keypad">${esc(s.notes)}</textarea>
-    <div class="techNote">For the team. Not shown to the customer or in the PNG, print or email PDF. Customer view only shows “Installed” with the date once Install complete is checked.</div>`;
+    <div class="techNote">For the team. Not shown to the customer or in the PNG, print or email PDF. Customer view only shows “Installed” with the date once Install complete is checked.</div>`+(INST()?instSubmitBtnHtml('bInstSubmitRev'):'');
   h.querySelectorAll('[data-so]').forEach(inp=>{const up=()=>{if(!P.install||typeof P.install!=='object')P.install={};const so=P.install.signoff=P.install.signoff||{},k=inp.dataset.so;
       if(inp.type==='checkbox'){so[k]=inp.checked;if(inp.checked&&!so.date){so.date=new Date().toISOString().slice(0,10);const d=h.querySelector('#soDate');if(d)d.value=so.date}}else so[k]=inp.value;
-      store();renderJob()};inp.oninput=up;if(inp.type==='checkbox'||inp.type==='date')inp.onchange=up})}
+      store();renderJob()};inp.oninput=up;if(inp.type==='checkbox'||inp.type==='date')inp.onchange=up});bindInstSubmit(h)}
+
+const INST_SUBMIT_TO='brittanym@vyanet.com';
+function isDemoPlan(){return P.pid==='demo'||(P.job&&P.job.account==='DEMO-00214')}
+function instUnmarked(){return (P.items||[]).filter(i=>INSTK(i)&&!i.installed&&!i.removed)}
+function instSignoffOk(){const so=P.install&&P.install.signoff;return !!(so&&so.complete&&String(so.name||'').trim()&&so.date)}
+function instSubmitWhy(){const u=instUnmarked();return u.length?['Mark '+u.length+' remaining device'+(u.length>1?'s':'')+' Installed or Removed']:[]}
+function instSubmitDate(){const so=P.install&&P.install.signoff;return (so&&so.date)||new Date().toISOString().slice(0,10)}
+function instSubmitNames(){const d=instSubmitDate(),base=slug();return {pdf:'Install-'+base+'-'+d+'.pdf',map:'CustomerMap-'+base+'-'+d+'.html',date:d}}
+function instSubmittedLabel(){const t=P.install&&P.install.submitted;if(!t)return '';const d=new Date(t);if(isNaN(+d))return 'Submitted';return 'Submitted '+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function instSubmitBtnHtml(id){const why=instSubmitWhy(),tip=why.length?why.join('. ')+'.':'Build the install PDF and customer map, then open an email to submit.';const badge=instSubmittedLabel();return `<div class="instSubmitRow"><span class="instSubmitWrap" title="${esc(tip)}"><button type="button" class="btn sm" data-instsubmit${id?` id="${id}"`:''} ${why.length?'disabled':''}>Submit install</button></span>${badge?`<span class="instSubmitted">${esc(badge)}</span>`:''}</div>`}
+function bindInstSubmit(root){if(!root)return;root.querySelectorAll('[data-instsubmit]').forEach(b=>b.onclick=()=>submitInstall())}
+function installDrawDemoBar(g,W,scale,y){if(!isDemoPlan())return y;const h=20*scale;g.fillStyle='#fff7d6';g.fillRect(0,y,W,h);g.strokeStyle='#f59e0b';g.beginPath();g.moveTo(0,y+h);g.lineTo(W,y+h);g.stroke();g.fillStyle='#7c4a03';g.font=`600 ${9*scale}px Poppins,Arial,sans-serif`;g.textAlign='center';g.fillText('DEMO — sample data, not a live install.',W/2,y+h*0.72);g.textAlign='left';return y+h+6*scale}
+function installNewPage(W,H,scale){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');let y=emailDrawHeader(g,W,scale,'');y=installDrawDemoBar(g,W,scale,y);return {c,g,y}}
+async function installAppendSummary(canvases,texts,scale,W,H,margin){
+  const bottom=H-28*scale,fontPx=10*scale,lineH=Math.round(fontPx*1.35);
+  let page=installNewPage(W,H,scale),g=page.g,y=page.y;
+  const flush=()=>{canvases.push(page.c);page=installNewPage(W,H,scale);g=page.g;y=page.y};
+  const heading=(t)=>{if(y+28*scale>bottom)flush();g.fillStyle='#2e2f2a';g.font=`600 ${13*scale}px Poppins,Arial,sans-serif`;g.fillText(t,margin,y+14*scale);y+=22*scale;texts.push(t)};
+  const line=(t,opts)=>{opts=opts||{};const wrapped=emailWrap(g,t,W-2*margin);for(const ln of wrapped){if(y+lineH>bottom)flush();g.fillStyle=opts.color||'#2e2f2a';g.font=`${opts.bold?'600 ':' '}${fontPx}px Poppins,Arial,sans-serif`;g.fillText(ln,margin,y+fontPx);y+=lineH;texts.push(ln)}};
+  const Lall=(P.items||[]).filter(INSTK),nInst=Lall.filter(i=>i.installed&&!i.removed).length,nRem=Lall.filter(i=>i.removed).length;
+  heading('Install status');
+  line(nInst+' installed · '+nRem+' removed · '+Lall.length+' devices and cameras');
+  const cols=['Device','Zone','Floor','Room','Status'],colW=emailColWidths(cols,W-2*margin),rows=Lall.map(i=>({c:[itemLabel(i),isZoneDev(i)&&effZone(i)!=null?String(effZone(i)):'',floorName(flOf(i)),roomName(i),i.removed?'Removed':i.installed?'Installed':'—']}));
+  emailAppendSchedule(canvases,'Install status list',cols,rows,scale,W,H,margin,installNewPage);
+  rows.forEach(r=>texts.push(r.c.join(' | ')));
+  page=installNewPage(W,H,scale);g=page.g;y=page.y;
+  heading('Tech sign-off');
+  const so=(P.install&&P.install.signoff)||{};
+  line('Tech: '+(so.name||'—'));
+  line('Date: '+(so.date||'—'));
+  line('Install complete: '+(so.complete?'Yes':'No'));
+  if(so.notes)line('Notes: '+so.notes);
+  const photos=(P.items||[]).filter(i=>i.photo);
+  heading('Photos ('+photos.length+')');
+  if(!photos.length)line('No photos.');
+  else{
+    const tw=120*scale,th=90*scale,gap=10*scale,labelH=16*scale;let x=margin;
+    for(const it of photos){
+      if(x+tw>W-margin){x=margin;y+=th+labelH+gap}
+      if(y+th+labelH+gap>bottom){flush();x=margin}
+      try{const img=await loadImg(it.photo);g.fillStyle='#f4f2ee';g.fillRect(x,y,tw,th);g.drawImage(img,x,y,tw,th);g.strokeStyle='#e1dfdf';g.strokeRect(x+.5,y+.5,tw-1,th-1);g.fillStyle='#5e5758';g.font=`${8*scale}px Poppins,Arial,sans-serif`;const lab=itemLabel(it);g.fillText(lab.length>22?lab.slice(0,21)+'…':lab,x,y+th+12*scale);texts.push('Photo '+lab);x+=tw+gap}
+      catch(e){x+=tw+gap}
+    }
+    y+=th+labelH+gap;
+  }
+  canvases.push(page.c);
+}
+async function buildInstallPages(){
+  const scale=2,W=612*scale,H=792*scale,margin=24*scale,canvases=[],texts=[],snaps=floorSnaps({installDoc:true});
+  const legendPaintSpecs=(floorId)=>legendEntries(floorId).filter(e=>e.label!=='Suggestion').map(e=>{let color='#5e5758';const m=String(e.html).match(/--ibc:([^;"'\s]+)/)||String(e.html).match(/fill="(#[0-9a-fA-F]+)"/);if(m)color=m[1];return {label:e.label,color}});
+  const drawLegendStrip=(g,floorId,x,y,maxW)=>{const specs=legendPaintSpecs(floorId);if(!specs.length)return 0;const colN=Math.min(5,Math.max(3,Math.ceil(specs.length/2))),colW=maxW/colN,rowH=13*scale,icon=9*scale;g.font=`600 ${7.5*scale}px Poppins,Arial,sans-serif`;specs.forEach((s,i)=>{const cx=x+(i%colN)*colW,cy=y+Math.floor(i/colN)*rowH;g.fillStyle=s.color;g.beginPath();g.arc(cx+icon/2,cy+icon/2,icon/2,0,Math.PI*2);g.fill();g.fillStyle='#2e2f2a';g.fillText(s.label,cx+icon+3*scale,cy+icon*0.82)});return Math.ceil(specs.length/colN)*rowH+4*scale};
+  const svgToImg=async(cl,B,w,h)=>{cl.setAttribute('xmlns',NS);cl.setAttribute('viewBox',`${B.x} ${B.y} ${B.w} ${B.h}`);cl.setAttribute('width',Math.round(w));cl.setAttribute('height',Math.round(h));cl.setAttribute('style','font-family:Poppins,Arial,Helvetica,sans-serif');return loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(cl)))};
+  for(let i=0;i<snaps.length;i++){
+    const s=snaps[i],page=installNewPage(W,H,scale);let y=page.y;const g=page.g;
+    g.fillStyle='#2e2f2a';g.font=`600 ${14*scale}px Poppins,Arial,sans-serif`;g.fillText(`${s.f.name}  ·  Floor ${i+1} of ${snaps.length}`,margin,y);texts.push(s.f.name);y+=14*scale;
+    const legH=Math.max(36*scale,16*scale+Math.ceil(Math.max(1,legendPaintSpecs(s.f.id).length)/4)*13*scale),mapW=W-2*margin,mapH=H-y-legH-22*scale,B=s.mainB,aspect=B.w/Math.max(B.h,.01);
+    let dw=mapW,dh=dw/aspect;if(dh>mapH){dh=mapH;dw=dh*aspect}
+    const mx=margin+(mapW-dw)/2,my=y,img=await svgToImg(s.main.cloneNode(true),s.mainB,dw,dh);
+    g.drawImage(img,mx,my,dw,dh);g.strokeStyle='#e1dfdf';g.strokeRect(mx+.5,my+.5,dw-1,dh-1);
+    const corner=pickInsetCorner(s.mainB,s.f.id),iw=dw*0.28,ih=iw*(s.insetB.h/Math.max(s.insetB.w,.01));
+    let ix,iy;if(corner==='tl'){ix=mx+6*scale;iy=my+6*scale}else if(corner==='tr'){ix=mx+dw-iw-6*scale;iy=my+6*scale}else if(corner==='bl'){ix=mx+6*scale;iy=my+dh-ih-6*scale}else if(corner==='br'){ix=mx+dw-iw-6*scale;iy=my+dh-ih-6*scale}else{ix=mx;iy=my+dh+4*scale}
+    g.fillStyle='#fff';g.fillRect(ix,iy,iw,ih+12*scale);g.strokeStyle='#2e2f2a';g.lineWidth=1*scale;g.strokeRect(ix+.5,iy+.5,iw-1,ih+12*scale-1);
+    g.fillStyle='#5e5758';g.font=`600 ${7*scale}px Poppins,Arial,sans-serif`;g.fillText('Full coverage',ix+4*scale,iy+9*scale);
+    const iimg=await svgToImg(s.inset.cloneNode(true),s.insetB,iw-4*scale,ih-2*scale);g.drawImage(iimg,ix+2*scale,iy+11*scale,iw-4*scale,ih-2*scale);
+    const sx=(iw-4*scale)/s.insetB.w,sy=(ih-2*scale)/s.insetB.h,vx=ix+2*scale+(s.mainB.x-s.insetB.x)*sx,vy=iy+11*scale+(s.mainB.y-s.insetB.y)*sy;
+    g.strokeStyle='#da0029';g.setLineDash([4*scale,3*scale]);g.lineWidth=1.2*scale;g.strokeRect(vx,vy,s.mainB.w*sx,s.mainB.h*sy);g.setLineDash([]);g.lineWidth=1;
+    const ly=(corner==='below')?iy+ih+16*scale:my+dh+8*scale;drawLegendStrip(g,s.f.id,margin,Math.min(ly,H-legH-10*scale),W-2*margin);
+    g.fillStyle='#8a8484';g.font=`${9*scale}px Poppins,Arial,sans-serif`;g.fillText(`${s.f.name} · Floor ${i+1} of ${snaps.length}`,margin,H-14*scale);
+    canvases.push(page.c);
+  }
+  const zc=zCols(true,true),zr=zoneRows({tech:true,inst:true});emailAppendSchedule(canvases,'Zone list',zc,zr,scale,W,H,margin,installNewPage);zr.forEach(r=>texts.push((r.c||[]).join(' | ')));
+  const cc=cCols(true),cr=camRows({tech:true});emailAppendSchedule(canvases,'Camera list',cc,cr,scale,W,H,margin,installNewPage);cr.forEach(r=>texts.push((r.c||[]).join(' | ')));
+  await installAppendSummary(canvases,texts,scale,W,H,margin);
+  emailStampPages(canvases,scale);
+  const so=(P.install&&P.install.signoff)||{};
+  if(isDemoPlan())texts.push('DEMO — sample data, not a live install.');
+  if(so.name)texts.push(so.name);if(so.date)texts.push(so.date);if(so.notes)texts.push(so.notes);
+  (P.items||[]).forEach(i=>{if(!i.removed&&isZoneDev(i)&&effZone(i)!=null)texts.push('Z'+effZone(i));if(i.tech)texts.push(i.tech)});
+  const pages=[];for(const c of canvases)pages.push(await canvasToJpegU8(c));
+  pages._meta={floors:snaps.length,text:texts.join('\n'),hasDemo:isDemoPlan()};
+  return pages;
+}
+async function buildInstallFile(names){
+  names=names||instSubmitNames();
+  const pageImgs=await buildInstallPages();
+  const blob=buildPdfFromJpegs(pageImgs);
+  const exp={name:names.pdf,map:names.map,pages:pageImgs.length,floors:(pageImgs._meta||{}).floors,text:(pageImgs._meta||{}).text||'',hasDemo:!!(pageImgs._meta||{}).hasDemo};
+  window.__installExport=exp;
+  return {blob,export:exp,names,pageImgs};
+}
+function customerFloorSvgs(){
+  const st={cf:P.curFloor,sel,ZV:{...ZV},drag,view:cView.value};QUIET=true;drag=null;sel=null;const out=[];
+  try{(P.floors||[]).forEach((f,i)=>{switchFloorRaw(f.id);cView.value='house';ZV={k:1,cx:null,cy:null};drawPlan({print:true,customerDoc:true});
+    const el=clonePlanSvg('c'+i);el.setAttribute('aria-label',f.name);el.querySelectorAll('image,[data-instmark],[data-assold],[data-photobadge],[data-warn],[data-warnmark],[data-sug],[data-measure]').forEach(n=>n.remove());
+    el.querySelectorAll('[style*="cursor:move"]').forEach(n=>{n.style.cursor='pointer'});
+    out.push({id:f.id,name:f.name,svg:el.outerHTML})})}
+  finally{cView.value=st.view;switchFloorRaw(st.cf);sel=st.sel;ZV=st.ZV;drag=st.drag;drawPlan();QUIET=false}
+  return out;
+}
+function customerMapPayload(){
+  const so=P.install&&P.install.signoff,job=P.job||{};
+  const items=(P.items||[]).filter(i=>!i.removed).map(i=>{
+    const o={id:i.id,kind:i.kind,type:i.type||'',x:i.x,y:i.y,floor:flOf(i)};
+    if(i.kind==='alarm'){o.label=(ALARM[i.type]||{}).label||i.type;if(effZone(i)!=null)o.zone=effZone(i);if(i.name)o.name=i.name;if(i.wiring)o.wiring=i.wiring}
+    else if(i.kind==='cam'){o.label='Vyanet '+(CAMS[i.model]?camModelLabel(i):(i.model||'camera'));o.model=i.model;o.num=i.num;if(i.location)o.location=i.location}
+    else if(i.kind==='nvr')o.label='Vyanet N85';
+    else if(i.kind==='outlet')o.label='Outlet';
+    else if(i.kind==='opening'){o.label=i.type==='door'?'Door':'Window';if(i.name)o.name=i.name}
+    const room=roomName(i);if(room)o.room=room;
+    return o;
+  });
+  const zones=items.filter(i=>i.kind==='alarm'&&(i.zone!=null||i.type==='access')).sort((a,b)=>(+a.zone||1e9)-(+b.zone||1e9)).map(i=>({id:i.id,zone:i.zone!=null?String(i.zone):'',device:i.label,name:i.name||'',floor:floorName(i.floor),room:i.room||'',wiring:i.wiring||''}));
+  return {name:P.name||'Home Map',customer:job.customer||'',address:job.address||'',installed:(so&&so.complete&&so.date)?so.date:'',floors:customerFloorSvgs(),items,zones};
+}
+function buildCustomerMapHtml(){
+  const data=customerMapPayload();
+  const json=JSON.stringify(data).replace(/</g,'\\u003c');
+  const css='*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#2e2f2a;font:15px/1.45 Poppins,Arial,Helvetica,sans-serif}header.app{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 18px;border-bottom:3px solid #da0029;background:#fff}header.app .brand{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;margin:0;color:#323131}header.app .brand small{font-family:Poppins,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#da0029;margin-left:6px}.job{width:100%;display:flex;flex-wrap:wrap;gap:4px 18px;color:#5e5758;font-size:13px}.job b{color:#da0029;font-size:10px;letter-spacing:.8px;text-transform:uppercase;margin-right:6px}main{max-width:1100px;margin:0 auto;padding:12px 16px 40px}.floors{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}.floors button{font:500 12px/1.1 Poppins,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;background:#fff;color:#323131;border:2px solid #d6d3d3;border-radius:22px;padding:8px 14px;min-height:40px;cursor:pointer}.floors button.on{background:#da0029;border-color:#da0029;color:#fff}.stage{border:1px solid #e5e2dc;border-radius:12px;background:#eef3e4;overflow:auto;padding:8px}.stage svg{display:block;width:100%;height:auto;max-height:70vh}.card{margin:10px 0 0;border:2px solid #da0029;border-radius:12px;padding:10px 12px;background:#fff5f6}.card h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:20px;margin:0 0 4px}.card p{margin:2px 0;color:#5e5758}.card .k{color:#da0029;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-right:6px}.zones{margin-top:18px}.zones h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:600;margin:0 0 8px;color:#323131}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px 8px;border-bottom:1px solid #eee8e6;vertical-align:top}th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#da0029;font-weight:600}tr.sel{background:#fff5f6}.empty{color:#8a8780;font-style:italic}@media(max-width:520px){header.app{padding:10px 12px}main{padding:10px 10px 32px}th,td{padding:7px 5px;font-size:12px}}';
+  const boot='(function(){var data=DATA,stage=document.getElementById("stage"),card=document.getElementById("card"),nav=document.getElementById("floors"),zones=document.getElementById("zones"),cur=(data.floors[0]||{}).id;function esc(s){return String(s==null?"":s).replace(/[&<>"\']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","\'":"&#39;"}[c]})}function show(id){cur=id;var f=data.floors.filter(function(x){return x.id===id})[0]||data.floors[0];if(!f){stage.innerHTML="";return}stage.innerHTML=f.svg;var btns=nav.querySelectorAll("button");for(var i=0;i<btns.length;i++)btns[i].className=btns[i].getAttribute("data-f")===id?"on":"";card.hidden=true;var svg=stage.querySelector("svg");if(svg){svg.removeAttribute("width");svg.removeAttribute("height");svg.style.width="100%";svg.style.height="auto"}var marks=stage.querySelectorAll("[data-item]");for(var j=0;j<marks.length;j++)marks[j].style.cursor="pointer"}function openItem(id){var it=null;for(var i=0;i<data.items.length;i++)if(data.items[i].id===id)it=data.items[i];if(!it){card.hidden=true;return}var type=it.label||it.type||it.kind,name=it.name||it.location||type,loc=[it.location,it.room].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i}).join(" · ");card.hidden=false;card.innerHTML="<h3>"+esc(name)+"</h3><p><span class=\'k\'>Type</span> "+esc(type)+"</p>"+(it.zone!=null&&it.zone!==""?"<p><span class=\'k\'>Zone</span> "+esc(it.zone)+"</p>":"")+(loc?"<p><span class=\'k\'>Location</span> "+esc(loc)+"</p>":"");var marks=stage.querySelectorAll("[data-item]");for(var k=0;k<marks.length;k++)marks[k].classList.toggle("on",marks[k].getAttribute("data-item")===id);var rows=zones.querySelectorAll("tr[data-id]");for(var r=0;r<rows.length;r++)rows[r].className=rows[r].getAttribute("data-id")===id?"sel":""}nav.innerHTML=(data.floors||[]).map(function(f){return "<button type=\'button\' data-f=\'"+esc(f.id)+"\'>"+esc(f.name)+"</button>"}).join("");nav.addEventListener("click",function(e){var b=e.target.closest("[data-f]");if(b)show(b.getAttribute("data-f"))});stage.addEventListener("click",function(e){var g=e.target.closest("[data-item]");if(!g){card.hidden=true;return}openItem(g.getAttribute("data-item"))});var zrows=data.zones||[];zones.innerHTML="<h2>Zone list</h2>"+(zrows.length?"<table><thead><tr><th>Zone #</th><th>Device</th><th>Name / Location</th><th>Floor</th><th>Room</th></tr></thead><tbody>"+zrows.map(function(z){return "<tr data-id=\'"+esc(z.id)+"\'><td>"+esc(z.zone)+"</td><td>"+esc(z.device)+"</td><td>"+esc(z.name)+"</td><td>"+esc(z.floor)+"</td><td>"+esc(z.room)+"</td></tr>"}).join("")+"</tbody></table>":"<div class=\'empty\'>No zones yet.</div>");zones.addEventListener("click",function(e){var tr=e.target.closest("tr[data-id]");if(!tr)return;var id=tr.getAttribute("data-id"),it=null;for(var i=0;i<data.items.length;i++)if(data.items[i].id===id)it=data.items[i];if(it&&it.floor&&it.floor!==cur)show(it.floor);openItem(id)});show(cur)})();';
+  const jobBits=[];
+  if(data.customer)jobBits.push('<span><b>Customer</b>'+esc(data.customer)+'</span>');
+  if(data.address)jobBits.push('<span><b>Address</b>'+esc(data.address)+'</span>');
+  if(data.installed)jobBits.push('<span><b>Installed</b>'+esc(data.installed)+'</span>');
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(data.name)+' — Vyanet Home Map</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Poppins:wght@400;500;600&display=swap"><style>'+css+'</style></head><body><header class="app"><h1 class="brand">Vyanet Home Map</h1><div class="job">'+jobBits.join('')+'</div></header><main><nav id="floors" class="floors" aria-label="Floors"></nav><div id="stage" class="stage"></div><aside id="card" class="card" hidden></aside><section class="zones" id="zones"></section></main><scr'+'ipt>const DATA='+json+';'+boot+'</scr'+'ipt></body></html>';
+}
+async function submitInstall(){
+  const unmarked=instUnmarked();
+  if(unmarked.length){alert('Mark '+unmarked.length+' remaining device'+(unmarked.length>1?'s':'')+' Installed or Removed before submitting.');return}
+  if(!instSignoffOk()){
+    const so=(P.install&&P.install.signoff)||{},miss=[];
+    if(!String(so.name||'').trim())miss.push('tech name');
+    if(!so.date)miss.push('install date');
+    if(!so.complete)miss.push('Install complete');
+    if(confirm('Finish tech sign-off ('+miss.join(', ')+') before submitting. Go to Review & send now?')){goStep(6);const box=document.getElementById('signoffBox');if(box)box.scrollIntoView({block:'nearest'})}
+    return;
+  }
+  try{
+    showToast('Building install PDF and customer map…');
+    const names=instSubmitNames();
+    const built=await buildInstallFile(names);
+    const mapHtml=buildCustomerMapHtml();
+    dlBlob(names.pdf,built.blob);
+    dlBlob(names.map,new Blob([mapHtml],{type:'text/html;charset=utf-8'}));
+    if(!P.install||typeof P.install!=='object')P.install={};
+    P.install.submitted=new Date().toISOString();
+    const so=P.install.signoff||{},nInst=(P.items||[]).filter(i=>INSTK(i)&&i.installed&&!i.removed).length,nRem=(P.items||[]).filter(i=>INSTK(i)&&i.removed).length;
+    const body='Install submitted for '+(P.name||'project')+'.\n\nInstalled: '+nInst+'\nRemoved: '+nRem+'\nTech: '+(so.name||'')+'\nDate: '+(so.date||names.date)+'\n\nPDF attached (saved to your device: '+names.pdf+')\nCustomer map (saved to your device: '+names.map+')';
+    const href='mailto:'+INST_SUBMIT_TO+'?subject='+encodeURIComponent('Install submitted – '+(P.name||'project'))+'&body='+encodeURIComponent(body);
+    const a=document.createElement('a');a.href=href;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+    window.__installExport=Object.assign({},built.export,{nInst,nRem,mailto:href,to:INST_SUBMIT_TO,submitted:P.install.submitted,mapHtml,map:names.map,name:names.pdf});
+    if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+    store();render();
+    showToast('Install PDF and customer map downloaded. A mail draft was opened — attach the files that just downloaded.');
+  }catch(e){console.error(e);alert('Submit install failed: '+(e&&e.message||e))}
+}
+window.__buildCustomerMapHtml=buildCustomerMapHtml;
+window.__buildInstallFile=buildInstallFile;
+window.__submitInstall=submitInstall;
 
 // ---- 4) Device count by type (clean data for a future quote tool; no prices) ----
 const ALARM_PL={panel:'Panels / keypads',contact:'Door/window contacts',motion:'Motion sensors',glass:'Glass break sensors',smoke:'Smoke detectors',co:'CO detectors',heat:'Heat detectors',water:'Water/flood sensors',siren:'Sirens',access:'Access-control doors',holdup:'Hold-up / duress buttons',pendant:'Wireless panic pendants'};
